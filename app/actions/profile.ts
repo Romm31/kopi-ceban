@@ -16,9 +16,9 @@ const passwordSchema = z.object({
 
 export async function updateAdminPassword(adminId: number, formData: FormData) {
   const rawData = {
-    currentPassword: formData.get("currentPassword"),
-    newPassword: formData.get("newPassword"),
-    confirmPassword: formData.get("confirmPassword"),
+    currentPassword: formData.get("currentPassword")?.toString() || undefined,
+    newPassword: formData.get("newPassword")?.toString() || undefined,
+    confirmPassword: formData.get("confirmPassword")?.toString() || undefined,
   }
 
   const validatedData = passwordSchema.safeParse(rawData)

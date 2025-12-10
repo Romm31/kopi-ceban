@@ -16,9 +16,9 @@ const menuSchema = z.object({
 export async function createMenu(formData: FormData) {
   const rawData = {
     name: formData.get("name"),
-    description: formData.get("description"),
+    description: formData.get("description")?.toString() || undefined,
     price: formData.get("price"),
-    imageUrl: formData.get("imageUrl"),
+    imageUrl: formData.get("imageUrl")?.toString() || undefined,
     isAvailable: formData.get("isAvailable") === "on",
   }
 
@@ -34,9 +34,9 @@ export async function createMenu(formData: FormData) {
 export async function updateMenu(id: number, formData: FormData) {
   const rawData = {
     name: formData.get("name"),
-    description: formData.get("description"),
+    description: formData.get("description")?.toString() || undefined,
     price: formData.get("price"),
-    imageUrl: formData.get("imageUrl"),
+    imageUrl: formData.get("imageUrl")?.toString() || undefined,
     isAvailable: formData.get("isAvailable") === "on",
   }
 

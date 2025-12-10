@@ -20,8 +20,8 @@ import { Switch } from "@/components/ui/switch"
 import { createMenu, updateMenu } from "@/app/actions/menu"
 import { Loader2, Upload, X } from "lucide-react"
 import { toast } from "sonner"
-// import { CldUploadWidget } from "next-cloudinary" // Assuming we want validation first.
 import Image from "next/image"
+import { ImageUploader } from "@/components/ui/image-uploader"
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -95,48 +95,12 @@ export function MenuForm({ initialData, onSuccess }: MenuFormProps) {
             <FormItem>
               <FormLabel>Image</FormLabel>
               <FormControl>
-                {/* 
-                  Since we don't have the Cloudinary setup confirmed in the prompt details other than "UploadThing/Cloudinary",
-                  I'll use a simple URL input for now or a placeholder for the widget.
-                  If Cloudinary is required, I'd wrap this. For now, let's use a URL input for simplicity in this turn,
-                  or assume a generic upload handler. 
-                  Given the user prompt asked for UploadThing/Cloudinary, I should probably try to use CldUploadWidget if available.
-                  However, I don't want to break the build if the package is missing or env vars are missing.
-                  I'll implement a URL input that can also accept a standard string, and visual preview.
-                */}
-                <div className="flex flex-col gap-4">
-                    {previewImage && (
-                        <div className="relative w-full h-40 rounded-md overflow-hidden border border-white/10">
-                            <Image src={previewImage} alt="Preview" fill className="object-cover" />
-                            <Button 
-                                type="button" 
-                                variant="destructive" 
-                                size="icon" 
-                                className="absolute top-2 right-2 h-6 w-6"
-                                onClick={() => {
-                                    setPreviewImage(null)
-                                    field.onChange("")
-                                }}
-                            >
-                                <X className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    )}
-                    <div className="flex gap-2">
-                        <Input 
-                            placeholder="Image URL" 
-                            {...field} 
-                            value={field.value || ""}
-                            onChange={(e) => {
-                                field.onChange(e)
-                                setPreviewImage(e.target.value)
-                            }}
-                            className="bg-white/5 border-white/10"
-                        />
-                        {/* Placeholder for Upload Button */}
-                        {/* <Button type="button" variant="secondary">Upload</Button> */}
-                    </div>
-                </div>
+                <ImageUploader 
+                    value={field.value ? [field.value] : []} 
+                    disabled={isSubmitting}
+                    onChange={(url) => field.onChange(url)}
+                    onRemove={() => field.onChange("")}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

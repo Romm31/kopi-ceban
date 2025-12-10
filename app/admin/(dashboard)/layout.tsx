@@ -9,14 +9,17 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="h-full relative bg-coffee-black">
-      <div className="hidden h-full md:flex md:w-72 md:flex-col md:fixed md:inset-y-0 z-[80] border-r border-coffee-gold/10">
+    <div className="min-h-screen bg-coffee-black relative">
+      {/* Sidebar - Fixed */}
+      <div className="hidden md:flex h-full w-72 flex-col fixed inset-y-0 z-50 border-r border-coffee-gold/10 bg-coffee-black">
           <AdminSidebar />
       </div>
-      <main className="md:pl-72 h-full"> 
+      
+      {/* Main Content */}
+      <main className="md:pl-72 flex flex-col min-h-screen"> 
         <AdminNavbar />
-        {/* Removed overflow-y-auto restricted height to allow full page detail and scroll */}
-        <div className="p-0 h-full">
+        {/* Content Region - flex-1 ensures it grows */}
+        <div className="flex-1 flex flex-col w-full">
             {children}
         </div>
       </main>

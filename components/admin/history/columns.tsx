@@ -1,12 +1,20 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, Eye } from "lucide-react"
+import { ArrowUpDown, Eye, MoreHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
 import { OrderStatus } from "@prisma/client"
 import Link from "next/link"
+import { StatusBadge } from "@/components/ui/status-badge"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuTrigger,
+  } from "@/components/ui/dropdown-menu"
+import { toast } from "sonner"
 
 export type HistoryOrder = {
   id: number
@@ -14,14 +22,6 @@ export type HistoryOrder = {
   totalPrice: number
   status: OrderStatus
   createdAt: Date
-}
-
-const statusColors: Record<OrderStatus, string> = {
-  PENDING: "bg-yellow-500/20 text-yellow-500 border-yellow-500/50",
-  PROCESSING: "bg-blue-500/20 text-blue-500 border-blue-500/50",
-  READY: "bg-green-500/20 text-green-500 border-green-500/50",
-  COMPLETED: "bg-green-500/20 text-green-500 border-green-500/50", // Use green for completed/ready
-  CANCELLED: "bg-red-500/20 text-red-500 border-red-500/50",
 }
 
 export const columns: ColumnDef<HistoryOrder>[] = [
@@ -37,14 +37,14 @@ export const columns: ColumnDef<HistoryOrder>[] = [
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="hover:text-coffee-gold hover:bg-transparent px-0"
+            className="hover:text-coffee-gold hover:bg-transparent px-0 font-semibold"
           >
             Customer
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         )
     },
-    cell: ({ row }) => <span className="font-medium text-foreground">{row.getValue("customerName")}</span>
+    cell: ({ row }) => <span className="font-bold text-coffee-cream">{row.getValue("customerName")}</span>
   },
   {
     accessorKey: "totalPrice",
@@ -53,7 +53,7 @@ export const columns: ColumnDef<HistoryOrder>[] = [
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="hover:text-coffee-gold hover:bg-transparent px-0"
+            className="hover:text-coffee-gold hover:bg-transparent px-0 font-semibold"
           >
             Total
             <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -68,19 +68,14 @@ export const columns: ColumnDef<HistoryOrder>[] = [
         minimumFractionDigits: 0
       }).format(amount)
 
-      return <div className="font-medium">{formatted}</div>
+      return <div className="font-medium text-coffee-gold">{formatted}</div>
     },
   },
   {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.getValue("status") as OrderStatus
-      return (
-        <Badge variant={status === "CANCELLED" ? "destructive" : "default"} className={`${statusColors[status]}`}>
-          {status}
-        </Badge>
-      )
+      return <StatusBadge status={row.getValue("status")} />
     },
   },
   {
@@ -90,27 +85,49 @@ export const columns: ColumnDef<HistoryOrder>[] = [
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="hover:text-coffee-gold hover:bg-transparent px-0"
+            className="hover:text-coffee-gold hover:bg-transparent px-0 font-semibold"
           >
-            Date
+            Finished At
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         )
     },
     cell: ({ row }) => {
-        return <span className="text-xs text-muted-foreground">{format(row.getValue("createdAt"), "dd MMM yyyy HH:mm")}</span>
+        return <span className="text-xs text-muted-foreground">{format(row.getValue("createdAt"), "dd MMM yyyy, HH:mm")}</span>
     }
   },
   {
       id: "actions",
       cell: ({ row }) => {
-          return (
-              <Button asChild variant="ghost" size="icon" className="hover:text-coffee-gold hover:bg-white/5">
-                  <Link href={`/admin/orders/${row.original.id}`}>
-                    <Eye className="h-4 w-4" />
-                  </Link>
+        const order = row.original
+          
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0 text-muted-foreground hover:text-coffee-gold">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
               </Button>
-          )
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-coffee-black border-white/10">
+              <DropdownMenuLabel className="text-coffee-cream">Actions</DropdownMenuLabel>
+              <DropdownMenuItem asChild>
+                  <Link href={`/admin/orders/${order.id}`} className="cursor-pointer focus:bg-white/10 focus:text-coffee-gold w-full flex items-center">
+                      <Eye className="mr-2 h-4 w-4" /> View Details
+                  </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                    navigator.clipboard.writeText(order.id.toString())
+                    toast.success("Order ID copied")
+                }}
+                className="cursor-pointer focus:bg-white/10 focus:text-coffee-gold"
+              >
+                Copy Order ID
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
       }
   }
 ]

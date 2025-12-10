@@ -55,8 +55,8 @@ export default function AdminSidebar() {
               className={cn(
                 "text-sm group flex p-3 w-full justify-start font-medium cursor-pointer rounded-lg transition-all duration-200 ease-in-out hover:scale-[1.02]",
                 pathname === route.href 
-                    ? "text-coffee-black bg-gradient-to-r from-coffee-gold to-[#B8860B] shadow-lg shadow-coffee-gold/20" 
-                    : "text-muted-foreground hover:text-coffee-gold hover:bg-white/5"
+                    ? "text-coffee-black bg-gradient-to-r from-coffee-gold to-[#B8860B] shadow-lg shadow-coffee-gold/20 font-bold" 
+                    : "text-muted-foreground hover:text-coffee-gold hover:bg-white/10"
               )}
             >
               <div className="flex items-center flex-1">

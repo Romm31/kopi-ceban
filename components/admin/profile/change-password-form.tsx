@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { updateAdminPassword } from "@/app/actions/profile"
-import { Loader2 } from "lucide-react"
+import { Loader2, Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner"
 import { Separator } from "@/components/ui/separator"
 
@@ -35,6 +35,9 @@ interface ChangePasswordFormProps {
 
 export function ChangePasswordForm({ adminId }: ChangePasswordFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [showCurrent, setShowCurrent] = useState(false)
+    const [showNew, setShowNew] = useState(false)
+    const [showConfirm, setShowConfirm] = useState(false)
 
     const form = useForm<z.infer<typeof passwordSchema>>({
         resolver: zodResolver(passwordSchema),
@@ -62,8 +65,6 @@ export function ChangePasswordForm({ adminId }: ChangePasswordFormProps) {
                    // Handle field errors
                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                    Object.keys(result.error).forEach(key => {
-                        // We can set form errors here if we want rigorous UX
-                        // For now simplified toast is ok for general error
                         toast.error("Please check your input")
                    })
                    // Manually setting error for current password if it matched our server return structure
@@ -93,7 +94,30 @@ export function ChangePasswordForm({ adminId }: ChangePasswordFormProps) {
                         <FormItem>
                             <FormLabel>Current Password</FormLabel>
                             <FormControl>
-                                <Input type="password" placeholder="••••••" {...field} className="bg-white/5 border-white/10" />
+                                <div className="relative">
+                                    <Input 
+                                        type={showCurrent ? "text" : "password"} 
+                                        placeholder="••••••" 
+                                        {...field} 
+                                        className="bg-white/5 border-white/10 pr-10" 
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-muted-foreground hover:text-white"
+                                        onClick={() => setShowCurrent(!showCurrent)}
+                                    >
+                                        {showCurrent ? (
+                                            <EyeOff className="h-4 w-4" aria-hidden="true" />
+                                        ) : (
+                                            <Eye className="h-4 w-4" aria-hidden="true" />
+                                        )}
+                                        <span className="sr-only">
+                                            {showCurrent ? "Hide password" : "Show password"}
+                                        </span>
+                                    </Button>
+                                </div>
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -109,7 +133,30 @@ export function ChangePasswordForm({ adminId }: ChangePasswordFormProps) {
                         <FormItem>
                             <FormLabel>New Password</FormLabel>
                             <FormControl>
-                                <Input type="password" placeholder="••••••" {...field} className="bg-white/5 border-white/10" />
+                                <div className="relative">
+                                    <Input 
+                                        type={showNew ? "text" : "password"} 
+                                        placeholder="••••••" 
+                                        {...field} 
+                                        className="bg-white/5 border-white/10 pr-10" 
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-muted-foreground hover:text-white"
+                                        onClick={() => setShowNew(!showNew)}
+                                    >
+                                        {showNew ? (
+                                            <EyeOff className="h-4 w-4" aria-hidden="true" />
+                                        ) : (
+                                            <Eye className="h-4 w-4" aria-hidden="true" />
+                                        )}
+                                        <span className="sr-only">
+                                            {showNew ? "Hide password" : "Show password"}
+                                        </span>
+                                    </Button>
+                                </div>
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -123,7 +170,30 @@ export function ChangePasswordForm({ adminId }: ChangePasswordFormProps) {
                         <FormItem>
                             <FormLabel>Confirm New Password</FormLabel>
                             <FormControl>
-                                <Input type="password" placeholder="••••••" {...field} className="bg-white/5 border-white/10" />
+                                <div className="relative">
+                                    <Input 
+                                        type={showConfirm ? "text" : "password"} 
+                                        placeholder="••••••" 
+                                        {...field} 
+                                        className="bg-white/5 border-white/10 pr-10" 
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-muted-foreground hover:text-white"
+                                        onClick={() => setShowConfirm(!showConfirm)}
+                                    >
+                                        {showConfirm ? (
+                                            <EyeOff className="h-4 w-4" aria-hidden="true" />
+                                        ) : (
+                                            <Eye className="h-4 w-4" aria-hidden="true" />
+                                        )}
+                                        <span className="sr-only">
+                                            {showConfirm ? "Hide password" : "Show password"}
+                                        </span>
+                                    </Button>
+                                </div>
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -131,7 +201,7 @@ export function ChangePasswordForm({ adminId }: ChangePasswordFormProps) {
                 />
 
                 <div className="pt-4 flex justify-end">
-                    <Button type="submit" disabled={isSubmitting} className="bg-coffee-gold hover:bg-coffee-gold/80 text-coffee-black font-bold">
+                    <Button type="submit" disabled={isSubmitting} className="bg-coffee-gold hover:bg-coffee-gold/80 text-coffee-black font-bold w-full sm:w-auto">
                         {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Change Password
                     </Button>

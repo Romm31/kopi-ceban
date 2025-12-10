@@ -1,16 +1,46 @@
 import { prisma } from "@/lib/prisma"
 import { HistoryClientWrapper } from "@/components/admin/history/client-wrapper"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DollarSign, ShoppingBag, XCircle, TrendingUp } from "lucide-react"
-import { startOfMonth, subMonths } from "date-fns"
+import { startOfMonth, subMonths, endOfDay, startOfDay, parseISO } from "date-fns"
+import { PageHeader } from "@/components/admin/page-header"
+import { Suspense } from "react"
+import { HistoryLoader } from "@/components/admin/history/history-loader"
+import { OrderStatus } from "@prisma/client"
 
 export const dynamic = 'force-dynamic'
 
-export default async function HistoryPage() {
+export default async function HistoryPage(props: {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const searchParams = await props.searchParams
+  const status = typeof searchParams.status === 'string' ? searchParams.status as OrderStatus : undefined
+  const from = typeof searchParams.from === 'string' ? searchParams.from : undefined
+  const to = typeof searchParams.to === 'string' ? searchParams.to : undefined
+  
   const now = new Date()
   const currentMonthStart = startOfMonth(now)
+
+  // Build Where Clause
+  const where: any = {
+      status: { in: ["COMPLETED", "CANCELLED"] }
+  }
+
+  if (status && status !== 'ALL' as any) {
+      where.status = status
+  }
+
+  if (from && to) {
+      where.createdAt = {
+          gte: startOfDay(parseISO(from)),
+          lte: endOfDay(parseISO(to))
+      }
+  }
   
-  // Fetch Analytics Data
+  // Fetch Analytics Data (Independent of filters mostly, usually shows "This Month" or "Total")
+  // Let's make the cards show "This Month" stats always for consistency, or we could make them reactive to filters?
+  // Usually Dashboard Stats are "Current Snapshot". Let's keep them as "This Month" for now to match the UI labels.
+  
   const [
       totalRevenue,
       totalOrders,
@@ -39,10 +69,13 @@ export default async function HistoryPage() {
               createdAt: { gte: currentMonthStart }
           }
       }),
-      // Best Selling Menu
+      // Best Selling Menu (All Time? Or Month? Let's do Month)
       prisma.orderItem.groupBy({
           by: ["menuId"],
           _sum: { quantity: true },
+          where: {
+             order: { createdAt: { gte: currentMonthStart }, status: "COMPLETED" } 
+          },
           orderBy: { _sum: { quantity: "desc" } },
           take: 1
       })
@@ -60,32 +93,32 @@ export default async function HistoryPage() {
       }
   }
 
-  // Fetch All History Data
-  // In a real app, strict pagination is better. For now we take last 100 for performance/demo.
+  // Fetch History Data
   const historyData = await prisma.order.findMany({
-      where: {
-          status: { in: ["COMPLETED", "CANCELLED"] }
-      },
+      where,
       orderBy: { createdAt: "desc" },
-      take: 100
+      take: 100 // Limit for performance, assuming filters narrow it down
   })
+
+  // Chart Data (Simple Daily Revenue for this month)
+  // We can acttually fetch grouped by day for the current month
+  // This is a "nice to have".
+  // Let's fetch all completed orders this month to build a simple array for a chart if we had one.
+  // For now we just implement the cards + table polish as requested.
 
   // Formatter
   const formatIDR = (num: number) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(num)
 
   return (
     <div className="h-full flex-1 flex-col space-y-8 p-8 md:flex">
-       <div className="flex items-center justify-between space-y-2">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-coffee-cream">History & Analytics</h2>
-          <p className="text-muted-foreground">
-            Performance overview and transaction history.
-          </p>
-        </div>
-      </div>
+       <PageHeader 
+            title="History & Analytics" 
+            description="Performance overview and transaction history." 
+       />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-white/5 border-white/10 backdrop-blur-md">
+      {/* Analytics Cards */}
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-gradient-to-br from-coffee-black to-coffee-brown/40 border-white/10 overflow-hidden relative group">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Monthly Revenue</CardTitle>
                 <DollarSign className="h-4 w-4 text-green-500" />
@@ -93,9 +126,13 @@ export default async function HistoryPage() {
             <CardContent>
                 <div className="text-2xl font-bold text-coffee-cream">{formatIDR(totalRevenue._sum.totalPrice || 0)}</div>
                 <p className="text-xs text-muted-foreground">This month</p>
+                {/* Optional Mini Bar Chart visual could go here */}
+                <div className="mt-4 h-1 w-full bg-white/10 rounded-full overflow-hidden">
+                    <div className="h-full bg-green-500/50 w-[70%]"></div>
+                </div>
             </CardContent>
         </Card>
-        <Card className="bg-white/5 border-white/10 backdrop-blur-md">
+        <Card className="bg-white/5 border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Orders Completed</CardTitle>
                 <ShoppingBag className="h-4 w-4 text-coffee-gold" />
@@ -103,9 +140,12 @@ export default async function HistoryPage() {
             <CardContent>
                 <div className="text-2xl font-bold text-coffee-cream">{totalOrders}</div>
                 <p className="text-xs text-muted-foreground">This month</p>
+                 <div className="mt-4 h-1 w-full bg-white/10 rounded-full overflow-hidden">
+                    <div className="h-full bg-coffee-gold/50 w-[85%]"></div>
+                </div>
             </CardContent>
         </Card>
-        <Card className="bg-white/5 border-white/10 backdrop-blur-md">
+        <Card className="bg-white/5 border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Canceled</CardTitle>
                 <XCircle className="h-4 w-4 text-red-500" />
@@ -113,9 +153,12 @@ export default async function HistoryPage() {
             <CardContent>
                 <div className="text-2xl font-bold text-coffee-cream">{canceledOrders}</div>
                 <p className="text-xs text-muted-foreground">This month</p>
+                 <div className="mt-4 h-1 w-full bg-white/10 rounded-full overflow-hidden">
+                    <div className="h-full bg-red-500/50 w-[10%]"></div>
+                </div>
             </CardContent>
         </Card>
-        <Card className="bg-white/5 border-white/10 backdrop-blur-md">
+        <Card className="bg-white/5 border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Best Seller</CardTitle>
                 <TrendingUp className="h-4 w-4 text-blue-500" />
@@ -123,6 +166,9 @@ export default async function HistoryPage() {
             <CardContent>
                 <div className="text-2xl font-bold text-coffee-cream truncate" title={bestSellingMenuName}>{bestSellingMenuName}</div>
                 <p className="text-xs text-muted-foreground">{bestSellingMenuQty} sold this month</p>
+                 <div className="mt-4 h-1 w-full bg-white/10 rounded-full overflow-hidden">
+                    <div className="h-full bg-blue-500/50 w-[60%]"></div>
+                </div>
             </CardContent>
         </Card>
       </div>
@@ -131,10 +177,11 @@ export default async function HistoryPage() {
           <Card className="bg-white/5 border-white/10">
               <CardHeader>
                   <CardTitle className="text-coffee-cream">Transaction History</CardTitle>
-                  <CardDescription>Records of completed and cancelled orders.</CardDescription>
               </CardHeader>
               <CardContent>
-                  <HistoryClientWrapper data={historyData} />
+                  <Suspense fallback={<HistoryLoader />}>
+                     <HistoryClientWrapper data={historyData} />
+                  </Suspense>
               </CardContent>
           </Card>
       </div>

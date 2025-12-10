@@ -135,7 +135,7 @@ export default async function DashboardPage() {
       </div>
       
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <StatsCard 
             title="Total Revenue" 
             value={data.revenueToday} 
@@ -166,9 +166,9 @@ export default async function DashboardPage() {
         />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
         {/* Sales Chart */}
-        <Card className="col-span-4 bg-white/5 border-white/10 backdrop-blur-md">
+        <Card className="col-span-1 lg:col-span-4 bg-white/5 border-white/10 backdrop-blur-md">
           <CardHeader>
             <CardTitle className="text-coffee-cream">Revenue Overview</CardTitle>
             <CardDescription>Performance over the last 7 days</CardDescription>
@@ -179,7 +179,7 @@ export default async function DashboardPage() {
         </Card>
 
         {/* Top Menus Carousel (Moved here or kept separate? Let's keep structure similar but use Carousel) */}
-        <Card className="col-span-3 bg-white/5 border-white/10 backdrop-blur-md flex flex-col">
+        <Card className="col-span-1 lg:col-span-3 bg-white/5 border-white/10 backdrop-blur-md flex flex-col">
             <CardHeader>
                 <CardTitle className="text-coffee-cream flex items-center justify-between">
                     Top Selling Menus
@@ -198,7 +198,7 @@ export default async function DashboardPage() {
          <Card className="bg-white/5 border-white/10 backdrop-blur-md">
             <CardHeader>
                 <CardTitle className="text-coffee-cream">Recent Orders</CardTitle>
-                 <CardDescription>Latest transactions from customers.</CardDescription>
+                 <CardDescription className="text-muted-foreground">Latest transactions from customers.</CardDescription>
             </CardHeader>
             <CardContent>
                 <RecentOrders orders={data.recentOrders} />

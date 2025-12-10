@@ -38,10 +38,15 @@ export const columns: ColumnDef<Menu>[] = [
         const imageUrl = row.getValue("imageUrl") as string
         const name = row.getValue("name") as string
         return (
-            <Avatar className="h-10 w-10 rounded-md">
-                <AvatarImage src={imageUrl || ""} alt={name} className="object-cover" />
-                <AvatarFallback className="rounded-md bg-white/10 text-xs">{name.substring(0, 2).toUpperCase()}</AvatarFallback>
-            </Avatar>
+            <div className="h-10 w-10 rounded-md overflow-hidden bg-white/5 border border-white/10">
+                {imageUrl ? (
+                    <img src={imageUrl} alt={name} className="object-cover h-full w-full" />
+                ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-coffee-secondary text-xs font-bold text-coffee-gold">
+                        {name.substring(0, 2).toUpperCase()}
+                    </div>
+                )}
+            </div>
         )
     }
   },
@@ -52,7 +57,7 @@ export const columns: ColumnDef<Menu>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="hover:text-coffee-gold hover:bg-transparent px-0"
+          className="hover:text-coffee-gold hover:bg-transparent px-0 font-semibold"
         >
           Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -63,7 +68,7 @@ export const columns: ColumnDef<Menu>[] = [
         const description = row.original.description
         return (
             <div className="flex flex-col">
-                <span className="font-medium">{row.getValue("name")}</span>
+                <span className="font-medium text-coffee-cream">{row.getValue("name")}</span>
                 {description && <span className="text-xs text-muted-foreground truncate max-w-[200px]">{description}</span>}
             </div>
         )
@@ -76,7 +81,7 @@ export const columns: ColumnDef<Menu>[] = [
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="hover:text-coffee-gold hover:bg-transparent px-0"
+            className="hover:text-coffee-gold hover:bg-transparent px-0 font-semibold"
           >
             Price
             <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -100,7 +105,7 @@ export const columns: ColumnDef<Menu>[] = [
     cell: ({ row }) => {
       const isAvailable = row.getValue("isAvailable")
       return (
-        <Badge variant={isAvailable ? "default" : "destructive"} className={isAvailable ? "bg-green-500/20 text-green-500 hover:bg-green-500/30 border-green-500/50" : "bg-red-500/20 text-red-500 hover:bg-red-500/30 border-red-500/50"}>
+        <Badge variant={isAvailable ? "default" : "destructive"} className={isAvailable ? "bg-green-500/10 text-green-500 hover:bg-green-500/20 border-green-500/20" : "bg-red-500/10 text-red-500 hover:bg-red-500/20 border-red-500/20"}>
           {isAvailable ? "Available" : "Unavailable"}
         </Badge>
       )
@@ -120,8 +125,7 @@ export const columns: ColumnDef<Menu>[] = [
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const [isPending, startTransition] = useTransition()
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      // const router = useRouter() // Re-fetching will be handled by Server Action revalidatePath. But we might want to trigger local update if needed. 
-      // Actually actions props usage needs to be carefully handled in table cell.
+      const router = useRouter() // Use router hook correctly
 
       const handleDelete = () => {
           if(!confirm("Are you sure you want to delete this menu?")) return;
@@ -137,6 +141,12 @@ export const columns: ColumnDef<Menu>[] = [
           })
       }
 
+      const handleEdit = () => {
+          const current = new URLSearchParams(window.location.search);
+          current.set("edit", menu.id.toString());
+          router.push(`/admin/menu?${current.toString()}`);
+      }
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -146,23 +156,19 @@ export const columns: ColumnDef<Menu>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-coffee-black border-white/10">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuLabel className="text-coffee-cream">Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(menu.id.toString())}
+              onClick={() => {
+                  navigator.clipboard.writeText(menu.id.toString())
+                  toast.success("ID Copied")
+              }}
               className="focus:bg-white/10 focus:text-coffee-gold"
             >
               Copy Menu ID
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-white/10" />
             <DropdownMenuItem 
-                // We'll handle edit via the Sheet or Dialog in the main page, or navigation. 
-                // For now, let's assume we navigate or open a modal.
-                // We'll configure the main page to handle this via URL params or state.
-                // Using a custom event or callback context is cleaner but for simplicity lets use a query param approach or pass a handler? 
-                // Table doesn't easily accept props.
-                // Simplest: Edit button triggers a specialized Action or link.
-                // Or: We expose an Edit button that sets a global store or query param.
-                onClick={() => window.location.href = `/admin/menu?edit=${menu.id}`}
+                onClick={handleEdit}
                 className="focus:bg-white/10 focus:text-coffee-gold cursor-pointer"
             >
              <Pencil className="mr-2 h-4 w-4" /> Edit

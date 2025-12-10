@@ -6,6 +6,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { signOut, useSession } from "next-auth/react"
 import { motion } from "framer-motion"
 
+import { MobileSidebar } from "@/components/layout/mobile-sidebar"
+
 export default function AdminNavbar() {
   const { data: session } = useSession()
 
@@ -13,9 +15,10 @@ export default function AdminNavbar() {
     <motion.div 
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="sticky top-0 z-50 border-b border-white/10 h-16 flex items-center px-6 bg-coffee-black/80 backdrop-blur-md"
+        className="sticky top-0 z-50 border-b border-white/10 h-16 flex items-center px-4 md:px-6 bg-coffee-black/80 backdrop-blur-md"
     >
-        <div className="flex items-center gap-2 md:hidden text-coffee-gold font-bold">
+        <MobileSidebar />
+        <div className="flex items-center gap-2 md:hidden text-coffee-gold font-bold ml-2">
             <Coffee className="h-5 w-5" />
             <span>Kopi Ceban</span>
         </div>

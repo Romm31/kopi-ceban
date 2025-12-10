@@ -64,7 +64,14 @@ export function MenuClientWrapper({ data, editMenu }: MenuClientWrapperProps) {
                             {editMenu ? "Update the menu details below." : "Fill in the details to create a new menu item."}
                         </DialogDescription>
                     </DialogHeader>
-                    <MenuForm initialData={editMenu} onSuccess={handleSuccess} />
+                    <MenuForm 
+                        initialData={editMenu ? {
+                            ...editMenu,
+                            description: editMenu.description || undefined,
+                            imageUrl: editMenu.imageUrl || undefined,
+                        } : null} 
+                        onSuccess={handleSuccess} 
+                    />
                 </DialogContent>
             </Dialog>
         </>

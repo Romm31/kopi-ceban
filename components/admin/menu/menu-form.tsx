@@ -31,8 +31,10 @@ const formSchema = z.object({
   isAvailable: z.boolean().default(true),
 })
 
+type MenuFormValues = z.infer<typeof formSchema>
+
 interface MenuFormProps {
-  initialData?: z.infer<typeof formSchema> & { id: number } | null
+  initialData?: (MenuFormValues & { id: number }) | null
   onSuccess: () => void
 }
 
@@ -40,9 +42,15 @@ export function MenuForm({ initialData, onSuccess }: MenuFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [previewImage, setPreviewImage] = useState<string | null>(initialData?.imageUrl || null)
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
+  const form = useForm<MenuFormValues>({
+    resolver: zodResolver(formSchema) as any,
+    defaultValues: initialData ? {
+      name: initialData.name,
+      description: initialData.description || "",
+      price: initialData.price,
+      imageUrl: initialData.imageUrl || "",
+      isAvailable: initialData.isAvailable,
+    } : {
       name: "",
       description: "",
       price: 0,
@@ -51,7 +59,7 @@ export function MenuForm({ initialData, onSuccess }: MenuFormProps) {
     },
   })
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: MenuFormValues) {
     setIsSubmitting(true)
     const formData = new FormData()
     formData.append("name", values.name)

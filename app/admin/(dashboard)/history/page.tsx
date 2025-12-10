@@ -1,196 +1,142 @@
 import { prisma } from "@/lib/prisma"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { OrderStatus } from "@prisma/client"
-import { format, startOfMonth, endOfMonth } from "date-fns"
-import { Download } from "lucide-react"
+import { HistoryClientWrapper } from "@/components/admin/history/client-wrapper"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { DollarSign, ShoppingBag, XCircle, TrendingUp } from "lucide-react"
+import { startOfMonth, subMonths } from "date-fns"
 
 export const dynamic = 'force-dynamic'
 
-interface HistoryPageProps {
-  searchParams: Promise<{
-    status?: string
-    startDate?: string
-    endDate?: string
-    search?: string
-  }>
-}
-
-export default async function HistoryPage({ searchParams }: HistoryPageProps) {
-  const { status, startDate, endDate, search } = await searchParams
-
-  const where: any = {
-    status: {
-      in: ["COMPLETED", "CANCELLED"]
-    }
-  }
-
-  if (status && status !== "ALL") {
-    where.status = status as OrderStatus
-  }
-
-  if (startDate && endDate) {
-     where.createdAt = {
-        gte: new Date(startDate),
-        lte: new Date(endDate),
-     }
-  }
-
-  if (search) {
-     where.customerName = {
-        contains: search,
-        mode: 'insensitive'
-     }
-  }
-
-  const orders = await prisma.order.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-  })
-
-  // Summary Stats (Month to date by default or filtered?)
-  // Requirement: "Total pendapatan bulan ini" (Explicitly "bulan ini", not filtered range)
-  const startOfCurrentMonth = startOfMonth(new Date())
-  const endOfCurrentMonth = endOfMonth(new Date())
-
-  const monthlyStats = await prisma.order.aggregate({
-     _sum: { totalPrice: true },
-     _count: { _all: true },
-     where: {
-        status: "COMPLETED",
-        createdAt: {
-           gte: startOfCurrentMonth,
-           lte: endOfCurrentMonth
-        }
-     }
-  })
-
-  const cancelledMonth = await prisma.order.count({
-     where: {
-        status: "CANCELLED",
-        createdAt: {
-           gte: startOfCurrentMonth,
-           lte: endOfCurrentMonth
-        }
-     }
-  })
-
-  // Build Export URL
-  const exportUrl = new URLSearchParams()
-  if (status) exportUrl.set("status", status)
-  if (startDate) exportUrl.set("startDate", startDate)
-  if (endDate) exportUrl.set("endDate", endDate)
-  if (search) exportUrl.set("search", search)
+export default async function HistoryPage() {
+  const now = new Date()
+  const currentMonthStart = startOfMonth(now)
   
+  // Fetch Analytics Data
+  const [
+      totalRevenue,
+      totalOrders,
+      canceledOrders,
+      menuStats
+  ] = await Promise.all([
+      // Total Revenue This Month
+      prisma.order.aggregate({
+          _sum: { totalPrice: true },
+          where: {
+              status: "COMPLETED",
+              createdAt: { gte: currentMonthStart }
+          }
+      }),
+      // Total Completed Orders This Month
+      prisma.order.count({
+          where: {
+              status: "COMPLETED",
+              createdAt: { gte: currentMonthStart }
+          }
+      }),
+      // Canceled Orders This Month
+      prisma.order.count({
+          where: {
+              status: "CANCELLED",
+              createdAt: { gte: currentMonthStart }
+          }
+      }),
+      // Best Selling Menu
+      prisma.orderItem.groupBy({
+          by: ["menuId"],
+          _sum: { quantity: true },
+          orderBy: { _sum: { quantity: "desc" } },
+          take: 1
+      })
+  ])
+
+  let bestSellingMenuName = "N/A"
+  let bestSellingMenuQty = 0
+
+  if (menuStats.length > 0) {
+      const bestMenuId = menuStats[0].menuId
+      const menu = await prisma.menu.findUnique({ where: { id: bestMenuId } })
+      if (menu) {
+          bestSellingMenuName = menu.name
+          bestSellingMenuQty = menuStats[0]._sum.quantity || 0
+      }
+  }
+
+  // Fetch All History Data
+  // In a real app, strict pagination is better. For now we take last 100 for performance/demo.
+  const historyData = await prisma.order.findMany({
+      where: {
+          status: { in: ["COMPLETED", "CANCELLED"] }
+      },
+      orderBy: { createdAt: "desc" },
+      take: 100
+  })
+
+  // Formatter
+  const formatIDR = (num: number) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(num)
+
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Transaction History</h1>
-
-      {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-         <div className="bg-white p-4 rounded-lg shadow border">
-            <h3 className="text-sm font-medium text-muted-foreground">Monthly Revenue</h3>
-            <div className="text-2xl font-bold mt-2">Rp {monthlyStats._sum.totalPrice?.toLocaleString() || 0}</div>
-         </div>
-         <div className="bg-white p-4 rounded-lg shadow border">
-            <h3 className="text-sm font-medium text-muted-foreground">Monthly Completed</h3>
-            <div className="text-2xl font-bold mt-2">{monthlyStats._count._all || 0} Orders</div>
-         </div>
-         <div className="bg-white p-4 rounded-lg shadow border">
-            <h3 className="text-sm font-medium text-muted-foreground">Monthly Cancelled</h3>
-            <div className="text-2xl font-bold mt-2 text-red-500">{cancelledMonth} Orders</div>
-         </div>
+    <div className="h-full flex-1 flex-col space-y-8 p-8 md:flex">
+       <div className="flex items-center justify-between space-y-2">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight text-coffee-cream">History & Analytics</h2>
+          <p className="text-muted-foreground">
+            Performance overview and transaction history.
+          </p>
+        </div>
       </div>
 
-      {/* Filter & Export */}
-      <div className="flex flex-col md:flex-row gap-4 items-end bg-white p-4 rounded-lg border">
-         <form className="flex-1 w-full grid gap-4 grid-cols-1 md:grid-cols-4">
-             <div className="space-y-1">
-                <label className="text-sm font-medium">Search</label>
-                <Input name="search" placeholder="Customer name" defaultValue={search} />
-             </div>
-             <div className="space-y-1">
-                <label className="text-sm font-medium">Status</label>
-                <select name="status" defaultValue={status || "ALL"} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
-                   <option value="ALL">All History</option>
-                   <option value="COMPLETED">Completed</option>
-                   <option value="CANCELLED">Cancelled</option>
-                </select>
-             </div>
-             <div className="space-y-1">
-                <label className="text-sm font-medium">Start Date</label>
-                <Input name="startDate" type="date" defaultValue={startDate} />
-             </div>
-             <div className="space-y-1">
-                <label className="text-sm font-medium">End Date</label>
-                <div className="flex gap-2">
-                   <Input name="endDate" type="date" defaultValue={endDate} />
-                   <Button type="submit">Filter</Button>
-                </div>
-             </div>
-         </form>
-         <div className="pb-0">
-             <a href={`/api/history/export?${exportUrl.toString()}`} target="_blank" rel="noopener noreferrer">
-                <Button variant="outline">
-                   <Download className="mr-2 h-4 w-4" /> Export CSV
-                </Button>
-             </a>
-         </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-white/5 border-white/10 backdrop-blur-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Monthly Revenue</CardTitle>
+                <DollarSign className="h-4 w-4 text-green-500" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold text-coffee-cream">{formatIDR(totalRevenue._sum.totalPrice || 0)}</div>
+                <p className="text-xs text-muted-foreground">This month</p>
+            </CardContent>
+        </Card>
+        <Card className="bg-white/5 border-white/10 backdrop-blur-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Orders Completed</CardTitle>
+                <ShoppingBag className="h-4 w-4 text-coffee-gold" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold text-coffee-cream">{totalOrders}</div>
+                <p className="text-xs text-muted-foreground">This month</p>
+            </CardContent>
+        </Card>
+        <Card className="bg-white/5 border-white/10 backdrop-blur-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Canceled</CardTitle>
+                <XCircle className="h-4 w-4 text-red-500" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold text-coffee-cream">{canceledOrders}</div>
+                <p className="text-xs text-muted-foreground">This month</p>
+            </CardContent>
+        </Card>
+        <Card className="bg-white/5 border-white/10 backdrop-blur-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Best Seller</CardTitle>
+                <TrendingUp className="h-4 w-4 text-blue-500" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold text-coffee-cream truncate" title={bestSellingMenuName}>{bestSellingMenuName}</div>
+                <p className="text-xs text-muted-foreground">{bestSellingMenuQty} sold this month</p>
+            </CardContent>
+        </Card>
       </div>
 
-      {/* Table */}
-      <div className="border rounded-lg bg-white">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Order ID</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Total Price</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Date Created</TableHead>
-              <TableHead>Date Completed</TableHead>
-              <TableHead className="text-right">Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {orders.map((order) => (
-              <TableRow key={order.id}>
-                <TableCell className="font-mono">#{order.id}</TableCell>
-                <TableCell>{order.customerName}</TableCell>
-                <TableCell>Rp {order.totalPrice.toLocaleString()}</TableCell>
-                <TableCell>
-                  <Badge variant={order.status === 'CANCELLED' ? 'destructive' : 'default'}>
-                    {order.status}
-                  </Badge>
-                </TableCell>
-                <TableCell>{format(order.createdAt, "dd MMM yyyy, HH:mm")}</TableCell>
-                <TableCell>{format(order.updatedAt, "dd MMM yyyy, HH:mm")}</TableCell>
-                <TableCell className="text-right">
-                  <Link href={`/admin/orders/${order.id}`}>
-                    <Button variant="outline" size="sm">Details</Button>
-                  </Link>
-                </TableCell>
-              </TableRow>
-            ))}
-            {orders.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center h-24 text-muted-foreground">
-                  No history found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+      <div className="space-y-4">
+          <Card className="bg-white/5 border-white/10">
+              <CardHeader>
+                  <CardTitle className="text-coffee-cream">Transaction History</CardTitle>
+                  <CardDescription>Records of completed and cancelled orders.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                  <HistoryClientWrapper data={historyData} />
+              </CardContent>
+          </Card>
       </div>
     </div>
   )

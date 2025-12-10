@@ -1,83 +1,73 @@
 import { prisma } from "@/lib/prisma"
+import { MenuForm } from "@/components/admin/menu/menu-form"
+import { columns } from "@/components/admin/menu/columns"
+import { DataTable } from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
 import { Plus } from "lucide-react"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { deleteMenu } from "./actions"
-import DeleteMenuButton from "@/components/admin/DeleteMenuButton"
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 export const dynamic = 'force-dynamic'
 
-export default async function MenuPage() {
+export default async function MenuPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined }
+}) {
   const menus = await prisma.menu.findMany({
     orderBy: { createdAt: "desc" },
   })
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Menu Management</h1>
-        <Link href="/admin/menu/new">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" /> Add New Menu
-          </Button>
-        </Link>
-      </div>
+  // Handle Edit Mode via URL query param
+  // Ideally, this should be done with a client-side wrapper or a separate route for cleaner separation,
+  // but for a single page app feel in Next.js Server Components, we can check the ID here
+  // and pass it to a client component wrapper that opens the dialog, 
+  // OR we just render the table and let the table actions control the dialog state entirely client-side if we fetch data there.
+  // BUT the prompt asks for clean implementation.
+  // A common pattern: The "Add" button opens a Dialog. The "Edit" button in the table opens the same Dialog pre-filled.
+  // To make "Edit" work from the server component properly, we might need a client wrapper for the page content 
+  // that manages the dialog state, OR we use the URL to drive the dialog state.
+  // Using URL state is robust.
+  
+  // Note: searchParams is a Promise in newer Next.js versions (15+), but 14 is sync. 
+  // Next 15 it's async. Package.json says "next": "16.0.8". -> It IS async now!
+  // Wait, I need to await searchParams if I use it.
+  
+  let editMenu = null
+  const editId = (await searchParams)?.edit
+  
+  if (editId) {
+      editMenu = await prisma.menu.findUnique({
+          where: { id: parseInt(editId as string) }
+      })
+  }
 
-      <div className="border rounded-lg bg-white">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Image</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {menus.map((menu) => (
-              <TableRow key={menu.id}>
-                <TableCell>
-                  {menu.imageUrl ? (
-                    <img src={menu.imageUrl} alt={menu.name} className="h-10 w-10 rounded object-cover" />
-                  ) : (
-                    <div className="h-10 w-10 rounded bg-gray-200" />
-                  )}
-                </TableCell>
-                <TableCell className="font-medium">{menu.name}</TableCell>
-                <TableCell>Rp {menu.price.toLocaleString()}</TableCell>
-                <TableCell>
-                  <Badge variant={menu.isAvailable ? "default" : "destructive"}>
-                    {menu.isAvailable ? "Available" : "Unavailable"}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right space-x-2">
-                  <Link href={`/admin/menu/${menu.id}`}>
-                    <Button variant="outline" size="sm">Edit</Button>
-                  </Link>
-                  <DeleteMenuButton id={menu.id} />
-                </TableCell>
-              </TableRow>
-            ))}
-            {menus.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
-                  No menus found. Add one!
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+  // We need a clear way to close the modal -> usually routing back to /admin/menu.
+  // I will create a client component wrapper for the interaction part (The Header + Table + Dialog).
+  // Actually, standard DataTable + Dialog on top is easiest.
+  // I will make a `MenuClient` component that takes the data.
+  
+  return (
+      <div className="h-full flex-1 flex-col space-y-8 p-8 md:flex">
+        <div className="flex items-center justify-between space-y-2">
+            <div>
+            <h2 className="text-2xl font-bold tracking-tight text-coffee-cream">Menu Management</h2>
+            <p className="text-muted-foreground">
+                Manage your café's offerings, prices, and availability.
+            </p>
+            </div>
+        </div>
+        
+        <MenuClientWrapper data={menus} editMenu={editMenu} />
       </div>
-    </div>
   )
 }
+
+// Separate client component for interactivity
+import { MenuClientWrapper } from "@/components/admin/menu/client-wrapper"

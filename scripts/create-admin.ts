@@ -12,7 +12,7 @@ async function main() {
       update: { password },
       create: {
         username: "admin",
-        password: 'password',
+        password: password,
       },
     })
     console.log("Admin user created/updated:", admin)

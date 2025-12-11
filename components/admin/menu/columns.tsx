@@ -1,5 +1,6 @@
 "use client"
 
+import { cn } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
 import { MoreHorizontal, ArrowUpDown, Pencil, Trash } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -38,11 +39,11 @@ export const columns: ColumnDef<Menu>[] = [
         const imageUrl = row.getValue("imageUrl") as string
         const name = row.getValue("name") as string
         return (
-            <div className="h-10 w-10 rounded-md overflow-hidden bg-white/5 border border-white/10">
+            <div className="h-10 w-10 rounded-md overflow-hidden bg-sidebar-accent border border-border">
                 {imageUrl ? (
                     <img src={imageUrl} alt={name} className="object-cover h-full w-full" />
                 ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-coffee-secondary text-xs font-bold text-coffee-gold">
+                    <div className="flex h-full w-full items-center justify-center bg-secondary text-xs font-bold text-primary">
                         {name.substring(0, 2).toUpperCase()}
                     </div>
                 )}
@@ -57,7 +58,7 @@ export const columns: ColumnDef<Menu>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="hover:text-coffee-gold hover:bg-transparent px-0 font-semibold"
+          className="hover:text-primary hover:bg-transparent px-0 font-semibold"
         >
           Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -68,7 +69,7 @@ export const columns: ColumnDef<Menu>[] = [
         const description = row.original.description
         return (
             <div className="flex flex-col">
-                <span className="font-medium text-coffee-cream">{row.getValue("name")}</span>
+                <span className="font-medium text-foreground">{row.getValue("name")}</span>
                 {description && <span className="text-xs text-muted-foreground truncate max-w-[200px]">{description}</span>}
             </div>
         )
@@ -81,7 +82,7 @@ export const columns: ColumnDef<Menu>[] = [
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="hover:text-coffee-gold hover:bg-transparent px-0 font-semibold"
+            className="hover:text-primary hover:bg-transparent px-0 font-semibold"
           >
             Price
             <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -96,7 +97,7 @@ export const columns: ColumnDef<Menu>[] = [
         minimumFractionDigits: 0
       }).format(amount)
 
-      return <div className="font-medium">{formatted}</div>
+      return <div className="font-medium text-foreground">{formatted}</div>
     },
   },
   {
@@ -105,7 +106,9 @@ export const columns: ColumnDef<Menu>[] = [
     cell: ({ row }) => {
       const isAvailable = row.getValue("isAvailable")
       return (
-        <Badge variant={isAvailable ? "default" : "destructive"} className={isAvailable ? "bg-green-500/10 text-green-500 hover:bg-green-500/20 border-green-500/20" : "bg-red-500/10 text-red-500 hover:bg-red-500/20 border-red-500/20"}>
+        <Badge 
+            variant={isAvailable ? "success" : "destructive"}
+        >
           {isAvailable ? "Available" : "Unavailable"}
         </Badge>
       )
@@ -150,30 +153,30 @@ export const columns: ColumnDef<Menu>[] = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0 text-muted-foreground hover:text-coffee-gold">
+            <Button variant="ghost" className="h-8 w-8 p-0 text-muted-foreground hover:text-primary">
               <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-coffee-black border-white/10">
-            <DropdownMenuLabel className="text-coffee-cream">Actions</DropdownMenuLabel>
+          <DropdownMenuContent align="end" className="bg-popover border-border">
+            <DropdownMenuLabel className="text-foreground">Actions</DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() => {
                   navigator.clipboard.writeText(menu.id.toString())
                   toast.success("ID Copied")
               }}
-              className="focus:bg-white/10 focus:text-coffee-gold"
+              className="focus:bg-accent focus:text-primary"
             >
               Copy Menu ID
             </DropdownMenuItem>
-            <DropdownMenuSeparator className="bg-white/10" />
+            <DropdownMenuSeparator className="bg-border" />
             <DropdownMenuItem 
                 onClick={handleEdit}
-                className="focus:bg-white/10 focus:text-coffee-gold cursor-pointer"
+                className="focus:bg-accent focus:text-primary cursor-pointer"
             >
              <Pencil className="mr-2 h-4 w-4" /> Edit
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleDelete} className="text-red-500 focus:bg-red-500/10 focus:text-red-500 cursor-pointer" disabled={isPending}>
+            <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer" disabled={isPending}>
               <Trash className="mr-2 h-4 w-4" /> Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

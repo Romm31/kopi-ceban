@@ -27,11 +27,11 @@ export const MobileSidebar = () => {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden text-coffee-gold hover:bg-white/5 hover:text-white">
+        <Button variant="ghost" size="icon" className="lg:hidden text-primary hover:bg-accent hover:text-foreground">
           <Menu className="h-6 w-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="p-0 bg-coffee-black border-r border-coffee-gold/20 w-72">
+      <SheetContent side="left" className="p-0 bg-sidebar border-r border-border w-72">
         <AdminSidebar />
       </SheetContent>
     </Sheet>

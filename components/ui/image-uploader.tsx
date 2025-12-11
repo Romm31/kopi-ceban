@@ -93,15 +93,19 @@ export function ImageUploader({
         <div 
             onClick={triggerUpload}
             className="
+                group
                 flex flex-col items-center justify-center 
-                border-2 border-dashed border-white/10 
-                rounded-xl p-8 
+                border-2 border-dashed border-white/20 
+                rounded-xl p-10
                 hover:border-coffee-gold/50 cursor-pointer 
-                hover:bg-white/5 transition-all
+                bg-white/5 hover:bg-white/10 transition-all duration-300
                 text-center
-                gap-2
+                gap-4
+                relative overflow-hidden
             "
         >
+            <div className="absolute inset-0 bg-coffee-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            
             <input 
                 type="file" 
                 ref={fileInputRef} 
@@ -110,21 +114,19 @@ export function ImageUploader({
                 accept="image/*"
                 disabled={disabled || isLoading}
             />
-          <Button
-            type="button"
-            disabled={disabled || isLoading}
-            variant="ghost"
-            size="sm"
-            className="pointer-events-none text-muted-foreground group-hover:text-coffee-gold"
-          >
-            {isLoading ? <Loader2 className="h-8 w-8 animate-spin" /> : <ImagePlus className="h-8 w-8 mb-2" />}
-          </Button>
-          <div className="text-sm text-muted-foreground group-hover:text-coffee-cream">
-            {isLoading ? "Uploading..." : "Click to upload an image"}
-          </div>
-          <div className="text-xs text-muted-foreground/50">
-            JPG, PNG, WEBP (Max 5MB)
-          </div>
+          
+            <div className="relative z-10 p-4 rounded-full bg-coffee-gold/10 text-coffee-gold group-hover:scale-110 transition-transform duration-300">
+                {isLoading ? <Loader2 className="h-8 w-8 animate-spin" /> : <Upload className="h-8 w-8" />}
+            </div>
+            
+            <div className="relative z-10 space-y-1">
+                <p className="text-sm font-semibold text-coffee-cream group-hover:text-[#f5e6d3] transition-colors">
+                    {isLoading ? "Uploading..." : "Click to upload an image"}
+                </p>
+                <p className="text-xs text-muted-foreground group-hover:text-muted-foreground/80">
+                    JPG, PNG, WEBP (Max 5MB)
+                </p>
+            </div>
         </div>
       )}
     </div>

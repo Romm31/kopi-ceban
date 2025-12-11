@@ -45,12 +45,12 @@ export function OrderStatusUpdate({ orderId, currentStatus }: OrderStatusUpdateP
         <div className="flex items-center gap-2">
             {isPending && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
             <Select defaultValue={currentStatus} onValueChange={handleStatusChange} disabled={isPending}>
-                <SelectTrigger className={`w-[150px] font-medium ${statusColors[currentStatus]}`}>
+                <SelectTrigger className={`w-[160px] font-medium transition-all duration-300 ${statusColors[currentStatus]} focus:ring-ring ring-offset-0`}>
                     <SelectValue placeholder="Status" />
                 </SelectTrigger>
-                <SelectContent className="bg-coffee-black border-white/10 text-foreground">
+                <SelectContent className="bg-popover border-border text-foreground">
                     {Object.keys(statusColors).map((status) => (
-                        <SelectItem key={status} value={status} className="focus:bg-white/10 focus:text-coffee-gold cursor-pointer">
+                        <SelectItem key={status} value={status} className="focus:bg-accent focus:text-primary cursor-pointer">
                             {status}
                         </SelectItem>
                     ))}

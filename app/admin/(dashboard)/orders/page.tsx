@@ -30,13 +30,13 @@ export default async function OrdersPage(props: {
   })
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen p-6 md:p-8 space-y-6">
+    <div className="flex-1 flex flex-col min-h-screen p-4 sm:p-6 md:p-8 space-y-6 w-full overflow-x-hidden">
        <PageHeader 
           title="Orders" 
           description="Manage incoming and past orders." 
        />
 
-       <div className="flex-1 rounded-xl border border-white/10 bg-coffee-black/40 backdrop-blur-sm p-4 overflow-hidden flex flex-col">
+       <div className="flex-1 rounded-xl border border-border bg-card/40 backdrop-blur-sm p-4 overflow-hidden flex flex-col w-full">
             <Suspense fallback={<OrdersLoader />}>
                 <OrderClientWrapper data={orders} />
             </Suspense>

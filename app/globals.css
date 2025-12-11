@@ -47,99 +47,92 @@
   --color-coffee-cream: #e6d5c3;
   --color-coffee-gold: #cba35c;
   --color-coffee-black: #121212;
+  
+  --animate-shine: shine 8s linear infinite;
+  
+  @keyframes shine {
+    to {
+      background-position: 200% center;
+    }
+  }
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.75rem; /* rounded-xl by default */
 
-  /* Coffee Theme - Light Mode (Though Admin is darker oriented, we define basics) */
-  --background: oklch(0.98 0.01 85); /* Soft Cream */
-  --foreground: oklch(0.15 0.02 50); /* Dark Coffee */
+  /* STRICT DARK COFFEE PALETTE - DEFAULT MODE IS DARK */
+  --background: #0e0d0b; /* Deepest Coffee Black */
+  --foreground: #f5f5f5; /* High Contrast White/Off-White */
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.02 50);
+  --card: #181715; /* Slightly Lighter Dark for Surface */
+  --card-foreground: #f5f5f5;
 
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.02 50);
+  --popover: #181715;
+  --popover-foreground: #f5f5f5;
 
-  --primary: #cba35c; /* Gold */
-  --primary-foreground: #2a1a12; /* Dark Coffee */
-
-  --secondary: #e6d5c3; /* Cream Latte */
-  --secondary-foreground: #2a1a12;
-
-  --muted: oklch(0.96 0.01 90);
-  --muted-foreground: oklch(0.45 0.02 50);
-
-  --accent: #e6d5c3;
-  --accent-foreground: #2a1a12;
-
-  --destructive: oklch(0.6 0.15 25);
-  --destructive-foreground: oklch(0.98 0 0);
-
-  --border: oklch(0.9 0.02 85);
-  --input: oklch(0.9 0.02 85);
-  --ring: #cba35c;
-
-  --chart-1: #2a1a12;
-  --chart-2: #cba35c;
-  --chart-3: #e6d5c3;
-  --chart-4: #6f4e37;
-  --chart-5: #d2691e;
-
-  --sidebar: #e6d5c3;
-  --sidebar-foreground: #2a1a12;
-  --sidebar-primary: #2a1a12;
-  --sidebar-primary-foreground: #e6d5c3;
-  --sidebar-accent: #cba35c;
-  --sidebar-accent-foreground: #2a1a12;
-  --sidebar-border: #dbc1ac;
-  --sidebar-ring: #cba35c;
-}
-
-.dark {
-  /* Coffee Theme - Dark Mode (Default for Admin) */
-  --background: #0f0f0f; /* Deep Black/Brown */
-  --foreground: #f5e6d3; /* Light Cream - High Contrast */
-
-  --card: #18181b; /* Zinc 950/900 mix */
-  --card-foreground: #f5e6d3;
-
-  --popover: #18181b;
-  --popover-foreground: #f5e6d3;
-
-  --primary: #d4a857; /* Gold */
+  --primary: #d4a857; /* Gold Highlight */
   --primary-foreground: #121212;
 
-  --secondary: #27272a; /* Zinc 800 */
-  --secondary-foreground: #f5e6d3;
+  --secondary: #2a2725; /* Subtle Warm Grey/Brown */
+  --secondary-foreground: #d4a857;
 
-  --muted: #27272a; /* Zinc 800 */
-  --muted-foreground: #a1a1aa; /* Zinc 400 - Readable Gray */
+  --muted: #2a2725;
+  --muted-foreground: #9e9e9e; /* Readable Grey */
 
-  --accent: #27272a;
+  --accent: #2a2725;
   --accent-foreground: #d4a857;
 
-  --destructive: oklch(0.4 0.15 25);
-  --destructive-foreground: oklch(0.98 0 0);
+  --destructive: #ef4444; /* Standard Red */
+  --destructive-foreground: #ffffff;
 
-  --border: #3f3f46; /* Zinc 700 - Visible Border */
-  --input: #27272a;
+  --border: #2a2725; /* Subtle Warm Grey */
+  --input: #1b1a18; /* Darker than card for input background */
   --ring: #d4a857;
 
   --chart-1: #d4a857;
-  --chart-2: #f5e6d3;
+  --chart-2: #e6d5c3;
   --chart-3: #2a1a12;
   --chart-4: #a1a1aa;
   --chart-5: #ea580c;
 
-  --sidebar: #0f0f0f;
-  --sidebar-foreground: #f5e6d3;
+  --sidebar: #0e0d0b;
+  --sidebar-foreground: #9e9e9e;
   --sidebar-primary: #d4a857;
   --sidebar-primary-foreground: #121212;
-  --sidebar-accent: #27272a;
+  --sidebar-accent: #181715;
   --sidebar-accent-foreground: #d4a857;
-  --sidebar-border: #3f3f46;
+  --sidebar-border: #2a2725;
+  --sidebar-ring: #d4a857;
+}
+
+.dark {
+  /* Inherit root because we are enforcing dark mode globally */
+  --background: #0e0d0b;
+  --foreground: #f5f5f5;
+  --card: #181715;
+  --card-foreground: #f5f5f5;
+  --popover: #181715;
+  --popover-foreground: #f5f5f5;
+  --primary: #d4a857;
+  --primary-foreground: #121212;
+  --secondary: #2a2725;
+  --secondary-foreground: #d4a857;
+  --muted: #2a2725;
+  --muted-foreground: #9e9e9e;
+  --accent: #2a2725;
+  --accent-foreground: #d4a857;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #2a2725;
+  --input: #1b1a18;
+  --ring: #d4a857;
+  --sidebar: #0e0d0b;
+  --sidebar-foreground: #9e9e9e;
+  --sidebar-primary: #d4a857;
+  --sidebar-primary-foreground: #121212;
+  --sidebar-accent: #181715;
+  --sidebar-accent-foreground: #d4a857;
+  --sidebar-border: #2a2725;
   --sidebar-ring: #d4a857;
 }
 
@@ -147,7 +140,74 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    @apply min-h-screen bg-background text-foreground scroll-smooth;
+  }
   body {
-    @apply bg-background text-foreground;
+    @apply min-h-screen bg-background text-foreground antialiased selection:bg-primary/30 selection:text-primary flex flex-col;
+  }
+  
+  /* Modern Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full hover:bg-muted-foreground/50 transition-colors;
+  }
+
+  ::selection {
+    @apply bg-coffee-gold/30 text-coffee-gold;
   }
 }
+
+@layer utilities {
+  .glass {
+    @apply bg-[#0e0d0b]/80 backdrop-blur-xl border border-white/5 shadow-xl;
+  }
+  
+  .glass-card {
+    @apply bg-[#181715]/80 backdrop-blur-md border border-white/5 shadow-lg shadow-black/20;
+  }
+
+  .text-gradient-gold {
+    @apply bg-gradient-to-r from-[#f5e6d3] via-[#cba35c] to-[#f5e6d3] bg-clip-text text-transparent bg-[200%_auto] animate-shine;
+  }
+
+  /* Micro-animations */
+  .fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+  
+  .slide-up {
+    animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  
+  .scale-in {
+    animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  
+  .hover-scale {
+    @apply transition-transform duration-300 hover:scale-[1.02] active:scale-[0.98];
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+

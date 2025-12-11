@@ -115,7 +115,7 @@ export function MenuForm({ initialData, onSuccess }: MenuFormProps) {
                 <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                    <Input placeholder="Cappuccino" {...field} className="bg-white/5 border-white/10" />
+                    <Input placeholder="Cappuccino" {...field} />
                 </FormControl>
                 <FormMessage />
                 </FormItem>
@@ -128,7 +128,7 @@ export function MenuForm({ initialData, onSuccess }: MenuFormProps) {
                 <FormItem>
                 <FormLabel>Price</FormLabel>
                 <FormControl>
-                    <Input type="number" placeholder="25000" {...field} className="bg-white/5 border-white/10" />
+                    <Input type="number" placeholder="25000" {...field} className="bg-input border-border" />
                 </FormControl>
                 <FormMessage />
                 </FormItem>
@@ -143,7 +143,7 @@ export function MenuForm({ initialData, onSuccess }: MenuFormProps) {
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea placeholder="A rich and creamy coffee..." {...field} className="bg-white/5 border-white/10" />
+                <Textarea placeholder="A rich and creamy coffee..." {...field} className="bg-input border-border" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -154,7 +154,7 @@ export function MenuForm({ initialData, onSuccess }: MenuFormProps) {
           control={form.control}
           name="isAvailable"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border border-white/10 p-4 bg-white/5">
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border p-4 bg-muted/20">
               <div className="space-y-0.5">
                 <FormLabel className="text-base">Availability</FormLabel>
                 <FormDescription>
@@ -171,7 +171,7 @@ export function MenuForm({ initialData, onSuccess }: MenuFormProps) {
           )}
         />
 
-        <Button type="submit" disabled={isSubmitting} className="w-full bg-coffee-gold hover:bg-coffee-gold/80 text-coffee-black font-bold">
+        <Button type="submit" disabled={isSubmitting} className="w-full bg-primary hover:bg-primary/80 text-primary-foreground font-bold">
           {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {initialData ? "Update Menu" : "Create Menu"}
         </Button>

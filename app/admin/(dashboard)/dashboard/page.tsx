@@ -126,85 +126,84 @@ export default async function DashboardPage() {
   const data = await getDashboardData()
 
   return (
-    <div className="flex-1 space-y-6 p-6 md:p-8 pt-4 bg-coffee-black min-h-screen">
-      <div className="flex items-center justify-between space-y-2 mb-2">
-        <div className="space-y-1">
-            <h2 className="text-3xl font-bold tracking-tight text-coffee-cream">Dashboard</h2>
-            <p className="text-muted-foreground">Overview of your café's performance today.</p>
-        </div>
+    <div className="flex-1 flex flex-col min-h-screen p-4 sm:p-6 md:p-8 space-y-6 w-full overflow-x-hidden">
+      {/* Page Header */}
+      <div className="space-y-2">
+        <h1 className="text-3xl sm:text-4xl font-serif tracking-tight font-bold text-foreground">
+          Dashboard
+        </h1>
+        <p className="text-muted-foreground">
+          Welcome back! Here's what's happening with your coffee shop today.
+        </p>
       </div>
-      
-      {/* Stats Cards */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <StatsCard 
-            title="Total Revenue" 
-            value={data.revenueToday} 
-            icon={<DollarSign className="h-4 w-4 text-coffee-gold" />} 
-            description="Today's earnings"
-            delay={0.1}
+
+      {/* Stats Grid */}
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <StatsCard
+          title="Revenue Today"
+          value={data.revenueToday}
+          description="Total sales for today"
+          icon={<DollarSign className="h-4 w-4" />}
         />
-        <StatsCard 
-            title="Orders" 
-            value={data.ordersToday} 
-            icon={<ShoppingBag className="h-4 w-4 text-coffee-gold" />} 
-            description="Total orders today"
-            delay={0.2}
+        <StatsCard
+          title="Orders Today"
+          value={data.ordersToday}
+          description="New orders placed"
+          icon={<ShoppingBag className="h-4 w-4" />}
         />
-        <StatsCard 
-            title="Pending" 
-            value={data.pendingOrders} 
-            icon={<Users className="h-4 w-4 text-coffee-gold" />} 
-            description="Orders waiting action"
-            delay={0.3}
+        <StatsCard
+          title="Pending Orders"
+          value={data.pendingOrders}
+          description="Awaiting preparation"
+          icon={<ArrowUpRight className="h-4 w-4" />}
+          iconClassName="text-orange-500"
         />
-        <StatsCard 
-            title="Active Menu" 
-            value={data.activeMenus} 
-            icon={<Coffee className="h-4 w-4 text-coffee-gold" />} 
-            description="Available items"
-            delay={0.4}
+        <StatsCard
+          title="Menu Items"
+          value={data.activeMenus}
+          description="Active menu items"
+          icon={<Coffee className="h-4 w-4" />}
         />
       </div>
 
-      <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
-        {/* Sales Chart */}
-        <Card className="col-span-1 lg:col-span-4 bg-white/5 border-white/10 backdrop-blur-md">
+      {/* Charts & Recent Orders */}
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-7">
+        <Card className="col-span-1 lg:col-span-4 bg-card border-border">
           <CardHeader>
-            <CardTitle className="text-coffee-cream">Revenue Overview</CardTitle>
-            <CardDescription>Performance over the last 7 days</CardDescription>
+            <CardTitle className="text-foreground">Revenue Overview</CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Last 7 days revenue trend
+            </CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
-            <Overview data={data.salesData} />
+            <Overview data={data.salesData} /> {/* Changed from chartData to salesData */}
           </CardContent>
         </Card>
-
-        {/* Top Menus Carousel (Moved here or kept separate? Let's keep structure similar but use Carousel) */}
-        <Card className="col-span-1 lg:col-span-3 bg-white/5 border-white/10 backdrop-blur-md flex flex-col">
-            <CardHeader>
-                <CardTitle className="text-coffee-cream flex items-center justify-between">
-                    Top Selling Menus
-                    <ArrowUpRight className="h-4 w-4 text-coffee-gold" />
-                </CardTitle>
-                <CardDescription>Most popular items</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col justify-center">
-                <PopularMenuCarousel menus={data.topMenuDetails} />
-            </CardContent>
+        <Card className="col-span-1 lg:col-span-3 bg-card border-border">
+          <CardHeader>
+            <CardTitle className="text-foreground">Recent Orders</CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Latest {data.recentOrders.length} orders
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RecentOrders orders={data.recentOrders} />
+          </CardContent>
         </Card>
       </div>
 
-      {/* Recent Orders */}
-      <div className="grid gap-4 grid-cols-1">
-         <Card className="bg-white/5 border-white/10 backdrop-blur-md">
-            <CardHeader>
-                <CardTitle className="text-coffee-cream">Recent Orders</CardTitle>
-                 <CardDescription className="text-muted-foreground">Latest transactions from customers.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <RecentOrders orders={data.recentOrders} />
-            </CardContent>
-         </Card>
-      </div>
+      {/* Popular Menu */}
+      <Card className="bg-card border-border">
+        <CardHeader>
+          <CardTitle className="text-foreground">Popular Menu Items</CardTitle>
+          <CardDescription className="text-muted-foreground">
+            Top selling items this week
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <PopularMenuCarousel menus={data.topMenuDetails} /> {/* Changed from items to menus, and popularItems to topMenuDetails */}
+        </CardContent>
+      </Card>
     </div>
   )
 }

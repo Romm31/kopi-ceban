@@ -9,13 +9,17 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="h-full relative">
-      <div className="hidden h-full md:flex md:w-72 md:flex-col md:fixed md:inset-y-0 z-[80] bg-gray-900">
+    <div className="min-h-screen bg-coffee-black relative">
+      {/* Sidebar - Fixed */}
+      <div className="hidden md:flex h-full w-72 flex-col fixed inset-y-0 z-50 border-r border-coffee-gold/10 bg-coffee-black">
           <AdminSidebar />
       </div>
-      <main className="md:pl-72 h-full bg-gray-50 text-gray-900"> 
+      
+      {/* Main Content */}
+      <main className="md:pl-72 flex flex-col min-h-screen"> 
         <AdminNavbar />
-        <div className="p-8 h-[calc(100vh-4rem)] overflow-y-auto">
+        {/* Content Region - flex-1 ensures it grows */}
+        <div className="flex-1 flex flex-col w-full">
             {children}
         </div>
       </main>

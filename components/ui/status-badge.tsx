@@ -13,17 +13,13 @@ const statusConfig: Record<OrderStatus, { label: string; className: string }> = 
     label: "Pending",
     className: "bg-yellow-500/15 text-yellow-500 hover:bg-yellow-500/25 border-yellow-500/20",
   },
-  PROCESSING: {
-    label: "Processing",
-    className: "bg-blue-500/15 text-blue-500 hover:bg-blue-500/25 border-blue-500/20",
-  },
-  READY: {
-    label: "Ready",
-    className: "bg-emerald-500/15 text-emerald-500 hover:bg-emerald-500/25 border-emerald-500/20",
-  },
-  COMPLETED: {
-    label: "Completed",
+  PAID: {
+    label: "Paid",
     className: "bg-green-500/15 text-green-500 hover:bg-green-500/25 border-green-500/20",
+  },
+  EXPIRED: {
+    label: "Expired",
+    className: "bg-gray-500/15 text-gray-500 hover:bg-gray-500/25 border-gray-500/20",
   },
   CANCELLED: {
     label: "Cancelled",

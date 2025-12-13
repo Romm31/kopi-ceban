@@ -18,7 +18,7 @@ import Link from "next/link"
 import { StatusBadge } from "@/components/ui/status-badge"
 
 export type Order = {
-  id: number
+  id: string
   customerName: string
   totalPrice: number
   status: OrderStatus

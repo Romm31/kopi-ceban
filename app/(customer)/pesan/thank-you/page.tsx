@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2, XCircle, Clock, Home, UtensilsCrossed, AlertCircle } from "lucide-react";
@@ -14,7 +14,7 @@ interface OrderData {
   status: OrderStatus;
 }
 
-export default function ThankYouPage() {
+function ThankYouContent() {
   const searchParams = useSearchParams();
   const orderCode = searchParams.get("order_id") || searchParams.get("orderCode"); // Midtrans sends order_id
   const router = useRouter();
@@ -220,5 +220,17 @@ export default function ThankYouPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ThankYouPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#13110f] flex items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-[#d4a857]" />
+      </div>
+    }>
+      <ThankYouContent />
+    </Suspense>
   );
 }

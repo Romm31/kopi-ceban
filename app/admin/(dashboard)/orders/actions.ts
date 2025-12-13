@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { OrderStatus } from "@prisma/client"
 
-export async function updateOrderStatus(orderId: number, status: OrderStatus) {
+export async function updateOrderStatus(orderId: string, status: OrderStatus) {
   try {
     await prisma.order.update({
       where: { id: orderId },

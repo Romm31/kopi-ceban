@@ -8,16 +8,16 @@ interface OrderTimelineProps {
 
 const steps = [
   { status: "PENDING", label: "Pending" },
-  { status: "PROCESSING", label: "Processing" },
-  { status: "READY", label: "Ready" },
-  { status: "COMPLETED", label: "Completed" },
+  { status: "PAID", label: "Paid" },
 ]
 
 export function OrderTimeline({ currentStatus }: OrderTimelineProps) {
-  const currentStepIndex = steps.findIndex((s) => s.status === currentStatus)
-  const isCancelled = currentStatus === "CANCELLED"
+  const statusStr = currentStatus as string
+  const currentStepIndex = steps.findIndex((s) => s.status === statusStr)
+  const isCancelled = statusStr === "CANCELLED"
+  const isExpired = statusStr === "EXPIRED"
 
-  // If Cancelled, we show a simplified or red state
+  // If Cancelled, we show a red state
   if (isCancelled) {
       return (
           <div className="w-full py-4 text-center">
@@ -27,6 +27,17 @@ export function OrderTimeline({ currentStatus }: OrderTimelineProps) {
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                   </span>
                   Order Cancelled
+              </div>
+          </div>
+      )
+  }
+
+  // If Expired, show gray state
+  if (isExpired) {
+      return (
+          <div className="w-full py-4 text-center">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-500/10 text-gray-500 border border-gray-500/20">
+                  Order Expired
               </div>
           </div>
       )

@@ -17,7 +17,7 @@ import {
 import { toast } from "sonner"
 
 export type HistoryOrder = {
-  id: number
+  id: string
   customerName: string
   totalPrice: number
   status: OrderStatus

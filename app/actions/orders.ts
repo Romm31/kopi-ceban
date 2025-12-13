@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { OrderStatus } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 
-export async function updateOrderStatus(orderId: number, status: OrderStatus) {
+export async function updateOrderStatus(orderId: string, status: OrderStatus) {
   await prisma.order.update({
     where: { id: orderId },
     data: { status },
@@ -14,3 +14,4 @@ export async function updateOrderStatus(orderId: number, status: OrderStatus) {
   revalidatePath(`/admin/orders/${orderId}`)
   revalidatePath("/admin/dashboard")
 }
+

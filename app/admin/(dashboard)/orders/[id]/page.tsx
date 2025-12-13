@@ -4,36 +4,39 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { format } from "date-fns"
 import { OrderStatusUpdate } from "@/components/admin/orders/order-status-update"
-import { ArrowLeft, Clock, CreditCard, User, Box, MessageSquare } from "lucide-react"
+import { ArrowLeft, CreditCard, User, Box } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { PageHeader } from "@/components/admin/page-header"
 import { OrderTimeline } from "@/components/admin/orders/order-timeline"
 import { StatusBadge } from "@/components/ui/status-badge"
 
 export const dynamic = 'force-dynamic'
 
-export default async function OrderDetailPage({ params }: { params: { id: string } }) {
+// Type for items stored in JSON
+interface OrderItem {
+  menuId: number
+  name: string
+  price: number
+  quantity: number
+}
+
+export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   
-  if (!id || isNaN(parseInt(id))) {
-      notFound()
+  if (!id) {
+    notFound()
   }
 
   const order = await prisma.order.findUnique({
-    where: { id: parseInt(id) },
-    include: {
-      items: {
-        include: {
-          menu: true,
-        },
-      },
-    },
+    where: { id },
   })
 
   if (!order) {
     notFound()
   }
+
+  // Parse items from JSON
+  const orderItems = (order.items as unknown as OrderItem[]) || []
 
   return (
     <div className="flex-1 space-y-8 p-8 pt-6">
@@ -45,7 +48,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
                     </Link>
                </Button>
                <div>
-                   <h2 className="text-2xl font-bold tracking-tight text-coffee-cream">Order #{order.id}</h2>
+                   <h2 className="text-2xl font-bold tracking-tight text-coffee-cream">Order #{order.orderCode}</h2>
                    <p className="text-sm text-muted-foreground flex items-center gap-2">
                        Placed on {format(order.createdAt, "dd MMMM yyyy, HH:mm")}
                    </p>
@@ -77,20 +80,16 @@ export default async function OrderDetailPage({ params }: { params: { id: string
                     </CardTitle>
                 </CardHeader>
                 <div className="divide-y divide-white/10">
-                    {order.items.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between p-6 hover:bg-white/5 transition-colors">
+                    {orderItems.map((item, index) => (
+                        <div key={index} className="flex items-center justify-between p-6 hover:bg-white/5 transition-colors">
                             <div className="flex items-center space-x-4">
-                                <div className="h-16 w-16 rounded-lg bg-white/10 overflow-hidden border border-white/10 flex-shrink-0">
-                                    {item.menu.imageUrl ? (
-                                        <img src={item.menu.imageUrl} alt={item.menu.name} className="object-cover h-full w-full" />
-                                    ) : (
-                                        <div className="h-full w-full flex items-center justify-center bg-coffee-secondary text-coffee-gold font-bold">
-                                            {item.menu.name.substring(0, 2).toUpperCase()}
-                                        </div>
-                                    )}
+                                <div className="h-16 w-16 rounded-lg bg-white/10 overflow-hidden border border-white/10 flex-shrink-0 flex items-center justify-center">
+                                    <span className="text-coffee-gold font-bold text-lg">
+                                        {item.name.substring(0, 2).toUpperCase()}
+                                    </span>
                                 </div>
                                 <div>
-                                    <p className="font-semibold text-foreground text-lg">{item.menu.name}</p>
+                                    <p className="font-semibold text-foreground text-lg">{item.name}</p>
                                     <p className="text-sm text-muted-foreground">Qty: {item.quantity} x {new Intl.NumberFormat("id-ID").format(item.price)}</p>
                                 </div>
                             </div>
@@ -101,20 +100,6 @@ export default async function OrderDetailPage({ params }: { params: { id: string
                     ))}
                 </div>
              </Card>
-             
-             {/* Notes */}
-             {order.notes && (
-                 <Card className="bg-white/5 border-white/10">
-                    <CardHeader>
-                        <CardTitle className="text-base font-semibold text-coffee-cream flex items-center gap-2">
-                             <MessageSquare className="h-4 w-4" /> Customer Notes
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-foreground p-4 bg-white/5 rounded-md border border-white/10 italic">"{order.notes}"</p>
-                    </CardContent>
-                 </Card>
-             )}
         </div>
 
         <div className="md:col-span-4 space-y-6">
@@ -132,8 +117,8 @@ export default async function OrderDetailPage({ params }: { params: { id: string
                     </div>
                     <Separator className="bg-white/10" />
                      <div className="flex flex-col gap-1">
-                        <span className="text-xs text-muted-foreground uppercase tracking-wider">Order ID</span>
-                         <span className="font-mono text-sm text-muted-foreground">#{order.id}</span>
+                        <span className="text-xs text-muted-foreground uppercase tracking-wider">Order Code</span>
+                         <span className="font-mono text-sm text-muted-foreground">{order.orderCode}</span>
                     </div>
                 </CardContent>
             </Card>

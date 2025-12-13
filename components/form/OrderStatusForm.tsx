@@ -14,7 +14,7 @@ import { useState } from "react"
 import { OrderStatus } from "@prisma/client"
 
 interface OrderStatusFormProps {
-  orderId: number
+  orderId: string
   currentStatus: OrderStatus
 }
 

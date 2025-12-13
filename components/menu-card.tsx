@@ -50,13 +50,10 @@ export function MenuCard({ menu, index = 0 }: MenuCardProps) {
       */}
       <div className="relative aspect-square w-full overflow-hidden bg-muted/20">
         {menu.imageUrl ? (
-          <Image
+          <img
             src={menu.imageUrl}
             alt={menu.name}
-            fill
             className="object-cover object-center w-full h-full transition-all duration-500 ease-out group-hover:scale-110"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            priority={index < 6}
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground/30 bg-muted/20">

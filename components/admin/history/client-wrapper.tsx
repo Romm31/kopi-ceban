@@ -126,7 +126,7 @@ export function HistoryClientWrapper({ data }: HistoryClientWrapperProps) {
                 </SelectTrigger>
                 <SelectContent className="bg-coffee-black border-white/10 text-foreground">
                     <SelectItem value="ALL">All Status</SelectItem>
-                    <SelectItem value="COMPLETED">Completed</SelectItem>
+                    <SelectItem value="PAID">Paid</SelectItem>
                     <SelectItem value="CANCELLED">Cancelled</SelectItem>
                 </SelectContent>
             </Select>

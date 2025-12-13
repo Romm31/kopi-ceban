@@ -14,15 +14,14 @@ import { useTransition } from "react"
 import { Loader2 } from "lucide-react"
 
 interface OrderStatusUpdateProps {
-    orderId: number
+    orderId: string
     currentStatus: OrderStatus
 }
 
 const statusColors: Record<OrderStatus, string> = {
   PENDING: "bg-yellow-500/20 text-yellow-500 border-yellow-500/50",
-  PROCESSING: "bg-blue-500/20 text-blue-500 border-blue-500/50",
-  READY: "bg-green-500/20 text-green-500 border-green-500/50",
-  COMPLETED: "bg-gray-500/20 text-gray-500 border-gray-500/50",
+  PAID: "bg-green-500/20 text-green-500 border-green-500/50",
+  EXPIRED: "bg-gray-500/20 text-gray-500 border-gray-500/50",
   CANCELLED: "bg-red-500/20 text-red-500 border-red-500/50",
 }
 

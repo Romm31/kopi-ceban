@@ -25,34 +25,34 @@ model Menu {
   isAvailable Boolean   @default(true)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  OrderItem   OrderItem[]
 }
 
 model Order {
-  id           Int          @id @default(autoincrement())
-  customerName String
-  notes        String?
-  totalPrice   Int
-  status       OrderStatus  @default(PENDING)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  items        OrderItem[]
+  id             String      @id @default(cuid())
+  orderCode      String      @unique
+  customerName   String
+  items          Json
+  totalPrice     Int
+  status         OrderStatus @default(PENDING)
+  paymentLinkId  String?
+  paymentLinkUrl String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  paymentLogs    PaymentLog[]
 }
 
-model OrderItem {
-  id        Int     @id @default(autoincrement())
-  orderId   Int
-  menuId    Int
-  quantity  Int
-  price     Int     // unit price
-  menu      Menu    @relation(fields: [menuId], references: [id])
-  order     Order   @relation(fields: [orderId], references: [id])
+model PaymentLog {
+  id            String   @id @default(cuid())
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id])
+  midtransStatus String
+  rawCallback   Json
+  createdAt     DateTime @default(now())
 }
 
 enum OrderStatus {
   PENDING
-  PROCESSING
-  READY
-  COMPLETED
+  PAID
+  EXPIRED
   CANCELLED
 }

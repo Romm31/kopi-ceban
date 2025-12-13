@@ -3,7 +3,12 @@
     "short_name": "Kopi Ceban",
     "icons": [
         {
-            "src": "/logo/logo.jpg",
+            "src": "/favicon.jpg",
+            "sizes": "32x32",
+            "type": "image/jpeg"
+        },
+        {
+            "src": "/icon.jpg",
             "sizes": "192x192",
             "type": "image/jpeg"
         },
@@ -15,5 +20,6 @@
     ],
     "theme_color": "#0f0e0c",
     "background_color": "#0f0e0c",
-    "display": "standalone"
+    "display": "standalone",
+    "start_url": "/"
 }

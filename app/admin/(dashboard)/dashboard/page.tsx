@@ -15,8 +15,8 @@ async function getDashboardData() {
     _sum: {
       totalPrice: true,
     },
-    where: {
-      status: "COMPLETED",
+      where: {
+        status: "PAID" as any,
       createdAt: {
         gte: today,
       },
@@ -57,7 +57,7 @@ async function getDashboardData() {
         totalPrice: true,
       },
       where: {
-        status: "COMPLETED",
+        status: "PAID" as any,
         createdAt: {
           gte: date,
           lt: nextDate,
@@ -67,7 +67,7 @@ async function getDashboardData() {
 
     salesData.push({
       name: format(date, "dd MMM"),
-      total: revenue._sum.totalPrice || 0,
+      total: revenue._sum?.totalPrice || 0,
     })
   }
 
@@ -77,46 +77,51 @@ async function getDashboardData() {
     orderBy: {
       createdAt: "desc",
     },
-    include: {
-      items: true,
-    },
   })
 
-  // Top Menus
-  const topMenus = await prisma.orderItem.groupBy({
-    by: ["menuId"],
-    _sum: {
-      quantity: true,
-    },
-    orderBy: {
-      _sum: {
-        quantity: "desc",
-      },
-    },
-    take: 5, // Increased take to 5 for carousel
+  // Top Menus (Aggregated from JSON)
+  const allPaidOrders = await prisma.order.findMany({
+    where: { status: "PAID" as any },
+    select: { items: true }
   })
+
+  const menuCounts: Record<string, number> = {}
+
+  allPaidOrders.forEach(order => {
+    const items = order.items as any[]
+    if (Array.isArray(items)) {
+        items.forEach(item => {
+            if (item.menuId) {
+                menuCounts[item.menuId] = (menuCounts[item.menuId] || 0) + (item.quantity || 0)
+            }
+        })
+    }
+  })
+
+  const sortedMenuIds = Object.keys(menuCounts).sort((a, b) => menuCounts[b] - menuCounts[a]).slice(0, 5)
 
   const topMenuDetails = await Promise.all(
-    topMenus.map(async (item) => {
+    sortedMenuIds.map(async (menuId) => {
       const menu = await prisma.menu.findUnique({
-        where: { id: item.menuId },
+        where: { id: parseInt(menuId) },
       })
+      if (!menu) return null
       return {
-        name: menu?.name || "Unknown",
-        quantity: item._sum.quantity || 0,
-        image: menu?.imageUrl || ""
+        name: menu.name,
+        quantity: menuCounts[menuId],
+        image: menu.imageUrl || ""
       }
     })
   )
 
   return {
-    revenueToday: revenueToday._sum.totalPrice || 0,
+    revenueToday: revenueToday._sum?.totalPrice || 0,
     ordersToday,
     pendingOrders,
     activeMenus,
     salesData,
     recentOrders,
-    topMenuDetails,
+    topMenuDetails: topMenuDetails.filter(Boolean) as any[],
   }
 }
 
@@ -187,7 +192,7 @@ export default async function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <RecentOrders orders={data.recentOrders} />
+            <RecentOrders orders={data.recentOrders as any} />
           </CardContent>
         </Card>
       </div>

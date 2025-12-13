@@ -49,7 +49,7 @@ export function RecentOrders({ orders }: RecentOrdersProps) {
               <TableCell>
                 <Badge 
                     variant={
-                        order.status === 'COMPLETED' ? 'success' :
+                        (order.status as string) === 'PAID' ? 'success' :
                         order.status === 'PENDING' ? 'warning' :
                         order.status === 'CANCELLED' ? 'destructive' : 'info'
                     }

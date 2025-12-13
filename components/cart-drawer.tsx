@@ -6,15 +6,29 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ShoppingBag } from "lucide-react";
 import { useState } from "react";
-import { submitOrder } from "@/app/(customer)/pesan/actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckoutForm } from "@/components/checkout-form";
 
+// Declare Snap type for TypeScript
+declare global {
+  interface Window {
+    snap: {
+      pay: (token: string, options: {
+        onSuccess?: (result: any) => void;
+        onPending?: (result: any) => void;
+        onError?: (result: any) => void;
+        onClose?: () => void;
+      }) => void;
+    };
+  }
+}
+
 export function CartDrawer() {
   const { items, totalPrice, clearCart } = useCart();
   const [isOpen, setIsOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const router = useRouter();
 
   const formatter = new Intl.NumberFormat("id-ID", {
@@ -29,25 +43,73 @@ export function CartDrawer() {
       return;
     }
 
+    setIsProcessing(true);
+
     try {
-      const result = await submitOrder({
-        customerName: data.customerName,
-        notes: data.notes,
-        items,
-        totalPrice,
+      // Call API Endpoint to get Snap Token
+      const response = await fetch("/api/orders/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          customerName: data.customerName,
+          items: items.map(item => ({
+            menuId: item.menu.id,
+            name: item.menu.name,
+            price: item.menu.price,
+            quantity: item.quantity,
+          })),
+          totalPrice,
+        }),
       });
 
-      if (result.success) {
-        toast.success("Pesanan berhasil dibuat!");
-        clearCart();
+      const result = await response.json();
+
+      if (response.ok && result.success && result.snapToken) {
+        // Close the cart drawer first
         setIsOpen(false);
-        router.push("/pesan/success"); 
+        
+        // Check if Snap is loaded
+        if (typeof window.snap === 'undefined') {
+          toast.error("Payment system not loaded. Please refresh and try again.");
+          setIsProcessing(false);
+          return;
+        }
+
+        // Open Snap Pop-up
+        window.snap.pay(result.snapToken, {
+          onSuccess: (snapResult: any) => {
+            console.log("Payment Success:", snapResult);
+            toast.success("Pembayaran berhasil! 🎉");
+            clearCart();
+            router.push(`/pesan/thank-you?order_id=${result.orderCode}`);
+          },
+          onPending: (snapResult: any) => {
+            console.log("Payment Pending:", snapResult);
+            toast.info("Menunggu pembayaran...");
+            clearCart();
+            router.push(`/pesan/thank-you?order_id=${result.orderCode}`);
+          },
+          onError: (snapResult: any) => {
+            console.error("Payment Error:", snapResult);
+            toast.error("Pembayaran gagal. Silakan coba lagi.");
+          },
+          onClose: () => {
+            console.log("Snap closed without completing payment");
+            toast.info("Pembayaran dibatalkan");
+          },
+        });
       } else {
-        toast.error(result.error || "Gagal membuat pesanan");
+        const errorMsg = result.details || result.error || "Gagal membuat pesanan";
+        toast.error(errorMsg, { duration: 5000 });
+        console.error("Order creation failed:", result);
       }
     } catch (error) {
-      toast.error("Terjadi kesalahan sistem");
-      throw error; // Let the form handle the loading state reset if needed
+      console.error("Checkout Error:", error);
+      toast.error("Terjadi kesalahan sistem. Coba lagi.");
+    } finally {
+      setIsProcessing(false);
     }
   };
 

@@ -1,46 +1,38 @@
-import { prisma } from "@/lib/prisma"
-import { OrderClientWrapper } from "@/components/admin/orders/client-wrapper"
-import { PageHeader } from "@/components/admin/page-header"
-import { OrderStatus } from "@prisma/client"
-import { Suspense } from "react"
-import { OrdersLoader } from "@/components/admin/orders/orders-loader"
+import { prisma } from "@/lib/prisma";
+import { OrdersTable } from "./orders-client";
+import { format } from "date-fns";
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic';
 
-export default async function OrdersPage(props: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}) {
-  const searchParams = await props.searchParams
-  const status = typeof searchParams.status === 'string' ? searchParams.status as OrderStatus : undefined
-  const q = typeof searchParams.q === 'string' ? searchParams.q : undefined
-
-  const where: any = {}
-
-  if (status && status !== 'ALL' as any) { // 'ALL' isn't in OrderStatus, but client might send it
-      where.status = status
-  }
-
-  if (q) {
-      where.customerName = { contains: q, mode: 'insensitive' }
-  }
-
+export default async function OrdersPage() {
   const orders = await prisma.order.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-  })
+    orderBy: {
+      createdAt: 'desc',
+    },
+    include: {
+      paymentLogs: {
+        orderBy: {
+           createdAt: 'desc'
+        }
+      }
+    }
+  });
+
+  // Serialization needed for Dates usually passed to client components, 
+  // but standard Next.js SC passes dates as Date objects fine to Client Components in recent versions.
+  // Actually, Server Component -> Client Component props serialization warning might occur if not simple JSON.
+  // Let's rely on auto-serialization or map if needed. Next.js 13+ handles Date mostly fine, 
+  // but let's be safe if it fails, though usually okay.
+  // We'll pass as is. "items" is Json, which is typed as any in prisma client usually.
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen p-4 sm:p-6 md:p-8 space-y-6 w-full overflow-x-hidden">
-       <PageHeader 
-          title="Orders" 
-          description="Manage incoming and past orders." 
-       />
+    <div className="flex-1 flex flex-col p-4 sm:p-6 md:p-8 space-y-6 w-full">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-serif font-bold text-foreground">Orders Management</h1>
+        <p className="text-muted-foreground">Monitor and track all customer orders.</p>
+      </div>
 
-       <div className="flex-1 rounded-xl border border-border bg-card/40 backdrop-blur-sm p-4 overflow-hidden flex flex-col w-full">
-            <Suspense fallback={<OrdersLoader />}>
-                <OrderClientWrapper data={orders} />
-            </Suspense>
-       </div>
+      <OrdersTable data={orders as any} /> 
     </div>
-  )
+  );
 }

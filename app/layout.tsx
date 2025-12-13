@@ -17,15 +17,14 @@ export const metadata: Metadata = {
   title: "Kopi Ceban - Kopi Premium Semua Orang",
   description: "Nikmati kopi premium berkualitas dengan harga terjangkau. Kopi Ceban, solusi ngopi hemat rasa nikmat.",
   icons: {
-    icon: "/logo/logo.jpg",
-    shortcut: "/logo/logo.jpg",
-    apple: "/logo/logo.jpg",
-    other: {
-      rel: "apple-touch-icon-precomposed",
-      url: "/logo/logo.jpg",
-    },
+    icon: "/favicon.jpg",
+    shortcut: "/favicon.jpg",
+    apple: "/apple-touch-icon.jpg",
   },
   manifest: "/site.webmanifest",
+};
+
+export const viewport = {
   themeColor: "#0f0e0c",
 };
 

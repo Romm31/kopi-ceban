@@ -23,7 +23,7 @@ export default async function HistoryPage(props: {
 
   // Build Where Clause
   const where: any = {
-      status: { in: ["COMPLETED", "CANCELLED"] }
+      status: { in: ["PAID", "CANCELLED"] as any }
   }
 
   if (status && status !== 'ALL' as any) {
@@ -51,14 +51,14 @@ export default async function HistoryPage(props: {
       prisma.order.aggregate({
           _sum: { totalPrice: true },
           where: {
-              status: "COMPLETED",
+              status: "PAID" as any,
               createdAt: { gte: currentMonthStart }
           }
       }),
       // Total Completed Orders This Month
       prisma.order.count({
           where: {
-              status: "COMPLETED",
+              status: "PAID" as any,
               createdAt: { gte: currentMonthStart }
           }
       }),
@@ -69,27 +69,51 @@ export default async function HistoryPage(props: {
               createdAt: { gte: currentMonthStart }
           }
       }),
-      // Best Selling Menu (All Time? Or Month? Let's do Month)
-      prisma.orderItem.groupBy({
-          by: ["menuId"],
-          _sum: { quantity: true },
+      // Best Selling Menu (In-Memory Aggregation from Orders)
+      prisma.order.findMany({
           where: {
-             order: { createdAt: { gte: currentMonthStart }, status: "COMPLETED" } 
+              status: "PAID" as any,
+              createdAt: { gte: currentMonthStart }
           },
-          orderBy: { _sum: { quantity: "desc" } },
-          take: 1
+          select: { items: true }
       })
   ])
 
   let bestSellingMenuName = "N/A"
   let bestSellingMenuQty = 0
 
-  if (menuStats.length > 0) {
-      const bestMenuId = menuStats[0].menuId
-      const menu = await prisma.menu.findUnique({ where: { id: bestMenuId } })
+  // Calculate Best Seller from menuStats (which is now a list of orders with items)
+  const itemCounts: Record<string, number> = {}
+  
+  // menuStats here is actually the result of the 4th promise
+  const paidOrdersForStats = menuStats as any[] 
+
+  paidOrdersForStats.forEach(order => {
+      const items = order.items as any[]
+      if (Array.isArray(items)) {
+          items.forEach(item => {
+              if (item.menuId) {
+                  itemCounts[item.menuId] = (itemCounts[item.menuId] || 0) + (item.quantity || 0)
+              }
+          })
+      }
+  })
+
+  let bestMenuId = ""
+  let maxQty = 0
+
+  Object.entries(itemCounts).forEach(([id, qty]) => {
+      if (qty > maxQty) {
+          maxQty = qty
+          bestMenuId = id
+      }
+  })
+
+  if (bestMenuId) {
+      const menu = await prisma.menu.findUnique({ where: { id: parseInt(bestMenuId) } })
       if (menu) {
           bestSellingMenuName = menu.name
-          bestSellingMenuQty = menuStats[0]._sum.quantity || 0
+          bestSellingMenuQty = maxQty
       }
   }
 

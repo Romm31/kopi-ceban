@@ -3,22 +3,17 @@
 import { useCart } from "@/hooks/use-cart";
 import { CartItem } from "@/components/cart-item";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
-import { ShoppingBag, Loader2 } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import { submitOrder } from "@/app/(customer)/pesan/actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
+import { CheckoutForm } from "@/components/checkout-form";
 
 export function CartDrawer() {
   const { items, totalPrice, clearCart } = useCart();
-  const [customerName, setCustomerName] = useState("");
-  const [notes, setNotes] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
 
@@ -28,21 +23,16 @@ export function CartDrawer() {
     minimumFractionDigits: 0,
   });
 
-  const handleCheckout = async () => {
-    if (!customerName.trim()) {
-      toast.error("Nama pemesan wajib diisi");
-      return;
-    }
+  const handleProcessOrder = async (data: { customerName: string; notes: string }) => {
     if (items.length === 0) {
       toast.error("Keranjang masih kosong");
       return;
     }
 
-    setIsLoading(true);
     try {
       const result = await submitOrder({
-        customerName,
-        notes,
+        customerName: data.customerName,
+        notes: data.notes,
         items,
         totalPrice,
       });
@@ -57,8 +47,7 @@ export function CartDrawer() {
       }
     } catch (error) {
       toast.error("Terjadi kesalahan sistem");
-    } finally {
-      setIsLoading(false);
+      throw error; // Let the form handle the loading state reset if needed
     }
   };
 
@@ -95,7 +84,7 @@ export function CartDrawer() {
                 {items.map((item) => (
                 <motion.div
                     key={item.menu.id}
-                    layout
+                    layout // Helps with smooth list reordering/removal
                     initial={{ opacity: 0, scale: 0.9, y: -10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.85, x: -20, transition: { duration: 0.25 } }}
@@ -116,53 +105,12 @@ export function CartDrawer() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="space-y-4"
             >
-                <div className="space-y-3">
-                    <div className="space-y-2">
-                        <Label htmlFor="customerName" className="text-foreground text-xs uppercase tracking-wider font-bold flex items-center gap-1">
-                          Nama Pemesan <span className="text-destructive">*</span>
-                        </Label>
-                        <Input
-                            id="customerName"
-                            placeholder="Nama Anda..."
-                            value={customerName}
-                            onChange={(e) => setCustomerName(e.target.value)}
-                            className="bg-input border-border/50 text-foreground focus-visible:ring-primary focus-visible:border-primary h-11 rounded-xl transition-all"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="notes" className="text-foreground text-xs uppercase tracking-wider font-bold">Catatan (Opsional)</Label>
-                        <Textarea
-                            id="notes"
-                            placeholder="Tambahan permintaan khusus..."
-                            value={notes}
-                            onChange={(e) => setNotes(e.target.value)}
-                            className="bg-input border-border/50 text-foreground focus-visible:ring-primary focus-visible:border-primary min-h-[70px] text-sm resize-none rounded-xl transition-all"
-                        />
-                    </div>
-                </div>
-
-                <div className="pt-3 border-t border-border/50">
-                    <div className="flex justify-between items-baseline mb-4 p-3 bg-primary/5 rounded-xl border border-primary/10">
-                        <span className="text-base font-semibold text-muted-foreground">Total Pembayaran</span>
-                        <span className="text-primary text-2xl font-bold tracking-tight">{formatter.format(totalPrice)}</span>
-                    </div>
-                    <Button
-                        onClick={handleCheckout}
-                        disabled={isLoading || items.length === 0}
-                        className="w-full bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-2xl hover:shadow-primary/30 font-bold h-13 text-base rounded-xl transition-all active:scale-[0.97] shadow-lg shadow-primary/20"
-                    >
-                        {isLoading ? (
-                        <>
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                            Memproses Pesanan...
-                        </>
-                        ) : (
-                        "Buat Pesanan Sekarang"
-                        )}
-                    </Button>
-                </div>
+                <CheckoutForm 
+                    totalPrice={totalPrice} 
+                    disabled={items.length === 0}
+                    onSubmit={handleProcessOrder}
+                />
             </motion.div>
         )}
       </div>
@@ -202,7 +150,7 @@ export function CartDrawer() {
                     </div>
                 </Button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="p-0 border-t-2 border-primary/20 bg-card/98 backdrop-blur-xl h-[88vh] rounded-t-3xl overflow-hidden focus-visible:outline-none shadow-2xl">
+            <SheetContent side="bottom" className="p-0 border-t-2 border-primary/20 bg-card/98 backdrop-blur-xl h-[90vh] rounded-t-3xl overflow-hidden focus-visible:outline-none shadow-2xl">
                 <CartContents isMobile={true} />
             </SheetContent>
         </Sheet>

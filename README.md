@@ -253,7 +253,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ### Tim Pengembang
 
-| Nama                      | NIM      |
+| Nama                      | NPM      |
 | ------------------------- | -------- |
 | **Erwin Wijaya**          | 24312092 |
 | **Sendy Agus P.**         | 24312087 |
@@ -262,7 +262,5 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 ---
 
 Kopi Ceban Project © 2025
-
-Made with ☕ and 💛
 
 </div>

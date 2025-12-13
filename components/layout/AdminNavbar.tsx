@@ -1,6 +1,7 @@
 "use client"
 
 import { User, LogOut, Coffee } from "lucide-react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { signOut, useSession } from "next-auth/react"
@@ -18,8 +19,10 @@ export default function AdminNavbar() {
         className="sticky top-0 z-40 border-b border-border h-16 flex items-center px-4 md:px-6 bg-background/80 backdrop-blur-md"
     >
         <MobileSidebar />
-        <div className="flex items-center gap-2 lg:hidden text-primary font-bold ml-2">
-            <Coffee className="h-5 w-5" />
+        <div className="flex items-center gap-3 lg:hidden text-primary font-bold ml-2">
+            <div className="relative h-8 w-8 rounded-full overflow-hidden shadow-sm border border-primary/20">
+                <Image src="/logo/logo.jpg" alt="Logo" fill className="object-cover" />
+            </div>
             <span>Kopi Ceban</span>
         </div>
       <div className="ml-auto flex items-center space-x-4">

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Coffee, Instagram } from "lucide-react";
 
 export function Footer() {
@@ -18,13 +19,21 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
           {/* Column 1: Logo & Description */}
           <div className="space-y-4">
-            <Link href="/" className="flex items-center gap-2 group w-fit">
-              <div className="bg-gradient-to-br from-primary to-yellow-600 p-2 rounded-xl shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all">
-                <Coffee className="w-6 h-6 text-primary-foreground" />
+            <Link href="/" className="flex items-center gap-3 group w-fit">
+              <div className="relative h-10 w-10 sm:h-12 sm:w-12 rounded-full overflow-hidden shadow-md group-hover:shadow-primary/40 transition-all duration-300 border border-primary/20">
+                 <Image 
+                    src="/logo/logo.jpg" 
+                    alt="Kopi Ceban Logo" 
+                    fill 
+                    className="object-cover object-center"
+                 />
               </div>
-              <span className="text-xl font-bold font-serif text-foreground tracking-wide">
-                Kopi <span className="text-primary">Ceban</span>
-              </span>
+              <div className="flex flex-col">
+                <span className="text-xl font-bold font-serif text-foreground tracking-wide leading-none">
+                  Kopi <span className="text-primary">Ceban</span>
+                </span>
+                <span className="text-[10px] text-primary/80 tracking-widest uppercase mt-0.5 font-medium">Since 2024</span>
+              </div>
             </Link>
             <p className="text-neutral-300 text-sm leading-relaxed max-w-xs">
               Nikmati cita rasa kopi terbaik dengan harga bersahabat. Racikan premium dari biji pilihan.

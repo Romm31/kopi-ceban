@@ -47,9 +47,9 @@
   --color-coffee-cream: #e6d5c3;
   --color-coffee-gold: #cba35c;
   --color-coffee-black: #121212;
-  
+
   --animate-shine: shine 8s linear infinite;
-  
+
   @keyframes shine {
     to {
       background-position: 200% center;
@@ -61,32 +61,32 @@
   --radius: 0.75rem; /* rounded-xl by default */
 
   /* STRICT DARK COFFEE PALETTE - DEFAULT MODE IS DARK */
-  --background: #0e0d0b; /* Deepest Coffee Black */
-  --foreground: #f5f5f5; /* High Contrast White/Off-White */
+  --background: #0f0e0c; /* Deep Coffee Black (Requested) */
+  --foreground: #fefefe; /* Text White (Requested) */
 
-  --card: #181715; /* Slightly Lighter Dark for Surface */
-  --card-foreground: #f5f5f5;
+  --card: #1a1816; /* Secondary Coffee Dark (Requested) */
+  --card-foreground: #fefefe;
 
-  --popover: #181715;
-  --popover-foreground: #f5f5f5;
+  --popover: #1a1816;
+  --popover-foreground: #fefefe;
 
-  --primary: #d4a857; /* Gold Highlight */
-  --primary-foreground: #121212;
+  --primary: #d4a857; /* Gold Accent (Requested) */
+  --primary-foreground: #0f0e0c;
 
-  --secondary: #2a2725; /* Subtle Warm Grey/Brown */
+  --secondary: #1a1816;
   --secondary-foreground: #d4a857;
 
-  --muted: #2a2725;
-  --muted-foreground: #9e9e9e; /* Readable Grey */
+  --muted: #1a1816;
+  --muted-foreground: #d0cfcf; /* Text Muted (Requested) */
 
-  --accent: #2a2725;
+  --accent: #1a1816;
   --accent-foreground: #d4a857;
 
-  --destructive: #ef4444; /* Standard Red */
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
 
   --border: #2a2725; /* Subtle Warm Grey */
-  --input: #1b1a18; /* Darker than card for input background */
+  --input: #1b1a18;
   --ring: #d4a857;
 
   --chart-1: #d4a857;
@@ -95,11 +95,11 @@
   --chart-4: #a1a1aa;
   --chart-5: #ea580c;
 
-  --sidebar: #0e0d0b;
-  --sidebar-foreground: #9e9e9e;
+  --sidebar: #0f0e0c;
+  --sidebar-foreground: #d0cfcf;
   --sidebar-primary: #d4a857;
-  --sidebar-primary-foreground: #121212;
-  --sidebar-accent: #181715;
+  --sidebar-primary-foreground: #0f0e0c;
+  --sidebar-accent: #1a1816;
   --sidebar-accent-foreground: #d4a857;
   --sidebar-border: #2a2725;
   --sidebar-ring: #d4a857;
@@ -146,7 +146,7 @@
   body {
     @apply min-h-screen bg-background text-foreground antialiased selection:bg-primary/30 selection:text-primary flex flex-col;
   }
-  
+
   /* Modern Scrollbar */
   ::-webkit-scrollbar {
     width: 8px;
@@ -168,7 +168,7 @@
   .glass {
     @apply bg-[#0e0d0b]/80 backdrop-blur-xl border border-white/5 shadow-xl;
   }
-  
+
   .glass-card {
     @apply bg-[#181715]/80 backdrop-blur-md border border-white/5 shadow-lg shadow-black/20;
   }
@@ -181,33 +181,47 @@
   .fade-in {
     animation: fadeIn 0.4s ease-out forwards;
   }
-  
+
   .slide-up {
     animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
-  
+
   .scale-in {
     animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
-  
+
   .hover-scale {
     @apply transition-transform duration-300 hover:scale-[1.02] active:scale-[0.98];
   }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
-
-

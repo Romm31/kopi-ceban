@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2, XCircle, Clock, Home, UtensilsCrossed, AlertCircle } from "lucide-react";
 import { PaymentConfirmationModal } from "@/components/payment-confirmation-modal";
 
-type OrderStatus = "PENDING" | "PAID" | "EXPIRED" | "CANCELLED";
+type OrderStatus = "PENDING" | "SUCCESS" | "EXPIRED" | "FAILED" | "REFUNDED";
 
 interface OrderData {
   customerName: string;
@@ -39,7 +39,7 @@ function ThankYouContent() {
           setOrder(data);
           // If PAID, stop polling (optional optimization, but user might stay so keep polling if needed? 
           // Usually better to stop if terminal state)
-          if (data.status === 'PAID' || data.status === 'EXPIRED' || data.status === 'CANCELLED') {
+          if (data.status === 'SUCCESS' || data.status === 'EXPIRED' || data.status === 'FAILED') {
             // Stop polling or slow it down? 
             // For now, let's keep it simple.
           }
@@ -59,7 +59,7 @@ function ThankYouContent() {
 
   const handleNavigation = (path: string) => {
     // If not paid, confirm first
-    if (order?.status !== 'PAID' && order?.status !== 'CANCELLED' && order?.status !== 'EXPIRED') {
+    if (order?.status !== 'SUCCESS' && order?.status !== 'FAILED' && order?.status !== 'EXPIRED') {
       setTargetPath(path);
       setShowConfirmModal(true);
     } else {
@@ -117,7 +117,7 @@ function ThankYouContent() {
             
             {/* Status Icon */}
             <div className="mb-2">
-                {order.status === 'PAID' && (
+                {order.status === 'SUCCESS' && (
                     <div className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center ring-4 ring-green-500/20 animate-scale-in">
                         <CheckCircle2 className="w-12 h-12 text-green-500" />
                     </div>
@@ -127,7 +127,7 @@ function ThankYouContent() {
                         <Clock className="w-12 h-12 text-amber-500" />
                     </div>
                 )}
-                {(order.status === 'EXPIRED' || order.status === 'CANCELLED') && (
+                {(order.status === 'EXPIRED' || order.status === 'FAILED') && (
                     <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center ring-4 ring-red-500/20">
                         <XCircle className="w-12 h-12 text-red-500" />
                     </div>
@@ -137,12 +137,12 @@ function ThankYouContent() {
             {/* Title & Desc */}
             <div className="space-y-2">
                 <h1 className="text-3xl font-serif font-bold text-[#d4a857]">
-                    {order.status === 'PAID' ? 'Pembayaran Berhasil!' : 
+                    {order.status === 'SUCCESS' ? 'Pembayaran Berhasil!' : 
                      order.status === 'PENDING' ? 'Menunggu Pembayaran' : 
                      'Pesanan Dibatalkan'}
                 </h1>
                 <p className="text-neutral-300">
-                    {order.status === 'PAID' ? 'Terima kasih, pesanan Anda akan segera diproses.' : 
+                    {order.status === 'SUCCESS' ? 'Terima kasih, pesanan Anda akan segera diproses.' : 
                      order.status === 'PENDING' ? 'Silakan selesaikan pembayaran Anda.' : 
                      'Maaf, pesanan Anda telah kadaluarsa atau dibatalkan.'}
                 </p>

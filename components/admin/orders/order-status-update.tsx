@@ -20,9 +20,10 @@ interface OrderStatusUpdateProps {
 
 const statusColors: Record<OrderStatus, string> = {
   PENDING: "bg-yellow-500/20 text-yellow-500 border-yellow-500/50",
-  PAID: "bg-green-500/20 text-green-500 border-green-500/50",
-  EXPIRED: "bg-gray-500/20 text-gray-500 border-gray-500/50",
-  CANCELLED: "bg-red-500/20 text-red-500 border-red-500/50",
+  SUCCESS: "bg-green-500/20 text-green-500 border-green-500/50",
+  EXPIRED: "bg-red-500/20 text-red-500 border-red-500/50",
+  FAILED: "bg-gray-500/20 text-gray-500 border-gray-500/50",
+  REFUNDED: "bg-purple-500/20 text-purple-500 border-purple-500/50",
 }
 
 export function OrderStatusUpdate({ orderId, currentStatus }: OrderStatusUpdateProps) {

@@ -8,13 +8,13 @@ interface OrderTimelineProps {
 
 const steps = [
   { status: "PENDING", label: "Pending" },
-  { status: "PAID", label: "Paid" },
+  { status: "SUCCESS", label: "Success" },
 ]
 
 export function OrderTimeline({ currentStatus }: OrderTimelineProps) {
   const statusStr = currentStatus as string
   const currentStepIndex = steps.findIndex((s) => s.status === statusStr)
-  const isCancelled = statusStr === "CANCELLED"
+  const isCancelled = statusStr === "FAILED"
   const isExpired = statusStr === "EXPIRED"
 
   // If Cancelled, we show a red state

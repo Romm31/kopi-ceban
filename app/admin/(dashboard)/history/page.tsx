@@ -23,7 +23,7 @@ export default async function HistoryPage(props: {
 
   // Build Where Clause
   const where: any = {
-      status: { in: ["PAID", "CANCELLED"] as any }
+      status: { in: ["SUCCESS", "FAILED"] as any }
   }
 
   if (status && status !== 'ALL' as any) {
@@ -51,28 +51,28 @@ export default async function HistoryPage(props: {
       prisma.order.aggregate({
           _sum: { totalPrice: true },
           where: {
-              status: "PAID" as any,
+              status: "SUCCESS" as any,
               createdAt: { gte: currentMonthStart }
           }
       }),
       // Total Completed Orders This Month
       prisma.order.count({
           where: {
-              status: "PAID" as any,
+              status: "SUCCESS" as any,
               createdAt: { gte: currentMonthStart }
           }
       }),
       // Canceled Orders This Month
       prisma.order.count({
           where: {
-              status: "CANCELLED",
+              status: "FAILED",
               createdAt: { gte: currentMonthStart }
           }
       }),
       // Best Selling Menu (In-Memory Aggregation from Orders)
       prisma.order.findMany({
           where: {
-              status: "PAID" as any,
+              status: "SUCCESS" as any,
               createdAt: { gte: currentMonthStart }
           },
           select: { items: true }

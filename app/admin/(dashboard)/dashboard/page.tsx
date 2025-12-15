@@ -16,7 +16,7 @@ async function getDashboardData() {
       totalPrice: true,
     },
       where: {
-        status: "PAID" as any,
+        status: "SUCCESS" as any,
       createdAt: {
         gte: today,
       },
@@ -57,7 +57,7 @@ async function getDashboardData() {
         totalPrice: true,
       },
       where: {
-        status: "PAID" as any,
+        status: "SUCCESS" as any,
         createdAt: {
           gte: date,
           lt: nextDate,
@@ -81,7 +81,7 @@ async function getDashboardData() {
 
   // Top Menus (Aggregated from JSON)
   const allPaidOrders = await prisma.order.findMany({
-    where: { status: "PAID" as any },
+    where: { status: "SUCCESS" as any },
     select: { items: true }
   })
 

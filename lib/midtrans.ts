@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { OrderStatus } from "@prisma/client";
 
 export const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY || "";
 export const MIDTRANS_CLIENT_KEY = process.env.MIDTRANS_CLIENT_KEY || "";
@@ -88,3 +89,106 @@ export const createSnapTransaction = async (
     throw error;
   }
 };
+
+/**
+ * Verify Midtrans notification signature
+ * Signature = SHA512(order_id + status_code + gross_amount + server_key)
+ */
+export const verifySignature = (
+  orderId: string,
+  statusCode: string,
+  grossAmount: string,
+  signatureKey: string
+): boolean => {
+  const crypto = require("crypto");
+  const expectedSignature = crypto
+    .createHash("sha512")
+    .update(`${orderId}${statusCode}${grossAmount}${MIDTRANS_SERVER_KEY}`)
+    .digest("hex");
+  
+  return signatureKey === expectedSignature;
+};
+
+/**
+ * Map Midtrans transaction status to our OrderStatus enum
+ */
+
+export const mapMidtransStatus = (
+  transactionStatus: string,
+  fraudStatus?: string
+): OrderStatus => {
+  // Check fraud status first
+  if (fraudStatus === "deny" || fraudStatus === "challenge") {
+    return "FAILED" as OrderStatus;
+  }
+
+  switch (transactionStatus) {
+    case "capture":
+    case "settlement":
+      return "SUCCESS" as OrderStatus;
+    case "pending":
+      return "PENDING" as OrderStatus;
+    case "expire":
+      return "EXPIRED" as OrderStatus;
+    case "deny":
+    case "cancel":
+      return "FAILED" as OrderStatus;
+    case "refund":
+    case "partial_refund":
+      return "REFUNDED" as OrderStatus;
+    default:
+      return "PENDING" as OrderStatus;
+  }
+};
+
+/**
+ * Get transaction status from Midtrans API
+ */
+export const getTransactionStatus = async (orderId: string) => {
+  const baseUrl = MIDTRANS_IS_PRODUCTION
+    ? "https://api.midtrans.com"
+    : "https://api.sandbox.midtrans.com";
+  
+  const url = `${baseUrl}/v2/${orderId}/status`;
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: getMidtransHeaders(),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Midtrans Status Check Error:", data);
+      throw new Error(data.status_message || "Failed to get transaction status");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Get Transaction Status Exception:", error);
+    throw error;
+  }
+};
+
+/**
+ * Log Midtrans events to console (can be extended to file logging)
+ */
+export const logMidtransEvent = (
+  eventType: "NOTIFICATION" | "STATUS_CHECK" | "ERROR",
+  orderId: string,
+  details: Record<string, any>
+) => {
+  const timestamp = new Date().toISOString();
+  const logEntry = {
+    timestamp,
+    eventType,
+    orderId,
+    ...details,
+  };
+  
+  console.log(`[MIDTRANS ${eventType}]`, JSON.stringify(logEntry, null, 2));
+  
+  return logEntry;
+};
+

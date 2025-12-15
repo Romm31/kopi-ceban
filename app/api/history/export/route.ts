@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
 
   const where: any = {
     status: {
-      in: ["PAID", "CANCELLED"],
+      in: ["SUCCESS", "FAILED"],
     },
   }
 

@@ -18,9 +18,10 @@ interface OrderClientWrapperProps {
 const statuses = [
     { label: "All", value: "ALL" },
     { label: "Pending", value: "PENDING" },
-    { label: "Paid", value: "PAID" },
+    { label: "Success", value: "SUCCESS" },
     { label: "Expired", value: "EXPIRED" },
-    { label: "Cancelled", value: "CANCELLED" },
+    { label: "Failed", value: "FAILED" },
+    { label: "Refunded", value: "REFUNDED" },
 ]
 
 export function OrderClientWrapper({ data }: OrderClientWrapperProps) {

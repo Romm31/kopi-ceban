@@ -118,7 +118,6 @@ export function Navbar() {
     { name: "Home", href: "/" },
     { name: "Menu", href: "/menu" },
     { name: "Pesan", href: "/pesan" },
-    { name: "Tentang", href: "#" },
   ];
 
   return (

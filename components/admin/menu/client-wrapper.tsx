@@ -135,7 +135,7 @@ export function MenuClientWrapper({ data, editMenu }: MenuClientWrapperProps) {
 
             <div className="rounded-xl border border-white/10 shadow-sm bg-coffee-black/40 backdrop-blur-sm overflow-hidden">
                 {data.length > 0 ? (
-                    <DataTable columns={columns} data={data} searchKey="name" showSearch={false} />
+                    <DataTable columns={columns} data={data} searchKey="name" showSearch={false} showColumnsToggle={false} />
                 ) : (
                     <EmptyState 
                         icon={Coffee}

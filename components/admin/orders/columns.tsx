@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, Eye, MoreHorizontal } from "lucide-react"
+import { ArrowUpDown, Eye, MoreHorizontal, UtensilsCrossed, ShoppingBag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { format } from "date-fns"
 import { OrderStatus } from "@prisma/client"
@@ -23,6 +23,34 @@ export type Order = {
   totalPrice: number
   status: OrderStatus
   createdAt: Date
+  orderType?: string
+  tableNumber?: number | null
+}
+
+// Order Type Badge Component
+function OrderTypeBadge({ orderType, tableNumber }: { orderType?: string; tableNumber?: number | null }) {
+  if (orderType === "DINE_IN") {
+    return (
+      <div className="flex items-center gap-1.5">
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-green-700/30 text-green-300 border border-green-500/30">
+          <UtensilsCrossed className="w-3 h-3" />
+          Dine In
+        </span>
+        {tableNumber && (
+          <span className="px-2 py-0.5 text-xs font-medium rounded bg-green-900/50 text-green-200 border border-green-600/30">
+            Meja {tableNumber}
+          </span>
+        )}
+      </div>
+    )
+  }
+  
+  return (
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-blue-700/30 text-blue-300 border border-blue-500/30">
+      <ShoppingBag className="w-3 h-3" />
+      Take Away
+    </span>
+  )
 }
 
 export const columns: ColumnDef<Order>[] = [
@@ -46,6 +74,14 @@ export const columns: ColumnDef<Order>[] = [
         )
     },
     cell: ({ row }) => <span className="font-bold text-foreground">{row.getValue("customerName")}</span>
+  },
+  {
+    accessorKey: "orderType",
+    header: "Order Type",
+    cell: ({ row }) => {
+      const order = row.original
+      return <OrderTypeBadge orderType={order.orderType} tableNumber={order.tableNumber} />
+    },
   },
   {
     accessorKey: "totalPrice",

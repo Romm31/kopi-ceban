@@ -88,9 +88,21 @@ export async function POST(req: Request) {
 
     // 5. Update Order Status if changed
     if (newStatus !== oldStatus) {
+      // Prepare update data
+      const updateData: any = { status: newStatus };
+      
+      // Save payment details on successful payment
+      if (newStatus === "SUCCESS") {
+        updateData.paymentType = payment_type || null;
+        updateData.transactionId = transaction_id || null;
+        updateData.settlementTime = body.settlement_time 
+          ? new Date(body.settlement_time) 
+          : new Date();
+      }
+      
       await prisma.order.update({
         where: { id: order.id },
-        data: { status: newStatus },
+        data: updateData,
       });
 
       logMidtransEvent("NOTIFICATION", order_id, {

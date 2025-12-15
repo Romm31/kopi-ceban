@@ -3,12 +3,12 @@ import { notFound } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { format } from "date-fns"
-import { OrderStatusUpdate } from "@/components/admin/orders/order-status-update"
 import { ArrowLeft, CreditCard, User, Box } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { OrderTimeline } from "@/components/admin/orders/order-timeline"
 import { StatusBadge } from "@/components/ui/status-badge"
+import { SyncOrderButton } from "@/components/admin/orders/sync-order-button"
 
 export const dynamic = 'force-dynamic'
 
@@ -27,12 +27,18 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
     notFound()
   }
 
-  const order = await prisma.order.findUnique({
+  const orderData = await prisma.order.findUnique({
     where: { id },
   })
 
-  if (!order) {
+  if (!orderData) {
     notFound()
+  }
+
+  // Cast to include new fields
+  const order = orderData as typeof orderData & {
+    orderType?: string;
+    tableNumber?: number | null;
   }
 
   // Parse items from JSON
@@ -56,7 +62,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           </div>
           <div className="flex items-center gap-3">
                <StatusBadge status={order.status} className="text-base px-4 py-1.5" />
-               <OrderStatusUpdate orderId={order.id} currentStatus={order.status} />
+               <SyncOrderButton orderCode={order.orderCode} />
           </div>
       </div>
 
@@ -119,6 +125,34 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                      <div className="flex flex-col gap-1">
                         <span className="text-xs text-muted-foreground uppercase tracking-wider">Order Code</span>
                          <span className="font-mono text-sm text-muted-foreground">{order.orderCode}</span>
+                    </div>
+                    <Separator className="bg-white/10" />
+                    <div className="flex flex-col gap-2">
+                        <span className="text-xs text-muted-foreground uppercase tracking-wider">Order Type</span>
+                        <div className="flex items-center gap-2">
+                            {order.orderType === "DINE_IN" ? (
+                                <>
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-green-700/30 text-green-300 border border-green-500/30">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                        Dine In
+                                    </span>
+                                    {order.tableNumber && (
+                                        <span className="px-2.5 py-1 text-sm font-bold rounded-lg bg-green-900/50 text-green-200 border border-green-600/30">
+                                            Meja {order.tableNumber}
+                                        </span>
+                                    )}
+                                </>
+                            ) : (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-blue-700/30 text-blue-300 border border-blue-500/30">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                    </svg>
+                                    Take Away
+                                </span>
+                            )}
+                        </div>
                     </div>
                 </CardContent>
             </Card>

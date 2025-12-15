@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { CartDrawer } from "@/components/cart-drawer";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
@@ -6,12 +6,12 @@ import { Coffee, UtensilsCrossed } from "lucide-react";
 import { PesanClient } from "@/components/pesan-client";
 
 export const dynamic = "force-dynamic";
-
-const prisma = new PrismaClient();
+export const revalidate = 0;
 
 async function getAllMenuItems() {
   return await prisma.menu.findMany({
-    orderBy: { createdAt: "desc" },
+    where: { isAvailable: true },
+    orderBy: { id: "asc" }, // Stable ordering to prevent hydration mismatch
   });
 }
 

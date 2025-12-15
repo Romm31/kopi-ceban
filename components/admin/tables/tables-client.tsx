@@ -14,12 +14,15 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Table,
   TableBody,
@@ -35,11 +38,12 @@ import {
   QrCode,
   Download,
   Trash2,
-  Edit,
   RefreshCw,
   UtensilsCrossed,
   Link as LinkIcon,
   Loader2,
+  CheckCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import QRCode from "qrcode";
@@ -59,10 +63,10 @@ interface TableData {
 }
 
 const statusConfig = {
-  AVAILABLE: { label: "Tersedia", color: "bg-green-500/20 text-green-400 border-green-500/30" },
-  RESERVED: { label: "Direservasi", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" },
-  OCCUPIED: { label: "Terisi", color: "bg-red-500/20 text-red-400 border-red-500/30" },
-  CLEANING: { label: "Dibersihkan", color: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
+  AVAILABLE: { label: "Tersedia", color: "bg-green-500/20 text-green-400 border-green-500/30", icon: "🟢" },
+  RESERVED: { label: "Direservasi", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30", icon: "🟡" },
+  OCCUPIED: { label: "Terisi", color: "bg-red-500/20 text-red-400 border-red-500/30", icon: "🔴" },
+  CLEANING: { label: "Dibersihkan", color: "bg-blue-500/20 text-blue-400 border-blue-500/30", icon: "🔵" },
 };
 
 export function TablesClient() {
@@ -70,9 +74,12 @@ export function TablesClient() {
   const [loading, setLoading] = useState(true);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<TableData | null>(null);
+  const [tableToDelete, setTableToDelete] = useState<TableData | null>(null);
   const [newTableName, setNewTableName] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState("");
 
   const fetchTables = async () => {
@@ -123,47 +130,56 @@ export function TablesClient() {
     }
   };
 
-  const handleUpdateStatus = async (tableId: number, status: string) => {
+  const handleReleaseTable = async (tableId: number) => {
     try {
       const res = await fetch(`/api/tables/${tableId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status: "AVAILABLE" }),
       });
       const data = await res.json();
       if (data.success) {
-        toast.success("Status meja diperbarui");
+        toast.success("Meja berhasil dirilis");
         fetchTables();
       } else {
-        toast.error(data.error || "Gagal memperbarui status");
+        toast.error(data.error || "Gagal merilis meja");
       }
     } catch (error) {
       toast.error("Terjadi kesalahan");
     }
   };
 
-  const handleDeleteTable = async (tableId: number) => {
-    if (!confirm("Yakin ingin menghapus meja ini?")) return;
+  const openDeleteDialog = (table: TableData) => {
+    setTableToDelete(table);
+    setDeleteDialogOpen(true);
+  };
 
+  const handleDeleteTable = async () => {
+    if (!tableToDelete) return;
+
+    setDeleting(true);
     try {
-      const res = await fetch(`/api/tables/${tableId}`, {
+      const res = await fetch(`/api/tables/${tableToDelete.id}`, {
         method: "DELETE",
       });
       const data = await res.json();
       if (data.success) {
         toast.success("Meja berhasil dihapus");
+        setDeleteDialogOpen(false);
+        setTableToDelete(null);
         fetchTables();
       } else {
         toast.error(data.error || "Gagal menghapus meja");
       }
     } catch (error) {
       toast.error("Terjadi kesalahan");
+    } finally {
+      setDeleting(false);
     }
   };
 
   const generateQR = async (table: TableData) => {
     setSelectedTable(table);
-    // Use relative URL for development, replace with production domain
     const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
     const qrUrl = `${baseUrl}/pesan?table=${table.id}`;
     
@@ -196,7 +212,7 @@ export function TablesClient() {
     const config = statusConfig[status];
     return (
       <Badge variant="outline" className={`${config.color} font-medium`}>
-        {config.label}
+        {config.icon} {config.label}
       </Badge>
     );
   };
@@ -297,6 +313,24 @@ export function TablesClient() {
         </Dialog>
       </div>
 
+      {/* Info Box */}
+      <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+        <div className="flex items-start gap-3">
+          <div className="p-2 bg-blue-500/20 rounded-lg">
+            <AlertTriangle className="w-4 h-4 text-blue-400" />
+          </div>
+          <div className="text-sm">
+            <p className="text-blue-300 font-medium">Status Meja Otomatis</p>
+            <p className="text-muted-foreground mt-1">
+              Status meja akan berubah otomatis berdasarkan pesanan: <br />
+              • <span className="text-yellow-400">Reserved</span> → Saat customer checkout (menunggu bayar) <br />
+              • <span className="text-red-400">Occupied</span> → Saat pembayaran berhasil <br />
+              • <span className="text-green-400">Available</span> → Saat pembayaran gagal/expired/admin release
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Tables List */}
       <Card className="bg-white/5 border-white/10">
         <CardHeader>
@@ -337,28 +371,7 @@ export function TablesClient() {
                         {table.name}
                       </TableCell>
                       <TableCell>
-                        <Select
-                          value={table.status}
-                          onValueChange={(value) => handleUpdateStatus(table.id, value)}
-                        >
-                          <SelectTrigger className="w-36 bg-transparent border-none p-0 h-auto">
-                            <SelectValue>{getStatusBadge(table.status)}</SelectValue>
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="AVAILABLE">
-                              <span className="text-green-400">Tersedia</span>
-                            </SelectItem>
-                            <SelectItem value="CLEANING">
-                              <span className="text-blue-400">Dibersihkan</span>
-                            </SelectItem>
-                            <SelectItem value="RESERVED" disabled>
-                              <span className="text-yellow-400">Direservasi</span>
-                            </SelectItem>
-                            <SelectItem value="OCCUPIED" disabled>
-                              <span className="text-red-400">Terisi</span>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
+                        {getStatusBadge(table.status)}
                       </TableCell>
                       <TableCell>
                         {table.activeOrder ? (
@@ -375,6 +388,19 @@ export function TablesClient() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
+                          {/* Release Button - only show if occupied/reserved */}
+                          {(table.status === "OCCUPIED" || table.status === "RESERVED") && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleReleaseTable(table.id)}
+                              title="Release Meja"
+                              className="text-green-400 hover:text-green-300 hover:bg-green-500/10"
+                            >
+                              <CheckCircle className="w-4 h-4 mr-1" />
+                              Release
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="icon"
@@ -386,9 +412,9 @@ export function TablesClient() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleDeleteTable(table.id)}
+                            onClick={() => openDeleteDialog(table)}
                             title="Hapus Meja"
-                            className="text-destructive hover:text-destructive"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -432,6 +458,46 @@ export function TablesClient() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="bg-card border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-coffee-cream flex items-center gap-2">
+              <Trash2 className="w-5 h-5 text-destructive" />
+              Hapus Meja
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
+              Apakah Anda yakin ingin menghapus <span className="font-bold text-foreground">{tableToDelete?.name}</span>?
+              <br /><br />
+              {tableToDelete?.activeOrder ? (
+                <span className="text-destructive">
+                  ⚠️ Meja ini memiliki pesanan aktif dan tidak dapat dihapus.
+                </span>
+              ) : (
+                <span>Tindakan ini tidak dapat dibatalkan.</span>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-muted hover:bg-muted/80">Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteTable}
+              disabled={deleting || !!tableToDelete?.activeOrder}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Menghapus...
+                </>
+              ) : (
+                "Ya, Hapus"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

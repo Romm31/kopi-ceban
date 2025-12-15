@@ -12,9 +12,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Coffee, UtensilsCrossed, ShoppingBag } from "lucide-react";
+import { Loader2, UtensilsCrossed, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Table {
   id: number;
@@ -30,6 +30,8 @@ interface CheckoutFormProps {
     notes: string;
     tableId: number | null;
     takeAway: boolean;
+    orderType: string;
+    tableNumber: number | null;
   }) => Promise<void>;
   tableFromQR?: number | null;
   tableNameFromQR?: string | null;
@@ -45,20 +47,23 @@ export function CheckoutForm({
   const [customerName, setCustomerName] = useState("");
   const [notes, setNotes] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [orderType, setOrderType] = useState<"dine-in" | "take-away">(
-    tableFromQR ? "dine-in" : "dine-in"
+  const [orderType, setOrderType] = useState<"DINE_IN" | "TAKE_AWAY">(
+    tableFromQR ? "DINE_IN" : "TAKE_AWAY"
   );
   const [selectedTableId, setSelectedTableId] = useState<number | null>(
     tableFromQR || null
+  );
+  const [selectedTableName, setSelectedTableName] = useState<string>(
+    tableNameFromQR || ""
   );
   const [availableTables, setAvailableTables] = useState<Table[]>([]);
   const [tablesLoading, setTablesLoading] = useState(false);
 
   const isFromQR = tableFromQR !== null && tableFromQR !== undefined;
 
-  // Fetch available tables when dine-in is selected and not from QR
+  // Fetch available tables when dine-in is selected
   useEffect(() => {
-    if (orderType === "dine-in" && !isFromQR) {
+    if (orderType === "DINE_IN" && !isFromQR) {
       fetchAvailableTables();
     }
   }, [orderType, isFromQR]);
@@ -73,6 +78,7 @@ export function CheckoutForm({
       }
     } catch (error) {
       console.error("Failed to fetch tables:", error);
+      toast.error("Gagal memuat daftar meja");
     } finally {
       setTablesLoading(false);
     }
@@ -90,19 +96,28 @@ export function CheckoutForm({
       return;
     }
 
-    // Validate table selection for dine-in
-    if (orderType === "dine-in" && !isFromQR && !selectedTableId) {
-      toast.error("Silakan pilih meja untuk dine-in");
+    // Validate table for dine-in
+    if (orderType === "DINE_IN" && !selectedTableId) {
+      toast.error("Pilih meja terlebih dahulu untuk Dine In");
       return;
     }
 
     setIsLoading(true);
     try {
+      // Extract table number from table name (e.g., "Meja 5" -> 5)
+      let tableNum: number | null = null;
+      if (selectedTableName) {
+        const match = selectedTableName.match(/\d+/);
+        tableNum = match ? parseInt(match[0]) : selectedTableId;
+      }
+      
       await onSubmit({
         customerName,
         notes,
-        tableId: orderType === "take-away" ? null : selectedTableId,
-        takeAway: orderType === "take-away",
+        tableId: orderType === "TAKE_AWAY" ? null : selectedTableId,
+        takeAway: orderType === "TAKE_AWAY",
+        orderType: orderType,
+        tableNumber: orderType === "DINE_IN" ? tableNum : null,
       });
       setCustomerName("");
       setNotes("");
@@ -141,101 +156,136 @@ export function CheckoutForm({
             </div>
           </motion.div>
         ) : (
-          // Normal Flow - Selection
+          // Normal Flow - Selection Cards
           <div className="grid grid-cols-2 gap-3">
-            <button
+            <motion.button
               type="button"
               onClick={() => {
-                setOrderType("dine-in");
+                setOrderType("DINE_IN");
                 setSelectedTableId(null);
+                setSelectedTableName("");
               }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
-                orderType === "dine-in"
-                  ? "border-primary bg-primary/10 shadow-lg shadow-primary/20"
+                orderType === "DINE_IN"
+                  ? "border-primary bg-gradient-to-br from-primary/20 to-primary/5 shadow-lg shadow-primary/20"
                   : "border-border/50 bg-input hover:border-primary/50"
               }`}
             >
-              <UtensilsCrossed
-                className={`w-6 h-6 ${
-                  orderType === "dine-in" ? "text-primary" : "text-muted-foreground"
-                }`}
-              />
+              <div className={`p-3 rounded-lg ${
+                orderType === "DINE_IN" 
+                  ? "bg-primary/20" 
+                  : "bg-muted/30"
+              }`}>
+                <UtensilsCrossed
+                  className={`w-6 h-6 ${
+                    orderType === "DINE_IN" ? "text-primary" : "text-muted-foreground"
+                  }`}
+                />
+              </div>
               <span
                 className={`font-semibold text-sm ${
-                  orderType === "dine-in" ? "text-primary" : "text-muted-foreground"
+                  orderType === "DINE_IN" ? "text-primary" : "text-muted-foreground"
                 }`}
               >
                 Dine In
               </span>
-            </button>
-            <button
+              <span className="text-xs text-muted-foreground">Makan di tempat</span>
+            </motion.button>
+
+            <motion.button
               type="button"
               onClick={() => {
-                setOrderType("take-away");
+                setOrderType("TAKE_AWAY");
                 setSelectedTableId(null);
+                setSelectedTableName("");
               }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
-                orderType === "take-away"
-                  ? "border-primary bg-primary/10 shadow-lg shadow-primary/20"
+                orderType === "TAKE_AWAY"
+                  ? "border-primary bg-gradient-to-br from-primary/20 to-primary/5 shadow-lg shadow-primary/20"
                   : "border-border/50 bg-input hover:border-primary/50"
               }`}
             >
-              <ShoppingBag
-                className={`w-6 h-6 ${
-                  orderType === "take-away" ? "text-primary" : "text-muted-foreground"
-                }`}
-              />
+              <div className={`p-3 rounded-lg ${
+                orderType === "TAKE_AWAY" 
+                  ? "bg-primary/20" 
+                  : "bg-muted/30"
+              }`}>
+                <ShoppingBag
+                  className={`w-6 h-6 ${
+                    orderType === "TAKE_AWAY" ? "text-primary" : "text-muted-foreground"
+                  }`}
+                />
+              </div>
               <span
                 className={`font-semibold text-sm ${
-                  orderType === "take-away" ? "text-primary" : "text-muted-foreground"
+                  orderType === "TAKE_AWAY" ? "text-primary" : "text-muted-foreground"
                 }`}
               >
                 Take Away
               </span>
-            </button>
+              <span className="text-xs text-muted-foreground">Dibawa pulang</span>
+            </motion.button>
           </div>
         )}
 
         {/* Table Selection - Only for dine-in and not from QR */}
-        {orderType === "dine-in" && !isFromQR && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="space-y-2"
-          >
-            <Label
-              htmlFor="table"
-              className="text-foreground text-xs uppercase tracking-wider font-bold flex items-center gap-1"
+        <AnimatePresence>
+          {orderType === "DINE_IN" && !isFromQR && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-2 overflow-hidden"
             >
-              Pilih Meja <span className="text-destructive">*</span>
-            </Label>
-            <Select
-              value={selectedTableId?.toString() || ""}
-              onValueChange={(value) => setSelectedTableId(parseInt(value))}
-              disabled={tablesLoading}
-            >
-              <SelectTrigger className="bg-input border-border/50 text-foreground h-11 rounded-xl">
-                <SelectValue
-                  placeholder={tablesLoading ? "Memuat meja..." : "Pilih meja..."}
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {availableTables.length === 0 ? (
-                  <SelectItem value="-1" disabled>
-                    Tidak ada meja tersedia
-                  </SelectItem>
-                ) : (
-                  availableTables.map((table) => (
-                    <SelectItem key={table.id} value={table.id.toString()}>
-                      {table.name}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
-          </motion.div>
-        )}
+              <Label
+                htmlFor="tableSelect"
+                className="text-foreground text-xs uppercase tracking-wider font-bold flex items-center gap-1"
+              >
+                Pilih Meja <span className="text-destructive">*</span>
+              </Label>
+              
+              {tablesLoading ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                  <span className="ml-2 text-sm text-muted-foreground">Memuat daftar meja...</span>
+                </div>
+              ) : availableTables.length === 0 ? (
+                <div className="p-4 bg-destructive/10 rounded-xl border border-destructive/30 text-center">
+                  <p className="text-sm text-destructive">Tidak ada meja tersedia saat ini</p>
+                  <p className="text-xs text-muted-foreground mt-1">Silakan pilih Take Away atau coba lagi nanti</p>
+                </div>
+              ) : (
+                <Select
+                  value={selectedTableId?.toString() || ""}
+                  onValueChange={(value) => {
+                    const tableId = parseInt(value);
+                    setSelectedTableId(tableId);
+                    const table = availableTables.find(t => t.id === tableId);
+                    if (table) {
+                      setSelectedTableName(table.name);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="bg-input border-border/50 text-foreground h-11 rounded-xl">
+                    <SelectValue placeholder="Pilih meja yang tersedia..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableTables.map((table) => (
+                      <SelectItem key={table.id} value={table.id.toString()}>
+                        {table.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Customer Info */}

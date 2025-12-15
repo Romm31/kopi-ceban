@@ -5,13 +5,30 @@ import { createSnapTransaction } from "@/lib/midtrans";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { customerName, items, totalPrice, tableId, takeAway = false, notes } = body;
+    const { 
+      customerName, 
+      items, 
+      totalPrice, 
+      tableId, 
+      takeAway = false, 
+      notes,
+      orderType = "TAKE_AWAY",
+      tableNumber = null
+    } = body;
 
     if (!customerName || !items || items.length === 0) {
       return NextResponse.json({ error: "Invalid data" }, { status: 400 });
     }
 
-    // Table validation for dine-in orders
+    // Validate orderType and tableNumber
+    if (orderType === "DINE_IN" && !tableNumber) {
+      return NextResponse.json(
+        { error: "Nomor meja wajib diisi untuk Dine In" },
+        { status: 400 }
+      );
+    }
+
+    // Table validation for dine-in orders (if using table management system)
     let validatedTableId: number | null = null;
     
     if (tableId && !takeAway) {
@@ -89,6 +106,8 @@ export async function POST(req: Request) {
         status: "PENDING",
         tableId: validatedTableId,
         takeAway: takeAway,
+        orderType: orderType,
+        tableNumber: tableNumber ? parseInt(tableNumber) : null,
       },
     });
 

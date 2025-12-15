@@ -1,17 +1,18 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, Eye, RefreshCw, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Search, Eye, RefreshCw, AlertTriangle, CheckCircle2, Bell, BellOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useOrderNotification } from "@/hooks/use-order-notification";
 
 interface PaymentLog {
     id: string;
@@ -29,6 +30,8 @@ interface OrderWithLogs {
     createdAt: Date;
     items: any[];
     paymentLogs: PaymentLog[];
+    orderType?: string;
+    tableNumber?: number | null;
 }
 
 interface OrdersTableProps {
@@ -41,6 +44,13 @@ export function OrdersTable({ data }: OrdersTableProps) {
     const [syncingOrders, setSyncingOrders] = useState<Set<string>>(new Set());
     const [isSyncingAll, startSyncAll] = useTransition();
     const router = useRouter();
+    
+    // Order notification hook (handles polling and sound)
+    const { 
+        isEnabled: notificationEnabled, 
+        toggleNotification, 
+        newOrderId
+    } = useOrderNotification();
 
     const filteredData = data.filter(order => 
         order.customerName.toLowerCase().includes(search.toLowerCase()) ||
@@ -123,6 +133,29 @@ export function OrdersTable({ data }: OrdersTableProps) {
 
     const pendingCount = data.filter(o => o.status === "PENDING").length;
 
+    // Order Type Badge Component - inline design
+    const OrderTypeBadge = ({ order }: { order: OrderWithLogs }) => {
+        if (order.orderType === "DINE_IN") {
+            return (
+                <div className="flex items-center gap-1.5">
+                    <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded bg-green-700/30 text-green-300 border border-green-500/30">
+                        Dine In
+                    </span>
+                    {order.tableNumber && (
+                        <span className="px-1.5 py-0.5 text-xs font-bold rounded bg-green-900/50 text-green-200 border border-green-600/30">
+                            Meja {order.tableNumber}
+                        </span>
+                    )}
+                </div>
+            );
+        }
+        return (
+            <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded bg-blue-700/30 text-blue-300 border border-blue-500/30">
+                Take Away
+            </span>
+        );
+    };
+
     return (
         <div className="space-y-4">
             {/* Toolbar */}
@@ -137,19 +170,39 @@ export function OrdersTable({ data }: OrdersTableProps) {
                     />
                 </div>
                 
-                {/* Sync All Button */}
-                {pendingCount > 0 && (
-                    <Button 
-                        variant="outline" 
+                <div className="flex items-center gap-2">
+                    {/* Notification Toggle */}
+                    <Button
+                        variant="outline"
                         size="sm"
-                        onClick={syncAllPending}
-                        disabled={isSyncingAll}
-                        className="bg-amber-500/10 border-amber-500/30 text-amber-500 hover:bg-amber-500/20"
+                        onClick={() => toggleNotification(!notificationEnabled)}
+                        className={notificationEnabled 
+                            ? "bg-coffee-gold/10 border-coffee-gold/30 text-coffee-gold hover:bg-coffee-gold/20" 
+                            : "bg-muted/20 border-muted/30 text-muted-foreground hover:bg-muted/30"
+                        }
+                        title={notificationEnabled ? "Notifikasi aktif" : "Notifikasi nonaktif"}
                     >
-                        <RefreshCw className={`w-4 h-4 mr-2 ${isSyncingAll ? 'animate-spin' : ''}`} />
-                        {isSyncingAll ? 'Syncing...' : `Sync ${pendingCount} Pending`}
+                        {notificationEnabled ? (
+                            <><Bell className="w-4 h-4 mr-2" /> Notifikasi On</>
+                        ) : (
+                            <><BellOff className="w-4 h-4 mr-2" /> Notifikasi Off</>
+                        )}
                     </Button>
-                )}
+                    
+                    {/* Sync All Button */}
+                    {pendingCount > 0 && (
+                        <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={syncAllPending}
+                            disabled={isSyncingAll}
+                            className="bg-amber-500/10 border-amber-500/30 text-amber-500 hover:bg-amber-500/20"
+                        >
+                            <RefreshCw className={`w-4 h-4 mr-2 ${isSyncingAll ? 'animate-spin' : ''}`} />
+                            {isSyncingAll ? 'Syncing...' : `Sync ${pendingCount} Pending`}
+                        </Button>
+                    )}
+                </div>
             </div>
 
             <div className="rounded-md border border-border">
@@ -160,6 +213,7 @@ export function OrdersTable({ data }: OrdersTableProps) {
                             <TableHead>Customer</TableHead>
                             <TableHead>Date</TableHead>
                             <TableHead>Status</TableHead>
+                            <TableHead>Order Type</TableHead>
                             <TableHead>Total</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
@@ -167,7 +221,7 @@ export function OrdersTable({ data }: OrdersTableProps) {
                     <TableBody>
                         {filteredData.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                                     No orders found.
                                 </TableCell>
                             </TableRow>
@@ -176,8 +230,13 @@ export function OrdersTable({ data }: OrdersTableProps) {
                                 const isSyncing = syncingOrders.has(order.orderCode);
                                 const unsync = mightBeUnsync(order);
 
+                                const isNewOrder = newOrderId === order.id;
+
                                 return (
-                                    <TableRow key={order.id}>
+                                    <TableRow 
+                                        key={order.id}
+                                        className={isNewOrder ? "animate-pulse bg-coffee-gold/15 transition-all duration-700" : ""}
+                                    >
                                         <TableCell className="font-mono text-sm">
                                             <div className="flex items-center gap-2">
                                                 {order.orderCode}
@@ -210,6 +269,9 @@ export function OrdersTable({ data }: OrdersTableProps) {
                                             >
                                                 {order.status}
                                             </Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <OrderTypeBadge order={order} />
                                         </TableCell>
                                         <TableCell>
                                             {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(order.totalPrice)}

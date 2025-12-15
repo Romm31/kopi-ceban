@@ -47,6 +47,8 @@ export function CartDrawer({ tableFromQR, tableNameFromQR }: CartDrawerProps = {
     notes: string;
     tableId: number | null;
     takeAway: boolean;
+    orderType: string;
+    tableNumber: number | null;
   }) => {
     if (items.length === 0) {
       toast.error("Keranjang masih kosong");
@@ -67,6 +69,8 @@ export function CartDrawer({ tableFromQR, tableNameFromQR }: CartDrawerProps = {
           notes: data.notes,
           tableId: data.tableId,
           takeAway: data.takeAway,
+          orderType: data.orderType,
+          tableNumber: data.tableNumber,
           items: items.map(item => ({
             menuId: item.menu.id,
             name: item.menu.name,

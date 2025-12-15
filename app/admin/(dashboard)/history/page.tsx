@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/admin/page-header"
 import { Suspense } from "react"
 import { HistoryLoader } from "@/components/admin/history/history-loader"
 import { OrderStatus } from "@prisma/client"
+import { PdfDownload } from "@/components/admin/history/pdf-download"
 
 export const dynamic = 'force-dynamic'
 
@@ -196,6 +197,9 @@ export default async function HistoryPage(props: {
             </CardContent>
         </Card>
       </div>
+
+      {/* PDF Download Section */}
+      <PdfDownload />
 
       <div className="space-y-4">
           <Card className="bg-white/5 border-white/10">

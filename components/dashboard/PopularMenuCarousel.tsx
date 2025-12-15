@@ -1,6 +1,5 @@
 "use client"
 
-import { Card, CardContent } from "@/components/ui/card"
 import { motion } from "framer-motion"
 import Image from "next/image"
 
@@ -18,28 +17,42 @@ export function PopularMenuCarousel({ menus }: PopularMenuProps) {
     )
 
     return (
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+        <div className="grid gap-6 sm:gap-8 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {menus.map((menu, index) => (
                 <motion.div
                     key={index}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="min-w-[200px] snap-start"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1, duration: 0.4 }}
+                    whileHover={{ scale: 1.02 }}
+                    className="bg-gradient-to-br from-[#1C1A17] to-[#2A251F] p-4 rounded-xl shadow-sm border border-[#3a2f25]/40 hover:shadow-lg hover:border-coffee-gold/50 transition-all duration-300 flex flex-col items-center gap-3"
                 >
-                    <Card className="h-full bg-coffee-dark border-white/10 overflow-hidden hover:border-coffee-gold/50 transition-colors group">
-                        <CardContent className="p-0">
-                            <div className="h-24 bg-gradient-to-b from-white/5 to-transparent relative flex items-center justify-center overflow-hidden">
-                                 {/* Placeholder for no image case, usually you would have menu.image */}
-                                 <div className="absolute inset-0 bg-coffee-gold/10 group-hover:bg-coffee-gold/20 transition-colors" />
-                                 <span className="text-4xl">☕</span>
+                    {/* Menu Image */}
+                    <div className="relative w-36 h-36 rounded-lg overflow-hidden shadow-md">
+                        {menu.image ? (
+                            <Image
+                                src={menu.image}
+                                alt={menu.name}
+                                fill
+                                className="object-cover"
+                                sizes="144px"
+                            />
+                        ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-coffee-gold/20 to-coffee-brown/30 flex items-center justify-center">
+                                <span className="text-5xl">☕</span>
                             </div>
-                            <div className="p-4">
-                                <h3 className="font-semibold text-coffee-cream truncate">{menu.name}</h3>
-                                <p className="text-xs text-muted-foreground mt-1">{menu.quantity} Sold</p>
-                            </div>
-                        </CardContent>
-                    </Card>
+                        )}
+                    </div>
+                    
+                    {/* Menu Info */}
+                    <div className="text-center mt-1">
+                        <h3 className="text-white font-semibold text-base text-center truncate max-w-[160px]">
+                            {menu.name}
+                        </h3>
+                        <p className="text-neutral-400 text-sm text-center mt-1">
+                            {menu.quantity} Sold
+                        </p>
+                    </div>
                 </motion.div>
             ))}
         </div>

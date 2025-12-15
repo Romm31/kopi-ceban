@@ -6,12 +6,13 @@ import {
   logMidtransEvent,
   MIDTRANS_SERVER_KEY,
 } from "@/lib/midtrans";
+import { OrderStatus } from "@prisma/client";
 
 /**
  * Midtrans Notification Handler
  * 
  * This endpoint receives POST requests from Midtrans when payment status changes.
- * It validates the signature, updates the order status, and logs the event.
+ * It validates the signature, updates the order status, and syncs table status.
  * 
  * URL to configure in Midtrans Dashboard:
  * Settings > Payment > Notification URL > https://yourdomain.com/api/midtrans/notification
@@ -96,6 +97,33 @@ export async function POST(req: Request) {
         statusChange: `${oldStatus} → ${newStatus}`,
         transaction_id,
       });
+
+      // 6. Sync Table Status based on payment result
+      if (order.tableId) {
+        const statusesToResetTable: OrderStatus[] = ["EXPIRED", "FAILED", "REFUNDED"];
+        
+        if (newStatus === "SUCCESS") {
+          // Payment successful - mark table as OCCUPIED
+          await prisma.table.update({
+            where: { id: order.tableId },
+            data: { status: "OCCUPIED" },
+          });
+          
+          logMidtransEvent("NOTIFICATION", order_id, {
+            tableSync: `Table ${order.tableId} → OCCUPIED`,
+          });
+        } else if (statusesToResetTable.includes(newStatus)) {
+          // Payment failed/expired/refunded - release the table
+          await prisma.table.update({
+            where: { id: order.tableId },
+            data: { status: "AVAILABLE" },
+          });
+          
+          logMidtransEvent("NOTIFICATION", order_id, {
+            tableSync: `Table ${order.tableId} → AVAILABLE (payment ${newStatus})`,
+          });
+        }
+      }
     }
 
     return NextResponse.json({ 

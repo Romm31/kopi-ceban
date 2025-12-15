@@ -25,7 +25,12 @@ declare global {
   }
 }
 
-export function CartDrawer() {
+interface CartDrawerProps {
+  tableFromQR?: number | null;
+  tableNameFromQR?: string | null;
+}
+
+export function CartDrawer({ tableFromQR, tableNameFromQR }: CartDrawerProps = {}) {
   const { items, totalPrice, clearCart } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -37,7 +42,12 @@ export function CartDrawer() {
     minimumFractionDigits: 0,
   });
 
-  const handleProcessOrder = async (data: { customerName: string; notes: string }) => {
+  const handleProcessOrder = async (data: {
+    customerName: string;
+    notes: string;
+    tableId: number | null;
+    takeAway: boolean;
+  }) => {
     if (items.length === 0) {
       toast.error("Keranjang masih kosong");
       return;
@@ -54,6 +64,9 @@ export function CartDrawer() {
         },
         body: JSON.stringify({
           customerName: data.customerName,
+          notes: data.notes,
+          tableId: data.tableId,
+          takeAway: data.takeAway,
           items: items.map(item => ({
             menuId: item.menu.id,
             name: item.menu.name,
@@ -146,7 +159,7 @@ export function CartDrawer() {
                 {items.map((item) => (
                 <motion.div
                     key={item.menu.id}
-                    layout // Helps with smooth list reordering/removal
+                    layout
                     initial={{ opacity: 0, scale: 0.9, y: -10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.85, x: -20, transition: { duration: 0.25 } }}
@@ -172,6 +185,8 @@ export function CartDrawer() {
                     totalPrice={totalPrice} 
                     disabled={items.length === 0}
                     onSubmit={handleProcessOrder}
+                    tableFromQR={tableFromQR}
+                    tableNameFromQR={tableNameFromQR}
                 />
             </motion.div>
         )}

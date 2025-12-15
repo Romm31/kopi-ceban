@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { CartDrawer } from "@/components/cart-drawer";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import { Coffee } from "lucide-react";
+import { Coffee, UtensilsCrossed } from "lucide-react";
 import { PesanClient } from "@/components/pesan-client";
 
 export const dynamic = "force-dynamic";
@@ -15,8 +15,46 @@ async function getAllMenuItems() {
   });
 }
 
-export default async function PesanPage() {
+async function getTableById(tableId: number) {
+  return await prisma.table.findUnique({
+    where: { id: tableId },
+  });
+}
+
+interface PesanPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function PesanPage({ searchParams }: PesanPageProps) {
   const menuItems = await getAllMenuItems();
+  const params = await searchParams;
+  
+  // Check for table parameter from QR code
+  const tableParam = params.table;
+  let tableFromQR: number | null = null;
+  let tableNameFromQR: string | null = null;
+  let tableError: string | null = null;
+
+  if (tableParam && typeof tableParam === "string") {
+    const tableId = parseInt(tableParam);
+    if (!isNaN(tableId)) {
+      const table = await getTableById(tableId);
+      if (table) {
+        if (table.status === "AVAILABLE") {
+          tableFromQR = table.id;
+          tableNameFromQR = table.name;
+        } else if (table.status === "OCCUPIED") {
+          tableError = `${table.name} sedang digunakan. Silakan pilih meja lain.`;
+        } else if (table.status === "RESERVED") {
+          tableError = `${table.name} sedang direservasi.`;
+        } else if (table.status === "CLEANING") {
+          tableError = `${table.name} sedang dibersihkan.`;
+        }
+      } else {
+        tableError = "Meja tidak ditemukan.";
+      }
+    }
+  }
 
   return (
     <div className="flex flex-col min-h-screen w-full bg-background">
@@ -36,6 +74,26 @@ export default async function PesanPage() {
             <p className="text-muted-foreground max-w-2xl mx-auto text-base sm:text-lg leading-relaxed">
               Temukan menu favorit, cari dengan mudah, dan filter sesuai keinginan. Ratusan pelanggan puas setiap hari!
             </p>
+
+            {/* Table Indicator from QR */}
+            {tableFromQR && tableNameFromQR && (
+              <div className="inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-primary/20 to-primary/10 rounded-2xl border-2 border-primary/30 shadow-lg shadow-primary/10 mt-4">
+                <div className="p-2 bg-primary/20 rounded-lg">
+                  <UtensilsCrossed className="w-5 h-5 text-primary" />
+                </div>
+                <div className="text-left">
+                  <p className="text-xs text-primary/80 font-medium uppercase tracking-wider">Dine In</p>
+                  <p className="text-lg font-bold text-foreground">{tableNameFromQR}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Table Error */}
+            {tableError && (
+              <div className="inline-flex items-center gap-3 px-5 py-3 bg-destructive/10 rounded-2xl border-2 border-destructive/30 shadow-lg mt-4">
+                <p className="text-destructive font-medium">{tableError}</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -50,7 +108,10 @@ export default async function PesanPage() {
 
               {/* Cart Sidebar - Desktop Only */}
               <div className="hidden lg:block lg:col-span-4 xl:col-span-3 px-4 py-8">
-                <CartDrawer />
+                <CartDrawer 
+                  tableFromQR={tableFromQR} 
+                  tableNameFromQR={tableNameFromQR}
+                />
               </div>
             </div>
           </div>
@@ -58,7 +119,10 @@ export default async function PesanPage() {
 
         {/* Mobile Cart */}
         <div className="lg:hidden">
-          <CartDrawer />
+          <CartDrawer 
+            tableFromQR={tableFromQR} 
+            tableNameFromQR={tableNameFromQR}
+          />
         </div>
       </main>
 

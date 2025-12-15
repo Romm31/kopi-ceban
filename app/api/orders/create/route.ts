@@ -5,10 +5,55 @@ import { createSnapTransaction } from "@/lib/midtrans";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { customerName, items, totalPrice } = body;
+    const { customerName, items, totalPrice, tableId, takeAway = false, notes } = body;
 
     if (!customerName || !items || items.length === 0) {
       return NextResponse.json({ error: "Invalid data" }, { status: 400 });
+    }
+
+    // Table validation for dine-in orders
+    let validatedTableId: number | null = null;
+    
+    if (tableId && !takeAway) {
+      const table = await prisma.table.findUnique({
+        where: { id: tableId },
+      });
+
+      if (!table) {
+        return NextResponse.json(
+          { error: "Meja tidak ditemukan" },
+          { status: 400 }
+        );
+      }
+
+      if (table.status === "OCCUPIED") {
+        return NextResponse.json(
+          { error: "Meja sedang digunakan. Silakan pilih meja lain." },
+          { status: 400 }
+        );
+      }
+
+      if (table.status === "RESERVED") {
+        return NextResponse.json(
+          { error: "Meja sedang direservasi. Silakan pilih meja lain." },
+          { status: 400 }
+        );
+      }
+
+      if (table.status === "CLEANING") {
+        return NextResponse.json(
+          { error: "Meja sedang dibersihkan. Silakan pilih meja lain." },
+          { status: 400 }
+        );
+      }
+
+      validatedTableId = tableId;
+
+      // Reserve the table
+      await prisma.table.update({
+        where: { id: tableId },
+        data: { status: "RESERVED" },
+      });
     }
 
     // 1. Recalculate total price on server side
@@ -42,16 +87,31 @@ export async function POST(req: Request) {
         totalPrice: calculatedTotal,
         items: validatedItems,
         status: "PENDING",
-      } as any,
+        tableId: validatedTableId,
+        takeAway: takeAway,
+      },
     });
 
     // 4. Create Snap Transaction Token
-    const snapData = await createSnapTransaction(
-      orderCode,
-      calculatedTotal,
-      customerName,
-      validatedItems
-    );
+    let snapData;
+    try {
+      snapData = await createSnapTransaction(
+        orderCode,
+        calculatedTotal,
+        customerName,
+        validatedItems
+      );
+    } catch (snapError) {
+      // If Midtrans fails, reset table status and delete order
+      if (validatedTableId) {
+        await prisma.table.update({
+          where: { id: validatedTableId },
+          data: { status: "AVAILABLE" },
+        });
+      }
+      await prisma.order.delete({ where: { id: order.id } });
+      throw snapError;
+    }
 
     // 5. Update Order with snap token
     await prisma.order.update({
@@ -59,7 +119,7 @@ export async function POST(req: Request) {
       data: {
         paymentLinkId: snapData.token,
         paymentLinkUrl: snapData.redirect_url,
-      } as any,
+      },
     });
 
     return NextResponse.json({

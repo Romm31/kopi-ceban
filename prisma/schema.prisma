@@ -48,6 +48,7 @@ model Order {
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
   paymentLogs    PaymentLog[]
+  paymentMethod  PaymentMethod @default(TRANSFER) // CASH or TRANSFER
 }
 
 model PaymentLog {
@@ -81,4 +82,9 @@ enum OrderStatus {
   EXPIRED
   FAILED
   REFUNDED
+}
+
+enum PaymentMethod {
+  CASH
+  TRANSFER
 }

@@ -13,7 +13,8 @@ export async function POST(req: Request) {
       takeAway = false, 
       notes,
       orderType = "TAKE_AWAY",
-      tableNumber = null
+      tableNumber = null,
+      paymentMethod = "TRANSFER" // CASH or TRANSFER
     } = body;
 
     if (!customerName || !items || items.length === 0) {
@@ -96,7 +97,7 @@ export async function POST(req: Request) {
     const timestamp = Date.now();
     const orderCode = `ORD-${timestamp}-${Math.floor(Math.random() * 1000)}`;
 
-    // 3. Create Order in DB (Pending)
+    // 3. Create Order in DB
     const order = await prisma.order.create({
       data: {
         orderCode,
@@ -108,10 +109,24 @@ export async function POST(req: Request) {
         takeAway: takeAway,
         orderType: orderType,
         tableNumber: tableNumber ? parseInt(tableNumber) : null,
+        paymentMethod: paymentMethod, // CASH or TRANSFER
       },
     });
 
-    // 4. Create Snap Transaction Token
+    // 4. Handle payment based on method
+    if (paymentMethod === "CASH") {
+      // For CASH: No Midtrans, just return order code
+      // Customer will pay at cashier, admin will confirm
+      return NextResponse.json({
+        success: true,
+        orderId: order.id,
+        orderCode: orderCode,
+        paymentMethod: "CASH",
+        message: "Silakan bayar di kasir",
+      });
+    }
+
+    // 5. For TRANSFER: Create Snap Transaction Token
     let snapData;
     try {
       snapData = await createSnapTransaction(
@@ -132,7 +147,7 @@ export async function POST(req: Request) {
       throw snapError;
     }
 
-    // 5. Update Order with snap token
+    // 6. Update Order with snap token
     await prisma.order.update({
       where: { id: order.id },
       data: {
@@ -147,6 +162,7 @@ export async function POST(req: Request) {
       orderCode: orderCode,
       snapToken: snapData.token,
       redirectUrl: snapData.redirect_url,
+      paymentMethod: "TRANSFER",
     });
 
   } catch (error) {

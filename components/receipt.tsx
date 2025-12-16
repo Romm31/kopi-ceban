@@ -30,15 +30,29 @@ interface ReceiptProps {
 }
 
 const formatPaymentType = (type: string | null | undefined): string => {
-  if (!type) return "QRIS";
+  if (!type) return "-";
   const map: Record<string, string> = {
     qris: "QRIS",
     bank_transfer: "Transfer Bank",
     credit_card: "Kartu Kredit",
+    debit: "Kartu Debit",
+    debit_card: "Kartu Debit",
     gopay: "GoPay",
     shopeepay: "ShopeePay",
+    ovo: "OVO",
+    dana: "DANA",
+    linkaja: "LinkAja",
+    akulaku: "Akulaku",
+    kredivo: "Kredivo",
+    cstore: "Convenience Store",
+    echannel: "Mandiri Bill",
+    bca_va: "BCA VA",
+    bni_va: "BNI VA",
+    bri_va: "BRI VA",
+    permata_va: "Permata VA",
+    cimb_va: "CIMB VA",
   };
-  return map[type.toLowerCase()] || type.toUpperCase();
+  return map[type.toLowerCase()] || type.replace(/_/g, " ").toUpperCase();
 };
 
 // Using inline styles with hex colors for html2canvas compatibility
@@ -63,7 +77,6 @@ const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(
           margin: "0 auto",
           backgroundColor: "#1A1A18",
           borderRadius: "12px",
-          border: "1px solid #2A2A26",
           padding: "24px",
           color: "#ffffff",
           fontFamily: "system-ui, -apple-system, sans-serif",
@@ -124,12 +137,14 @@ const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(
                 : "Take Away"}
             </span>
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <span style={{ fontSize: "14px", color: "#888888" }}>Pembayaran</span>
-            <span style={{ fontWeight: "500", color: "#22c55e", fontSize: "14px" }}>
-              {formatPaymentType(order.paymentType)} ✓
-            </span>
-          </div>
+          {order.paymentType && order.paymentType !== "-" && (
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span style={{ fontSize: "14px", color: "#888888" }}>Pembayaran</span>
+              <span style={{ fontWeight: "500", color: "#22c55e", fontSize: "14px" }}>
+                {formatPaymentType(order.paymentType)} ✓
+              </span>
+            </div>
+          )}
           {order.transactionId && (
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px" }}>
               <span style={{ fontSize: "14px", color: "#888888" }}>Trans ID</span>

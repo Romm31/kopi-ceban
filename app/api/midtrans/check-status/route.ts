@@ -66,9 +66,21 @@ export async function GET(req: Request) {
       if (midtransStatus !== order.status) {
         const oldStatus = order.status;
         
+        // Build update data
+        const updateData: any = { status: midtransStatus };
+        
+        // Add payment details on SUCCESS
+        if (midtransStatus === "SUCCESS") {
+          updateData.paymentType = midtransData.payment_type || null;
+          updateData.transactionId = midtransData.transaction_id || null;
+          updateData.settlementTime = midtransData.settlement_time 
+            ? new Date(midtransData.settlement_time) 
+            : new Date();
+        }
+        
         await prisma.order.update({
           where: { id: order.id },
-          data: { status: midtransStatus },
+          data: updateData,
         });
 
         // Log the sync
@@ -82,6 +94,23 @@ export async function GET(req: Request) {
             },
           },
         });
+
+        // Sync table status based on payment result
+        if (order.tableId) {
+          const statusesToResetTable = ["EXPIRED", "FAILED", "REFUNDED"];
+          
+          if (midtransStatus === "SUCCESS") {
+            await prisma.table.update({
+              where: { id: order.tableId },
+              data: { status: "OCCUPIED" },
+            });
+          } else if (statusesToResetTable.includes(midtransStatus)) {
+            await prisma.table.update({
+              where: { id: order.tableId },
+              data: { status: "AVAILABLE" },
+            });
+          }
+        }
 
         syncResult = `synced: ${oldStatus} → ${midtransStatus}`;
         
@@ -147,6 +176,7 @@ export async function POST(req: Request) {
         id: true,
         orderCode: true,
         status: true,
+        tableId: true,
       },
     });
 

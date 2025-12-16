@@ -3,15 +3,17 @@
 import { useEffect, useState, Suspense, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle2, XCircle, Clock, Home, UtensilsCrossed, Download, Printer, AlertCircle, ImageIcon } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, Clock, Home, UtensilsCrossed, AlertCircle, ImageIcon } from "lucide-react";
 import { Receipt, OrderData } from "@/components/receipt";
 import { PaymentConfirmationModal } from "@/components/payment-confirmation-modal";
 import html2canvas from "html2canvas";
 
 type OrderStatus = "PENDING" | "SUCCESS" | "EXPIRED" | "FAILED" | "REFUNDED";
+type PaymentMethod = "CASH" | "TRANSFER";
 
 interface OrderResponse extends OrderData {
   status: OrderStatus;
+  paymentMethod?: PaymentMethod;
 }
 
 function ThankYouContent() {
@@ -94,9 +96,7 @@ function ThankYouContent() {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
+
 
   const formatter = new Intl.NumberFormat("id-ID", {
     style: "currency",
@@ -156,8 +156,8 @@ function ThankYouContent() {
               <Receipt order={order} />
             </div>
 
-            {/* Action Buttons */}
-            <div className="grid grid-cols-2 gap-3 print:hidden">
+            {/* Action Buttons - All in grid for better mobile layout */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 print:hidden">
               <Button
                 onClick={handleDownloadImage}
                 disabled={downloading}
@@ -168,20 +168,8 @@ function ThankYouContent() {
                 ) : (
                   <ImageIcon className="w-4 h-4 mr-2" />
                 )}
-                Download Gambar
+                Download Kuitansi
               </Button>
-              <Button
-                onClick={handlePrint}
-                variant="outline"
-                className="h-12 border-white/20 text-white hover:bg-white/5"
-              >
-                <Printer className="w-4 h-4 mr-2" />
-                Print
-              </Button>
-            </div>
-
-            {/* Navigation */}
-            <div className="grid grid-cols-2 gap-3 print:hidden">
               <Button
                 variant="outline"
                 onClick={() => router.push("/")}
@@ -222,12 +210,14 @@ function ThankYouContent() {
               <div className="space-y-2">
                 <h1 className="text-3xl font-serif font-bold text-[#d4a857]">
                   {order.status === "PENDING"
-                    ? "Menunggu Pembayaran"
+                    ? (order.paymentMethod === "CASH" ? "Silakan Bayar di Kasir" : "Menunggu Pembayaran")
                     : "Pesanan Dibatalkan"}
                 </h1>
                 <p className="text-neutral-300">
                   {order.status === "PENDING"
-                    ? "Silakan selesaikan pembayaran Anda."
+                    ? (order.paymentMethod === "CASH" 
+                        ? "Tunjukkan kode pesanan ini kepada kasir untuk menyelesaikan pembayaran."
+                        : "Silakan selesaikan pembayaran Anda.")
                     : "Maaf, pesanan Anda telah kadaluarsa atau dibatalkan."}
                 </p>
               </div>
@@ -250,43 +240,65 @@ function ThankYouContent() {
                 </div>
               </div>
 
-              {/* Pending Warning */}
+              {/* Pending Info - Different for Cash vs Transfer */}
               {order.status === "PENDING" && (
                 <div className="space-y-3 w-full">
-                  <div className="flex gap-3 items-start bg-amber-500/10 p-3 rounded-xl border border-amber-500/20 text-left">
-                    <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="text-xs text-amber-200/80 leading-relaxed">
-                        Status akan update otomatis setiap 5 detik.
-                      </p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                        <span className="text-xs text-green-400">Auto-refresh aktif</span>
+                  {order.paymentMethod === "CASH" ? (
+                    /* Cash Payment Info */
+                    <div className="flex gap-3 items-start bg-green-500/10 p-4 rounded-xl border border-green-500/20 text-left">
+                      <div className="text-3xl">💵</div>
+                      <div className="flex-1">
+                        <p className="text-sm text-green-200/90 leading-relaxed font-medium">
+                          Tunjukkan kode pesanan di atas kepada kasir.
+                        </p>
+                        <p className="text-xs text-green-300/70 mt-1">
+                          Pesanan Anda akan diproses setelah pembayaran dikonfirmasi oleh kasir.
+                        </p>
+                        <div className="flex items-center gap-2 mt-3">
+                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                          <span className="text-xs text-green-400">Menunggu konfirmasi kasir</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  ) : (
+                    /* Transfer Payment Info */
+                    <>
+                      <div className="flex gap-3 items-start bg-amber-500/10 p-3 rounded-xl border border-amber-500/20 text-left">
+                        <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="text-xs text-amber-200/80 leading-relaxed">
+                            Status akan update otomatis setiap 5 detik.
+                          </p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                            <span className="text-xs text-green-400">Auto-refresh aktif</span>
+                          </div>
+                        </div>
+                      </div>
 
-                  {/* Sandbox Warning */}
-                  <div className="bg-red-500/10 p-4 rounded-xl border border-red-500/30 text-left space-y-2">
-                    <span className="text-red-400 font-bold text-xs uppercase tracking-wider">
-                      ⚠️ Mode Sandbox
-                    </span>
-                    <p className="text-xs text-red-200/90 leading-relaxed">
-                      <strong>QRIS Sandbox TIDAK BISA dibayar</strong> menggunakan aplikasi e-wallet asli.
-                    </p>
-                    <p className="text-xs text-neutral-400 leading-relaxed">
-                      Untuk testing, gunakan{" "}
-                      <strong>Midtrans Dashboard → Transactions → Simulate Payment</strong>.
-                    </p>
-                    <a
-                      href="https://dashboard.sandbox.midtrans.com/transactions"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block mt-2 text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg transition-colors"
-                    >
-                      Buka Midtrans Dashboard →
-                    </a>
-                  </div>
+                      {/* Sandbox Warning */}
+                      <div className="bg-red-500/10 p-4 rounded-xl border border-red-500/30 text-left space-y-2">
+                        <span className="text-red-400 font-bold text-xs uppercase tracking-wider">
+                          ⚠️ Mode Sandbox
+                        </span>
+                        <p className="text-xs text-red-200/90 leading-relaxed">
+                          <strong>QRIS Sandbox TIDAK BISA dibayar</strong> menggunakan aplikasi e-wallet asli.
+                        </p>
+                        <p className="text-xs text-neutral-400 leading-relaxed">
+                          Untuk testing, gunakan{" "}
+                          <strong>Midtrans Dashboard → Transactions → Simulate Payment</strong>.
+                        </p>
+                        <a
+                          href="https://dashboard.sandbox.midtrans.com/transactions"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-block mt-2 text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg transition-colors"
+                        >
+                          Buka Midtrans Dashboard →
+                        </a>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
 

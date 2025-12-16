@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, Eye, RefreshCw, AlertTriangle, CheckCircle2, Bell, BellOff } from "lucide-react";
+import { Search, Eye, RefreshCw, AlertTriangle, CheckCircle2, Bell, BellOff, Banknote, CreditCard } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
@@ -32,6 +32,7 @@ interface OrderWithLogs {
     paymentLogs: PaymentLog[];
     orderType?: string;
     tableNumber?: number | null;
+    paymentMethod?: string; // CASH or TRANSFER
 }
 
 interface OrdersTableProps {
@@ -156,6 +157,56 @@ export function OrdersTable({ data }: OrdersTableProps) {
         );
     };
 
+    // Payment Method Badge Component
+    const PaymentMethodBadge = ({ order }: { order: OrderWithLogs }) => {
+        if (order.paymentMethod === "CASH") {
+            return (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded bg-green-700/30 text-green-300 border border-green-500/30">
+                    <Banknote className="w-3 h-3" />
+                    Cash
+                </span>
+            );
+        }
+        return (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded bg-purple-700/30 text-purple-300 border border-purple-500/30">
+                <CreditCard className="w-3 h-3" />
+                Transfer
+            </span>
+        );
+    };
+
+    // Confirm Cash Payment
+    const [confirmingOrders, setConfirmingOrders] = useState<Set<string>>(new Set());
+    
+    const confirmCashPayment = async (orderCode: string) => {
+        setConfirmingOrders(prev => new Set(prev).add(orderCode));
+        
+        try {
+            const res = await fetch('/api/orders/confirm-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderCode }),
+            });
+            const result = await res.json();
+            
+            if (!res.ok) {
+                toast.error(`Konfirmasi gagal: ${result.error}`);
+                return;
+            }
+            
+            toast.success(`✅ Pembayaran Cash ${orderCode} dikonfirmasi!`);
+            router.refresh();
+        } catch (error) {
+            toast.error(`Error: ${(error as Error).message}`);
+        } finally {
+            setConfirmingOrders(prev => {
+                const next = new Set(prev);
+                next.delete(orderCode);
+                return next;
+            });
+        }
+    };
+
     return (
         <div className="space-y-4">
             {/* Toolbar */}
@@ -213,6 +264,7 @@ export function OrdersTable({ data }: OrdersTableProps) {
                             <TableHead>Customer</TableHead>
                             <TableHead>Date</TableHead>
                             <TableHead>Status</TableHead>
+                            <TableHead>Payment</TableHead>
                             <TableHead>Order Type</TableHead>
                             <TableHead>Total</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
@@ -271,6 +323,9 @@ export function OrdersTable({ data }: OrdersTableProps) {
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
+                                            <PaymentMethodBadge order={order} />
+                                        </TableCell>
+                                        <TableCell>
                                             <OrderTypeBadge order={order} />
                                         </TableCell>
                                         <TableCell>
@@ -278,17 +333,39 @@ export function OrdersTable({ data }: OrdersTableProps) {
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex items-center justify-end gap-1">
-                                                {/* Sync Button */}
-                                                <Button 
-                                                    size="sm" 
-                                                    variant="ghost"
-                                                    onClick={() => syncOrder(order.orderCode)}
-                                                    disabled={isSyncing}
-                                                    title="Sync status dari Midtrans"
-                                                    className={unsync ? "text-amber-500 hover:text-amber-400" : ""}
-                                                >
-                                                    <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-                                                </Button>
+                                                {/* Confirm Cash Payment Button */}
+                                                {order.paymentMethod === "CASH" && order.status === "PENDING" && (
+                                                    <Button 
+                                                        size="sm" 
+                                                        variant="default"
+                                                        onClick={() => confirmCashPayment(order.orderCode)}
+                                                        disabled={confirmingOrders.has(order.orderCode)}
+                                                        className="bg-green-600 hover:bg-green-700 text-white"
+                                                        title="Konfirmasi pembayaran cash"
+                                                    >
+                                                        {confirmingOrders.has(order.orderCode) ? (
+                                                            <RefreshCw className="w-4 h-4 animate-spin" />
+                                                        ) : (
+                                                            <>
+                                                                <CheckCircle2 className="w-4 h-4 mr-1" />
+                                                                Konfirmasi
+                                                            </>
+                                                        )}
+                                                    </Button>
+                                                )}
+                                                {/* Sync Button - only for Transfer */}
+                                                {order.paymentMethod !== "CASH" && (
+                                                    <Button 
+                                                        size="sm" 
+                                                        variant="ghost"
+                                                        onClick={() => syncOrder(order.orderCode)}
+                                                        disabled={isSyncing}
+                                                        title="Sync status dari Midtrans"
+                                                        className={unsync ? "text-amber-500 hover:text-amber-400" : ""}
+                                                    >
+                                                        <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+                                                    </Button>
+                                                )}
                                                 {/* Details Button */}
                                                 <Button 
                                                     size="sm" 

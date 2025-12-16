@@ -49,6 +49,7 @@ export function CartDrawer({ tableFromQR, tableNameFromQR }: CartDrawerProps = {
     takeAway: boolean;
     orderType: string;
     tableNumber: number | null;
+    paymentMethod: "CASH" | "TRANSFER";
   }) => {
     if (items.length === 0) {
       toast.error("Keranjang masih kosong");
@@ -71,6 +72,7 @@ export function CartDrawer({ tableFromQR, tableNameFromQR }: CartDrawerProps = {
           takeAway: data.takeAway,
           orderType: data.orderType,
           tableNumber: data.tableNumber,
+          paymentMethod: data.paymentMethod,
           items: items.map(item => ({
             menuId: item.menu.id,
             name: item.menu.name,
@@ -83,7 +85,24 @@ export function CartDrawer({ tableFromQR, tableNameFromQR }: CartDrawerProps = {
 
       const result = await response.json();
 
-      if (response.ok && result.success && result.snapToken) {
+      if (!response.ok) {
+        const errorMsg = result.details || result.error || "Gagal membuat pesanan";
+        toast.error(errorMsg, { duration: 5000 });
+        console.error("Order creation failed:", result);
+        return;
+      }
+
+      // Handle Cash Payment - redirect directly to thank-you
+      if (data.paymentMethod === "CASH" && result.success) {
+        setIsOpen(false);
+        toast.success("Pesanan berhasil dibuat! Silakan bayar di kasir 💵");
+        clearCart();
+        router.push(`/pesan/thank-you?order_id=${result.orderCode}`);
+        return;
+      }
+
+      // Handle Transfer Payment - use Midtrans
+      if (result.success && result.snapToken) {
         // Close the cart drawer first
         setIsOpen(false);
         
@@ -117,7 +136,7 @@ export function CartDrawer({ tableFromQR, tableNameFromQR }: CartDrawerProps = {
             toast.info("Pembayaran dibatalkan");
           },
         });
-      } else {
+      } else if (!result.success) {
         const errorMsg = result.details || result.error || "Gagal membuat pesanan";
         toast.error(errorMsg, { duration: 5000 });
         console.error("Order creation failed:", result);
@@ -148,7 +167,7 @@ export function CartDrawer({ tableFromQR, tableNameFromQR }: CartDrawerProps = {
       </div>
 
       {/* Items List */}
-      <div className="flex-1 px-4 overflow-y-auto scrollbar-thin scrollbar-thumb-muted-foreground/30 scrollbar-track-transparent hover:scrollbar-thumb-muted-foreground/50">
+      <div className="flex-1 px-4 overflow-y-auto min-h-0 scrollbar-thin scrollbar-thumb-muted-foreground/30 scrollbar-track-transparent hover:scrollbar-thumb-muted-foreground/50">
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 text-muted-foreground animate-fade-in">
             <div className="p-6 bg-muted/20 rounded-full mb-4">
@@ -177,8 +196,8 @@ export function CartDrawer({ tableFromQR, tableNameFromQR }: CartDrawerProps = {
         )}
       </div>
 
-      {/* Footer / Checkout Form */}
-      <div className="p-5 border-t border-border/50 bg-gradient-to-t from-card to-card/80 space-y-4 shrink-0 shadow-[0_-8px_16px_-4px_rgba(0,0,0,0.2)] z-10">
+      {/* Footer / Checkout Form - Scrollable for long forms */}
+      <div className="border-t border-border/50 bg-gradient-to-t from-card to-card/80 shadow-[0_-8px_16px_-4px_rgba(0,0,0,0.2)] z-10 max-h-[60vh] overflow-y-auto">
         {items.length > 0 && (
             <motion.div 
               initial={{ opacity: 0, y: 20 }}

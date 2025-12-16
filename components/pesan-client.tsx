@@ -114,10 +114,11 @@ export function PesanClient({ initialMenuItems }: PesanClientProps) {
     return result;
   }, [initialMenuItems, searchQuery, activeFilters]);
 
-  // Recommendations: Random 2-3 available items
+  // Recommendations: Top 3 available items (deterministic to avoid hydration mismatch)
   const recommendations = useMemo(() => {
     const available = initialMenuItems.filter((item) => item.isAvailable);
-    return available.sort(() => 0.5 - Math.random()).slice(0, 3);
+    // Use deterministic sorting by id to avoid hydration mismatch
+    return available.sort((a, b) => a.id - b.id).slice(0, 3);
   }, [initialMenuItems]);
 
   return (

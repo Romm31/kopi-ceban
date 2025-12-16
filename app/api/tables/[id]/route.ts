@@ -108,6 +108,14 @@ export async function PATCH(req: Request, { params }: RouteParams) {
       data: updateData,
     });
 
+    // If table is released (set to AVAILABLE), clear tableId from linked orders
+    if (status === "AVAILABLE") {
+      await prisma.order.updateMany({
+        where: { tableId: tableId },
+        data: { tableId: null },
+      });
+    }
+
     return NextResponse.json({
       success: true,
       table: updatedTable,

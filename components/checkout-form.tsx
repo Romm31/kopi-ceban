@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, UtensilsCrossed, ShoppingBag } from "lucide-react";
+import { Loader2, UtensilsCrossed, ShoppingBag, Banknote, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -32,6 +32,7 @@ interface CheckoutFormProps {
     takeAway: boolean;
     orderType: string;
     tableNumber: number | null;
+    paymentMethod: "CASH" | "TRANSFER";
   }) => Promise<void>;
   tableFromQR?: number | null;
   tableNameFromQR?: string | null;
@@ -58,6 +59,7 @@ export function CheckoutForm({
   );
   const [availableTables, setAvailableTables] = useState<Table[]>([]);
   const [tablesLoading, setTablesLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"CASH" | "TRANSFER">("TRANSFER");
 
   const isFromQR = tableFromQR !== null && tableFromQR !== undefined;
 
@@ -118,6 +120,7 @@ export function CheckoutForm({
         takeAway: orderType === "TAKE_AWAY",
         orderType: orderType,
         tableNumber: orderType === "DINE_IN" ? tableNum : null,
+        paymentMethod,
       });
       setCustomerName("");
       setNotes("");
@@ -129,7 +132,7 @@ export function CheckoutForm({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 p-4">
       {/* Order Type Selection */}
       <div className="space-y-3">
         <Label className="text-foreground text-xs uppercase tracking-wider font-bold">
@@ -157,7 +160,7 @@ export function CheckoutForm({
           </motion.div>
         ) : (
           // Normal Flow - Selection Cards
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2">
             <motion.button
               type="button"
               onClick={() => {
@@ -167,31 +170,31 @@ export function CheckoutForm({
               }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+              className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1.5 ${
                 orderType === "DINE_IN"
                   ? "border-primary bg-gradient-to-br from-primary/20 to-primary/5 shadow-lg shadow-primary/20"
                   : "border-border/50 bg-input hover:border-primary/50"
               }`}
             >
-              <div className={`p-3 rounded-lg ${
+              <div className={`p-2 rounded-lg ${
                 orderType === "DINE_IN" 
                   ? "bg-primary/20" 
                   : "bg-muted/30"
               }`}>
                 <UtensilsCrossed
-                  className={`w-6 h-6 ${
+                  className={`w-5 h-5 ${
                     orderType === "DINE_IN" ? "text-primary" : "text-muted-foreground"
                   }`}
                 />
               </div>
               <span
-                className={`font-semibold text-sm ${
+                className={`font-semibold text-xs ${
                   orderType === "DINE_IN" ? "text-primary" : "text-muted-foreground"
                 }`}
               >
                 Dine In
               </span>
-              <span className="text-xs text-muted-foreground">Makan di tempat</span>
+              <span className="text-[10px] text-muted-foreground">Makan di tempat</span>
             </motion.button>
 
             <motion.button
@@ -203,31 +206,31 @@ export function CheckoutForm({
               }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+              className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1.5 ${
                 orderType === "TAKE_AWAY"
                   ? "border-primary bg-gradient-to-br from-primary/20 to-primary/5 shadow-lg shadow-primary/20"
                   : "border-border/50 bg-input hover:border-primary/50"
               }`}
             >
-              <div className={`p-3 rounded-lg ${
+              <div className={`p-2 rounded-lg ${
                 orderType === "TAKE_AWAY" 
                   ? "bg-primary/20" 
                   : "bg-muted/30"
               }`}>
                 <ShoppingBag
-                  className={`w-6 h-6 ${
+                  className={`w-5 h-5 ${
                     orderType === "TAKE_AWAY" ? "text-primary" : "text-muted-foreground"
                   }`}
                 />
               </div>
               <span
-                className={`font-semibold text-sm ${
+                className={`font-semibold text-xs ${
                   orderType === "TAKE_AWAY" ? "text-primary" : "text-muted-foreground"
                 }`}
               >
                 Take Away
               </span>
-              <span className="text-xs text-muted-foreground">Dibawa pulang</span>
+              <span className="text-[10px] text-muted-foreground">Dibawa pulang</span>
             </motion.button>
           </div>
         )}
@@ -283,6 +286,96 @@ export function CheckoutForm({
                   </SelectContent>
                 </Select>
               )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Payment Method Selection */}
+      <div className="space-y-3">
+        <Label className="text-foreground text-xs uppercase tracking-wider font-bold">
+          Metode Pembayaran
+        </Label>
+        <div className="grid grid-cols-2 gap-2">
+          <motion.button
+            type="button"
+            onClick={() => setPaymentMethod("CASH")}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1.5 ${
+              paymentMethod === "CASH"
+                ? "border-green-500 bg-gradient-to-br from-green-500/20 to-green-500/5 shadow-lg shadow-green-500/20"
+                : "border-border/50 bg-input hover:border-green-500/50"
+            }`}
+          >
+            <div className={`p-2 rounded-lg ${
+              paymentMethod === "CASH" 
+                ? "bg-green-500/20" 
+                : "bg-muted/30"
+            }`}>
+              <Banknote
+                className={`w-5 h-5 ${
+                  paymentMethod === "CASH" ? "text-green-500" : "text-muted-foreground"
+                }`}
+              />
+            </div>
+            <span
+              className={`font-semibold text-xs ${
+                paymentMethod === "CASH" ? "text-green-500" : "text-muted-foreground"
+              }`}
+            >
+              Cash
+            </span>
+            <span className="text-[10px] text-muted-foreground">Bayar di kasir</span>
+          </motion.button>
+
+          <motion.button
+            type="button"
+            onClick={() => setPaymentMethod("TRANSFER")}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1.5 ${
+              paymentMethod === "TRANSFER"
+                ? "border-primary bg-gradient-to-br from-primary/20 to-primary/5 shadow-lg shadow-primary/20"
+                : "border-border/50 bg-input hover:border-primary/50"
+            }`}
+          >
+            <div className={`p-2 rounded-lg ${
+              paymentMethod === "TRANSFER" 
+                ? "bg-primary/20" 
+                : "bg-muted/30"
+            }`}>
+              <CreditCard
+                className={`w-5 h-5 ${
+                  paymentMethod === "TRANSFER" ? "text-primary" : "text-muted-foreground"
+                }`}
+              />
+            </div>
+            <span
+              className={`font-semibold text-xs ${
+                paymentMethod === "TRANSFER" ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              Transfer
+            </span>
+            <span className="text-[10px] text-muted-foreground">QRIS / E-Wallet</span>
+          </motion.button>
+        </div>
+
+        {/* Cash Info Message */}
+        <AnimatePresence>
+          {paymentMethod === "CASH" && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="p-3 bg-green-500/10 rounded-xl border border-green-500/30 text-center">
+                <p className="text-sm text-green-400">
+                  💵 Setelah checkout, tunjukkan kode pesanan ke kasir untuk pembayaran
+                </p>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

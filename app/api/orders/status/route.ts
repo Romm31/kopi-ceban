@@ -30,11 +30,12 @@ export async function GET(req: Request) {
       items: order.items,
       totalPrice: order.totalPrice,
       status: order.status,
-      orderType: (order as any).orderType || "TAKE_AWAY",
-      tableNumber: (order as any).tableNumber || null,
-      paymentType: (order as any).paymentType || null,
-      transactionId: (order as any).transactionId || null,
-      settlementTime: (order as any).settlementTime || null,
+      orderType: order.orderType || "TAKE_AWAY",
+      tableNumber: order.tableNumber || null,
+      paymentType: order.paymentType || null,
+      paymentMethod: order.paymentMethod || "TRANSFER",
+      transactionId: order.transactionId || null,
+      settlementTime: order.settlementTime || null,
       createdAt: order.createdAt,
     });
   } catch (error) {

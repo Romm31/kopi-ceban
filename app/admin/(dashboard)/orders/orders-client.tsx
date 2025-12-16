@@ -1,18 +1,21 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, Eye, RefreshCw, AlertTriangle, CheckCircle2, Bell, BellOff, Banknote, CreditCard, XCircle } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Search, Eye, RefreshCw, AlertTriangle, CheckCircle2, Bell, BellOff, Banknote, CreditCard, XCircle, Download, FileText, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useOrderNotification } from "@/hooks/use-order-notification";
+import { Receipt } from "@/components/receipt";
+import html2canvas from "html2canvas";
 
 interface PaymentLog {
     id: string;
@@ -25,6 +28,7 @@ interface OrderWithLogs {
     id: string;
     orderCode: string;
     customerName: string;
+    notes?: string | null;
     totalPrice: number;
     status: string;
     createdAt: Date;
@@ -33,6 +37,9 @@ interface OrderWithLogs {
     orderType?: string;
     tableNumber?: number | null;
     paymentMethod?: string; // CASH or TRANSFER
+    paymentType?: string | null;
+    transactionId?: string | null;
+    settlementTime?: Date | null;
 }
 
 interface OrdersTableProps {
@@ -44,6 +51,8 @@ export function OrdersTable({ data }: OrdersTableProps) {
     const [selectedOrder, setSelectedOrder] = useState<OrderWithLogs | null>(null);
     const [syncingOrders, setSyncingOrders] = useState<Set<string>>(new Set());
     const [isSyncingAll, startSyncAll] = useTransition();
+    const [downloading, setDownloading] = useState(false);
+    const receiptRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
     
     // Order notification hook (handles polling and sound)
@@ -247,6 +256,30 @@ export function OrdersTable({ data }: OrdersTableProps) {
                 return next;
             });
             setOrderToReject(null);
+        }
+    };
+
+    // Download receipt as image
+    const handleDownloadReceipt = async (orderCode: string) => {
+        if (!receiptRef.current) return;
+        
+        setDownloading(true);
+        try {
+            const canvas = await html2canvas(receiptRef.current, {
+                backgroundColor: "#1A1A18",
+                scale: 2,
+            });
+            
+            const link = document.createElement("a");
+            link.download = `Kuitansi-${orderCode}.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+            toast.success("Kuitansi berhasil diunduh!");
+        } catch (err) {
+            console.error("Download failed:", err);
+            toast.error("Gagal mengunduh kuitansi");
+        } finally {
+            setDownloading(false);
         }
     };
 
@@ -512,56 +545,114 @@ export function OrdersTable({ data }: OrdersTableProps) {
                     </DialogHeader>
                     
                     {selectedOrder && (
-                        <div className="space-y-6">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <h4 className="text-sm font-semibold mb-2 text-muted-foreground">Items</h4>
-                                    <ScrollArea className="h-[200px] rounded-md border p-2">
-                                        {selectedOrder.items.map((item: any, idx: number) => (
-                                            <div key={idx} className="flex justify-between items-center py-2 border-b border-border/50 last:border-0">
-                                                <div className="text-sm">
-                                                    <span className="font-bold">{item.quantity}x</span> {item.name}
-                                                </div>
-                                                <div className="text-sm font-mono">
-                                                    {new Intl.NumberFormat("id-ID").format(item.price * item.quantity)}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </ScrollArea>
-                                </div>
-                                <div>
-                                    <h4 className="text-sm font-semibold mb-2 text-muted-foreground">Payment Logs</h4>
-                                    <ScrollArea className="h-[200px] rounded-md border p-2 bg-muted/20">
-                                        {selectedOrder.paymentLogs.length === 0 ? (
-                                            <p className="text-xs text-muted-foreground text-center py-4">No payment logs yet.</p>
-                                        ) : (
-                                            selectedOrder.paymentLogs.map((log) => (
-                                                <div key={log.id} className="mb-3 p-2 bg-background rounded-md border border-border text-xs">
-                                                    <div className="flex justify-between mb-1">
-                                                        <span className="font-bold text-primary">{log.midtransStatus}</span>
-                                                        <span className="text-muted-foreground">
-                                                            {format(new Date(log.createdAt), "HH:mm:ss", { locale: id })}
-                                                        </span>
-                                                    </div>
-                                                    <pre className="overflow-x-auto p-1 bg-black/10 rounded text-[10px]">
-                                                        {JSON.stringify(log.rawCallback, null, 2)}
-                                                    </pre>
-                                                </div>
-                                            ))
-                                        )}
-                                    </ScrollArea>
-                                </div>
-                            </div>
+                        <Tabs defaultValue="details" className="w-full">
+                            <TabsList className="grid w-full grid-cols-2 mb-4">
+                                <TabsTrigger value="details">
+                                    <Eye className="w-4 h-4 mr-2" />
+                                    Details
+                                </TabsTrigger>
+                                <TabsTrigger value="receipt">
+                                    <FileText className="w-4 h-4 mr-2" />
+                                    Kuitansi
+                                </TabsTrigger>
+                            </TabsList>
                             
-                            <div className="flex justify-between items-center pt-4 border-t border-border">
-                                <div className="text-sm text-muted-foreground">
-                                    Customer: <span className="text-foreground font-medium">{selectedOrder.customerName}</span>
+                            {/* Details Tab */}
+                            <TabsContent value="details" className="space-y-6">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <h4 className="text-sm font-semibold mb-2 text-muted-foreground">Items</h4>
+                                        <ScrollArea className="h-[200px] rounded-md border p-2">
+                                            {selectedOrder.items.map((item: any, idx: number) => (
+                                                <div key={idx} className="flex justify-between items-center py-2 border-b border-border/50 last:border-0">
+                                                    <div className="text-sm">
+                                                        <span className="font-bold">{item.quantity}x</span> {item.name}
+                                                    </div>
+                                                    <div className="text-sm font-mono">
+                                                        {new Intl.NumberFormat("id-ID").format(item.price * item.quantity)}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </ScrollArea>
+                                    </div>
+                                    <div>
+                                        <h4 className="text-sm font-semibold mb-2 text-muted-foreground">Payment Logs</h4>
+                                        <ScrollArea className="h-[200px] rounded-md border p-2 bg-muted/20">
+                                            {selectedOrder.paymentLogs.length === 0 ? (
+                                                <p className="text-xs text-muted-foreground text-center py-4">No payment logs yet.</p>
+                                            ) : (
+                                                selectedOrder.paymentLogs.map((log) => (
+                                                    <div key={log.id} className="mb-3 p-2 bg-background rounded-md border border-border text-xs">
+                                                        <div className="flex justify-between mb-1">
+                                                            <span className="font-bold text-primary">{log.midtransStatus}</span>
+                                                            <span className="text-muted-foreground">
+                                                                {format(new Date(log.createdAt), "HH:mm:ss", { locale: id })}
+                                                            </span>
+                                                        </div>
+                                                        <pre className="overflow-x-auto p-1 bg-black/10 rounded text-[10px]">
+                                                            {JSON.stringify(log.rawCallback, null, 2)}
+                                                        </pre>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </ScrollArea>
+                                    </div>
                                 </div>
-                                <div className="text-xl font-bold text-primary">
-                                    Total: {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(selectedOrder.totalPrice)}
+                                
+                                {/* Customer Notes */}
+                                {selectedOrder.notes && (
+                                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
+                                        <h4 className="text-xs font-semibold text-amber-500 uppercase tracking-wider mb-2">📝 Catatan Pelanggan</h4>
+                                        <p className="text-sm text-foreground">{selectedOrder.notes}</p>
+                                    </div>
+                                )}
+                                
+                                <div className="flex justify-between items-center pt-4 border-t border-border">
+                                    <div className="text-sm text-muted-foreground">
+                                        Customer: <span className="text-foreground font-medium">{selectedOrder.customerName}</span>
+                                    </div>
+                                    <div className="text-xl font-bold text-primary">
+                                        Total: {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(selectedOrder.totalPrice)}
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
+                            </TabsContent>
+                            
+                            {/* Receipt Tab */}
+                            <TabsContent value="receipt" className="space-y-4">
+                                <ScrollArea className="h-[400px] rounded-md border p-4 bg-[#1A1A18]">
+                                    <div ref={receiptRef}>
+                                        <Receipt 
+                                            order={{
+                                                orderCode: selectedOrder.orderCode,
+                                                customerName: selectedOrder.customerName,
+                                                notes: selectedOrder.notes,
+                                                items: selectedOrder.items,
+                                                totalPrice: selectedOrder.totalPrice,
+                                                orderType: selectedOrder.orderType || "TAKE_AWAY",
+                                                tableNumber: selectedOrder.tableNumber,
+                                                paymentType: (selectedOrder as any).paymentType || null,
+                                                transactionId: (selectedOrder as any).transactionId || null,
+                                                settlementTime: (selectedOrder as any).settlementTime || null,
+                                                createdAt: selectedOrder.createdAt,
+                                            }}
+                                        />
+                                    </div>
+                                </ScrollArea>
+                                
+                                <Button
+                                    onClick={() => handleDownloadReceipt(selectedOrder.orderCode)}
+                                    disabled={downloading}
+                                    className="w-full h-11 bg-primary text-primary-foreground hover:bg-primary/90"
+                                >
+                                    {downloading ? (
+                                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                    ) : (
+                                        <Download className="w-4 h-4 mr-2" />
+                                    )}
+                                    {downloading ? 'Mengunduh...' : 'Download Kuitansi'}
+                                </Button>
+                            </TabsContent>
+                        </Tabs>
                     )}
                 </DialogContent>
             </Dialog>

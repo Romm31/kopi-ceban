@@ -14,6 +14,7 @@ interface OrderItem {
 interface OrderData {
   orderCode: string;
   customerName: string;
+  notes?: string | null;
   items: OrderItem[];
   totalPrice: number;
   orderType: string;
@@ -152,6 +153,26 @@ const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(
             </div>
           )}
         </div>
+
+        {/* Customer Notes */}
+        {order.notes && (
+          <div
+            style={{
+              marginBottom: "16px",
+              padding: "12px",
+              backgroundColor: "#2a2520",
+              borderRadius: "8px",
+              border: "1px solid #d4a857",
+            }}
+          >
+            <h3 style={{ fontSize: "12px", fontWeight: "bold", textTransform: "uppercase", color: "#d4a857", marginBottom: "8px" }}>
+              📝 Catatan
+            </h3>
+            <p style={{ fontSize: "13px", color: "#ffffff", margin: 0, lineHeight: "1.5" }}>
+              {order.notes}
+            </p>
+          </div>
+        )}
 
         {/* Items */}
         <div style={{ marginBottom: "16px" }}>

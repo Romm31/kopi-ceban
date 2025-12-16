@@ -86,7 +86,7 @@ export default function Home() {
                 <div className="text-sm sm:text-base text-muted-foreground">Pelanggan Puas</div>
               </div>
               <div className="text-center space-y-1 p-4 rounded-xl bg-card/50 border border-border/50 backdrop-blur-sm">
-                <div className="text-3xl sm:text-4xl font-bold text-primary">15+</div>
+                <div className="text-3xl sm:text-4xl font-bold text-primary">10+</div>
                 <div className="text-sm sm:text-base text-muted-foreground">Varian Menu</div>
               </div>
               <div className="col-span-2 sm:col-span-1 text-center space-y-1 p-4 rounded-xl bg-card/50 border border-border/50 backdrop-blur-sm">

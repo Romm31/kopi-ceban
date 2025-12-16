@@ -27,6 +27,7 @@ export async function GET(req: Request) {
     return NextResponse.json({
       orderCode: order.orderCode,
       customerName: order.customerName,
+      notes: order.notes || null,
       items: order.items,
       totalPrice: order.totalPrice,
       status: order.status,

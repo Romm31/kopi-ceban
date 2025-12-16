@@ -106,6 +106,7 @@ export async function POST(req: Request) {
       data: {
         orderCode,
         customerName,
+        notes: notes || null, // Customer notes
         totalPrice: grandTotal, // Grand total including PPN
         items: validatedItems,
         status: "PENDING",

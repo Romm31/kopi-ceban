@@ -3,7 +3,7 @@
 import { useCart } from "@/hooks/use-cart";
 import { CartItem } from "@/components/cart-item";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -251,6 +251,7 @@ export function CartDrawer({ tableFromQR, tableNameFromQR }: CartDrawerProps = {
                 </Button>
             </SheetTrigger>
             <SheetContent side="bottom" className="p-0 border-t-2 border-primary/20 bg-card/98 backdrop-blur-xl h-[90vh] rounded-t-3xl overflow-hidden focus-visible:outline-none shadow-2xl">
+                <SheetTitle className="sr-only">Keranjang Belanja</SheetTitle>
                 <CartContents isMobile={true} />
             </SheetContent>
         </Sheet>

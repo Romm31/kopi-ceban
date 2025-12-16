@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 
 interface PesanClientProps {
   initialMenuItems: Menu[];
+  bestSellerIds?: number[];
 }
 
 // Helper to determine dummy category based on menu name
@@ -23,7 +24,7 @@ function getCategory(menuName: string): string {
   return "signature";
 }
 
-export function PesanClient({ initialMenuItems }: PesanClientProps) {
+export function PesanClient({ initialMenuItems, bestSellerIds = [] }: PesanClientProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilters, setActiveFilters] = useState<FilterOption[]>([]);
   const [isVisible, setIsVisible] = useState<Record<number, boolean>>({});
@@ -160,7 +161,7 @@ export function PesanClient({ initialMenuItems }: PesanClientProps) {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
               {recommendations.map((item, idx) => (
-                <MenuCard key={item.id} menu={item} index={idx} />
+                <MenuCard key={item.id} menu={item} index={idx} isBestSeller={bestSellerIds.includes(item.id)} />
               ))}
             </div>
           </motion.div>
@@ -196,7 +197,7 @@ export function PesanClient({ initialMenuItems }: PesanClientProps) {
                   animate={isVisible[item.id] ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
                 >
-                  <MenuCard menu={item} index={index} />
+                  <MenuCard menu={item} index={index} isBestSeller={bestSellerIds.includes(item.id)} />
                 </motion.div>
               ))}
             </div>

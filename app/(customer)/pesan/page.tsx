@@ -15,6 +15,37 @@ async function getAllMenuItems() {
   });
 }
 
+// Calculate best seller from actual order data
+async function getBestSellerMenuIds(): Promise<number[]> {
+  // Get all successful orders
+  const orders = await prisma.order.findMany({
+    where: { status: "SUCCESS" },
+    select: { items: true },
+  });
+
+  // Count sales per menu item
+  const salesCount: Record<number, number> = {};
+  
+  for (const order of orders) {
+    const items = order.items as Array<{ menuId: number; quantity: number }>;
+    for (const item of items) {
+      salesCount[item.menuId] = (salesCount[item.menuId] || 0) + item.quantity;
+    }
+  }
+
+  // Sort by sales count and get top seller(s)
+  const sorted = Object.entries(salesCount)
+    .sort((a, b) => b[1] - a[1]);
+
+  if (sorted.length === 0) return [];
+
+  // Return top seller (only the one with most sales)
+  const topSales = sorted[0][1];
+  return sorted
+    .filter(([, count]) => count === topSales)
+    .map(([menuId]) => parseInt(menuId));
+}
+
 async function getTableById(tableId: number) {
   return await prisma.table.findUnique({
     where: { id: tableId },
@@ -27,6 +58,7 @@ interface PesanPageProps {
 
 export default async function PesanPage({ searchParams }: PesanPageProps) {
   const menuItems = await getAllMenuItems();
+  const bestSellerIds = await getBestSellerMenuIds();
   const params = await searchParams;
   
   // Check for table parameter from QR code
@@ -103,7 +135,7 @@ export default async function PesanPage({ searchParams }: PesanPageProps) {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-6">
               {/* Menu Section - Client Component */}
               <div className="lg:col-span-8 xl:col-span-9">
-                <PesanClient initialMenuItems={menuItems} />
+                <PesanClient initialMenuItems={menuItems} bestSellerIds={bestSellerIds} />
               </div>
 
               {/* Cart Sidebar - Desktop Only */}

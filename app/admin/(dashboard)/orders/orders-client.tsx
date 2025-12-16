@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, Eye, RefreshCw, AlertTriangle, CheckCircle2, Bell, BellOff, Banknote, CreditCard } from "lucide-react";
+import { Search, Eye, RefreshCw, AlertTriangle, CheckCircle2, Bell, BellOff, Banknote, CreditCard, XCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
@@ -177,6 +177,7 @@ export function OrdersTable({ data }: OrdersTableProps) {
 
     // Confirm Cash Payment
     const [confirmingOrders, setConfirmingOrders] = useState<Set<string>>(new Set());
+    const [rejectingOrders, setRejectingOrders] = useState<Set<string>>(new Set());
     
     const confirmCashPayment = async (orderCode: string) => {
         setConfirmingOrders(prev => new Set(prev).add(orderCode));
@@ -207,8 +208,94 @@ export function OrdersTable({ data }: OrdersTableProps) {
         }
     };
 
+    // Reject Cash Payment - with custom modal
+    const [rejectModalOpen, setRejectModalOpen] = useState(false);
+    const [orderToReject, setOrderToReject] = useState<string | null>(null);
+    
+    const openRejectModal = (orderCode: string) => {
+        setOrderToReject(orderCode);
+        setRejectModalOpen(true);
+    };
+    
+    const confirmRejectPayment = async () => {
+        if (!orderToReject) return;
+        
+        setRejectModalOpen(false);
+        setRejectingOrders(prev => new Set(prev).add(orderToReject));
+        
+        try {
+            const res = await fetch('/api/orders/reject-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderCode: orderToReject, reason: 'rejected_by_admin' }),
+            });
+            const result = await res.json();
+            
+            if (!res.ok) {
+                toast.error(`Penolakan gagal: ${result.error}`);
+                return;
+            }
+            
+            toast.success(`❌ Pesanan ${orderToReject} ditolak.`);
+            router.refresh();
+        } catch (error) {
+            toast.error(`Error: ${(error as Error).message}`);
+        } finally {
+            setRejectingOrders(prev => {
+                const next = new Set(prev);
+                next.delete(orderToReject!);
+                return next;
+            });
+            setOrderToReject(null);
+        }
+    };
+
     return (
         <div className="space-y-4">
+            {/* Reject Confirmation Modal */}
+            <Dialog open={rejectModalOpen} onOpenChange={setRejectModalOpen}>
+                <DialogContent className="sm:max-w-md bg-[#1a1816] border border-red-500/30">
+                    <DialogHeader>
+                        <div className="flex flex-col items-center text-center space-y-4">
+                            <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center">
+                                <AlertTriangle className="w-8 h-8 text-red-500" />
+                            </div>
+                            <DialogTitle className="text-xl text-white">Tolak Pesanan?</DialogTitle>
+                            <DialogDescription className="text-neutral-400">
+                                Pesanan ini akan ditandai sebagai <span className="text-red-400 font-semibold">DITOLAK</span> dan tidak dapat dibatalkan.
+                            </DialogDescription>
+                        </div>
+                    </DialogHeader>
+                    
+                    {orderToReject && (
+                        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 my-4">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm text-neutral-400">Order Code</span>
+                                <span className="font-mono font-bold text-white">{orderToReject}</span>
+                            </div>
+                        </div>
+                    )}
+                    
+                    <div className="flex gap-3 mt-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => setRejectModalOpen(false)}
+                            className="flex-1 h-11 border-white/20 text-white hover:bg-white/5"
+                        >
+                            Batal
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={confirmRejectPayment}
+                            className="flex-1 h-11 bg-red-600 hover:bg-red-700 text-white"
+                        >
+                            <XCircle className="w-4 h-4 mr-2" />
+                            Ya, Tolak
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+            
             {/* Toolbar */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between">
                 <div className="flex items-center gap-2 w-full sm:max-w-sm">
@@ -335,23 +422,39 @@ export function OrdersTable({ data }: OrdersTableProps) {
                                             <div className="flex items-center justify-end gap-1">
                                                 {/* Confirm Cash Payment Button */}
                                                 {order.paymentMethod === "CASH" && order.status === "PENDING" && (
-                                                    <Button 
-                                                        size="sm" 
-                                                        variant="default"
-                                                        onClick={() => confirmCashPayment(order.orderCode)}
-                                                        disabled={confirmingOrders.has(order.orderCode)}
-                                                        className="bg-green-600 hover:bg-green-700 text-white"
-                                                        title="Konfirmasi pembayaran cash"
-                                                    >
-                                                        {confirmingOrders.has(order.orderCode) ? (
-                                                            <RefreshCw className="w-4 h-4 animate-spin" />
-                                                        ) : (
-                                                            <>
-                                                                <CheckCircle2 className="w-4 h-4 mr-1" />
-                                                                Konfirmasi
-                                                            </>
-                                                        )}
-                                                    </Button>
+                                                    <>
+                                                        <Button 
+                                                            size="sm" 
+                                                            variant="default"
+                                                            onClick={() => confirmCashPayment(order.orderCode)}
+                                                            disabled={confirmingOrders.has(order.orderCode)}
+                                                            className="bg-green-600 hover:bg-green-700 text-white"
+                                                            title="Konfirmasi pembayaran cash"
+                                                        >
+                                                            {confirmingOrders.has(order.orderCode) ? (
+                                                                <RefreshCw className="w-4 h-4 animate-spin" />
+                                                            ) : (
+                                                                <>
+                                                                    <CheckCircle2 className="w-4 h-4 mr-1" />
+                                                                    Konfirmasi
+                                                                </>
+                                                            )}
+                                                        </Button>
+                                                        <Button 
+                                                            size="sm" 
+                                                            variant="destructive"
+                                                            onClick={() => openRejectModal(order.orderCode)}
+                                                            disabled={rejectingOrders.has(order.orderCode)}
+                                                            className="bg-red-600 hover:bg-red-700 text-white"
+                                                            title="Tolak pesanan"
+                                                        >
+                                                            {rejectingOrders.has(order.orderCode) ? (
+                                                                <RefreshCw className="w-4 h-4 animate-spin" />
+                                                            ) : (
+                                                                <XCircle className="w-4 h-4" />
+                                                            )}
+                                                        </Button>
+                                                    </>
                                                 )}
                                                 {/* Sync Button - only for Transfer */}
                                                 {order.paymentMethod !== "CASH" && (

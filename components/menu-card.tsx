@@ -13,9 +13,10 @@ import { Badge } from "@/components/ui/badge";
 interface MenuCardProps {
   menu: Menu;
   index?: number;
+  isBestSeller?: boolean;
 }
 
-export function MenuCard({ menu, index = 0 }: MenuCardProps) {
+export function MenuCard({ menu, index = 0, isBestSeller = false }: MenuCardProps) {
   const { addItem } = useCart();
   const [isAdding, setIsAdding] = useState(false);
 
@@ -72,15 +73,9 @@ export function MenuCard({ menu, index = 0 }: MenuCardProps) {
         
         {/* Badges - Absolute Top Left inside the image wrapper */}
         <div className="absolute top-2 left-2 flex flex-col gap-1.5 z-20">
-          {menu.id % 3 === 0 && menu.isAvailable && (
+          {isBestSeller && menu.isAvailable && (
             <Badge className="bg-amber-500 text-white border-none shadow-sm text-[10px] font-bold px-2 py-0.5 h-auto self-start">
               Best Seller
-            </Badge>
-          )}
-          
-          {menu.id % 5 === 0 && menu.isAvailable && (
-            <Badge className="bg-red-500 text-white border-none shadow-sm text-[10px] font-bold px-2 py-0.5 h-auto animate-pulse self-start">
-              Promo
             </Badge>
           )}
         </div>

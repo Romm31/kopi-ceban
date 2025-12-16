@@ -93,16 +93,20 @@ export async function POST(req: Request) {
         return { ...item, price, name: dbItem?.name || item.name };
     });
 
+    // Add PPN 11% tax
+    const ppn = Math.round(calculatedTotal * 0.11);
+    const grandTotal = calculatedTotal + ppn;
+
     // 2. Generate Order Code
     const timestamp = Date.now();
     const orderCode = `ORD-${timestamp}-${Math.floor(Math.random() * 1000)}`;
 
-    // 3. Create Order in DB
+    // 3. Create Order in DB - store grand total with tax
     const order = await prisma.order.create({
       data: {
         orderCode,
         customerName,
-        totalPrice: calculatedTotal,
+        totalPrice: grandTotal, // Grand total including PPN
         items: validatedItems,
         status: "PENDING",
         tableId: validatedTableId,

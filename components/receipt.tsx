@@ -191,27 +191,37 @@ const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(
             paddingTop: "16px",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-            <span style={{ fontSize: "14px", color: "#888888" }}>Subtotal</span>
-            <span style={{ fontSize: "14px" }}>{formatter.format(order.totalPrice)}</span>
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-            <span style={{ fontSize: "14px", color: "#888888" }}>Pajak</span>
-            <span style={{ fontSize: "14px" }}>Rp 0</span>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              paddingTop: "8px",
-              borderTop: "1px solid #2a2a28",
-            }}
-          >
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#d4a857" }}>TOTAL</span>
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#d4a857" }}>
-              {formatter.format(order.totalPrice)}
-            </span>
-          </div>
+          {/* Calculate subtotal from items */}
+          {(() => {
+            const subtotal = order.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+            const ppn = Math.round(subtotal * 0.11);
+            const grandTotal = subtotal + ppn;
+            return (
+              <>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                  <span style={{ fontSize: "14px", color: "#888888" }}>Subtotal</span>
+                  <span style={{ fontSize: "14px" }}>{formatter.format(subtotal)}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                  <span style={{ fontSize: "14px", color: "#888888" }}>PPN (11%)</span>
+                  <span style={{ fontSize: "14px" }}>{formatter.format(ppn)}</span>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    paddingTop: "8px",
+                    borderTop: "1px solid #2a2a28",
+                  }}
+                >
+                  <span style={{ fontSize: "18px", fontWeight: "bold", color: "#d4a857" }}>TOTAL</span>
+                  <span style={{ fontSize: "18px", fontWeight: "bold", color: "#d4a857" }}>
+                    {formatter.format(grandTotal)}
+                  </span>
+              </div>
+            </>
+            );
+          })()}
         </div>
 
         {/* Footer */}

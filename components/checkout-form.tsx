@@ -419,13 +419,23 @@ export function CheckoutForm({
 
       {/* Submit */}
       <div className="pt-3 border-t border-border/50">
-        <div className="flex justify-between items-baseline mb-4 p-3 bg-primary/5 rounded-xl border border-primary/10">
-          <span className="text-base font-semibold text-muted-foreground">
-            Total Pembayaran
-          </span>
-          <span className="text-primary text-2xl font-bold tracking-tight">
-            {formatter.format(totalPrice)}
-          </span>
+        {/* Price Breakdown */}
+        <div className="space-y-2 mb-4 p-4 bg-muted/30 rounded-xl border border-border/30">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">Subtotal</span>
+            <span className="text-sm text-foreground">{formatter.format(totalPrice)}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">PPN (11%)</span>
+            <span className="text-sm text-foreground">{formatter.format(Math.round(totalPrice * 0.11))}</span>
+          </div>
+          <div className="h-px bg-border/50 my-2" />
+          <div className="flex justify-between items-center">
+            <span className="text-base font-bold text-foreground">Total Pembayaran</span>
+            <span className="text-primary text-xl font-bold tracking-tight">
+              {formatter.format(Math.round(totalPrice * 1.11))}
+            </span>
+          </div>
         </div>
         <Button
           onClick={handleSubmit}

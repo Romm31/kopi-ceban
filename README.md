@@ -311,8 +311,4 @@ Kontribusi selalu diterima! Silakan ikuti langkah berikut:
 
 Sistem Informasi - 2024
 
----
-
-<sub>Made with ☕ and ❤️ by Kopi Ceban Team © 2025</sub>
-
 </div>

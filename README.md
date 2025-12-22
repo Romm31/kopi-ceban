@@ -309,6 +309,4 @@ Kontribusi selalu diterima! Silakan ikuti langkah berikut:
 
 **Universitas Teknokrat Indonesia**
 
-Sistem Informasi - 2024
-
 </div>

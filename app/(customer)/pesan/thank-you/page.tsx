@@ -118,8 +118,8 @@ function ThankYouContent() {
     setDownloading(true);
     try {
       const canvas = await html2canvas(receiptRef.current, {
-        backgroundColor: "#1A1A18",
         scale: 2,
+        backgroundColor: null, // Transparent/Use CSS
       });
       
       // Convert to PNG and download
@@ -520,8 +520,8 @@ export default function ThankYouPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#13110f] flex items-center justify-center">
-          <Loader2 className="h-10 w-10 animate-spin text-[#d4a857]" />
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
         </div>
       }
     >

@@ -73,131 +73,96 @@ const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(
       <div
         ref={ref}
         id="receipt-content"
-        style={{
-          maxWidth: "400px",
-          margin: "0 auto",
-          backgroundColor: "#1A1A18",
-          borderRadius: "12px",
-          padding: "24px",
-          color: "#ffffff",
-          fontFamily: "system-ui, -apple-system, sans-serif",
-        }}
+        className="max-w-[400px] mx-auto bg-card rounded-xl p-6 text-foreground font-sans border border-border shadow-sm"
       >
         {/* Header */}
-        <div
-          style={{
-            textAlign: "center",
-            borderBottom: "1px dashed #3a3a38",
-            paddingBottom: "16px",
-            marginBottom: "16px",
-          }}
-        >
+        <div className="text-center border-b border-dashed border-muted-foreground/30 pb-4 mb-4">
           {showLogo && (
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: "12px" }}>
+            <div className="flex justify-center mb-3">
               <img
                 src="/logo/logo.jpg"
                 alt="Kopi Ceban"
-                style={{ width: "64px", height: "64px", borderRadius: "50%", objectFit: "cover" }}
+                className="w-16 h-16 rounded-full object-cover"
               />
             </div>
           )}
-          <h1 style={{ fontSize: "20px", fontWeight: "bold", color: "#d4a857", margin: "0" }}>
+          <h1 className="text-xl font-bold text-primary m-0">
             Kopi Ceban
           </h1>
-          <p style={{ fontSize: "12px", color: "#888888", margin: "4px 0 0" }}>
+          <p className="text-xs text-muted-foreground mt-1">
             Panglima Polim
           </p>
-          <p style={{ fontSize: "12px", color: "#666666", marginTop: "4px" }}>
+          <p className="text-xs text-muted-foreground mt-1">
             {format(settlementDate, "dd MMMM yyyy, HH:mm", { locale: id })}
           </p>
         </div>
 
         {/* Order Info */}
-        <div
-          style={{
-            borderBottom: "1px dashed #3a3a38",
-            paddingBottom: "16px",
-            marginBottom: "16px",
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-            <span style={{ fontSize: "14px", color: "#888888" }}>Order</span>
-            <span style={{ fontFamily: "monospace", fontWeight: "bold", color: "#d4a857", fontSize: "14px" }}>
+        <div className="border-b border-dashed border-muted-foreground/30 pb-4 mb-4 space-y-2">
+          <div className="flex justify-between">
+            <span className="text-sm text-muted-foreground">Order</span>
+            <span className="font-mono font-bold text-primary text-sm">
               {order.orderCode}
             </span>
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-            <span style={{ fontSize: "14px", color: "#888888" }}>Customer</span>
-            <span style={{ fontWeight: "500", fontSize: "14px" }}>{order.customerName}</span>
+          <div className="flex justify-between">
+            <span className="text-sm text-muted-foreground">Customer</span>
+            <span className="font-medium text-sm">{order.customerName}</span>
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-            <span style={{ fontSize: "14px", color: "#888888" }}>Tipe</span>
-            <span style={{ fontWeight: "500", fontSize: "14px" }}>
+          <div className="flex justify-between">
+            <span className="text-sm text-muted-foreground">Tipe</span>
+            <span className="font-medium text-sm">
               {order.orderType === "DINE_IN"
                 ? `Dine In - Meja ${order.tableNumber || "-"}`
                 : "Take Away"}
             </span>
           </div>
           {order.paymentType && order.paymentType !== "-" && (
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{ fontSize: "14px", color: "#888888" }}>Pembayaran</span>
-              <span style={{ fontWeight: "500", color: "#22c55e", fontSize: "14px" }}>
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Pembayaran</span>
+              <span className="font-medium text-green-600 text-sm">
                 {formatPaymentType(order.paymentType)} ✓
               </span>
             </div>
           )}
           {order.transactionId && (
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px" }}>
-              <span style={{ fontSize: "14px", color: "#888888" }}>Trans ID</span>
-              <span style={{ fontFamily: "monospace", fontSize: "12px" }}>{order.transactionId}</span>
+            <div className="flex justify-between mt-2">
+              <span className="text-sm text-muted-foreground">Trans ID</span>
+              <span className="font-mono text-xs">{order.transactionId}</span>
             </div>
           )}
         </div>
 
         {/* Customer Notes */}
         {order.notes && (
-          <div
-            style={{
-              marginBottom: "16px",
-              padding: "12px",
-              backgroundColor: "#2a2520",
-              borderRadius: "8px",
-              border: "1px solid #d4a857",
-            }}
-          >
-            <h3 style={{ fontSize: "12px", fontWeight: "bold", textTransform: "uppercase", color: "#d4a857", marginBottom: "8px" }}>
+          <div className="mb-4 p-3 bg-muted/30 rounded-lg border border-primary/20">
+            <h3 className="text-xs font-bold uppercase text-primary mb-2">
               📝 Catatan
             </h3>
-            <p style={{ fontSize: "13px", color: "#ffffff", margin: 0, lineHeight: "1.5" }}>
+            <p className="text-sm text-foreground m-0 leading-relaxed">
               {order.notes}
             </p>
           </div>
         )}
 
         {/* Items */}
-        <div style={{ marginBottom: "16px" }}>
-          <h3 style={{ fontSize: "12px", fontWeight: "bold", textTransform: "uppercase", color: "#888888", marginBottom: "8px" }}>
+        <div className="mb-4">
+          <h3 className="text-xs font-bold uppercase text-muted-foreground mb-2">
             Detail Pesanan
           </h3>
           <div>
             {order.items.map((item, index) => (
               <div
                 key={index}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  padding: "8px 0",
-                  borderBottom: index < order.items.length - 1 ? "1px solid #2a2a28" : "none",
-                }}
+                className={`flex justify-between items-start py-2 ${index < order.items.length - 1 ? "border-b border-border" : ""}`}
               >
-                <div style={{ flex: 1 }}>
-                  <p style={{ fontWeight: "500", fontSize: "14px", margin: "0" }}>{item.name}</p>
-                  <p style={{ fontSize: "12px", color: "#888888", margin: "2px 0 0" }}>
+                <div className="flex-1">
+                  <p className="font-medium text-sm m-0">{item.name}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     {item.quantity} x {formatter.format(item.price)}
                   </p>
                 </div>
-                <span style={{ fontWeight: "500", fontSize: "14px" }}>
+                <span className="font-medium text-sm">
                   {formatter.format(item.price * item.quantity)}
                 </span>
               </div>
@@ -206,12 +171,7 @@ const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(
         </div>
 
         {/* Totals */}
-        <div
-          style={{
-            borderTop: "1px dashed #3a3a38",
-            paddingTop: "16px",
-          }}
-        >
+        <div className="border-t border-dashed border-muted-foreground/30 pt-4 space-y-2">
           {/* Calculate subtotal from items */}
           {(() => {
             const subtotal = order.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
@@ -219,24 +179,17 @@ const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(
             const grandTotal = subtotal + ppn;
             return (
               <>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                  <span style={{ fontSize: "14px", color: "#888888" }}>Subtotal</span>
-                  <span style={{ fontSize: "14px" }}>{formatter.format(subtotal)}</span>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Subtotal</span>
+                  <span className="text-sm">{formatter.format(subtotal)}</span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                  <span style={{ fontSize: "14px", color: "#888888" }}>PPN (11%)</span>
-                  <span style={{ fontSize: "14px" }}>{formatter.format(ppn)}</span>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">PPN (11%)</span>
+                  <span className="text-sm">{formatter.format(ppn)}</span>
                 </div>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    paddingTop: "8px",
-                    borderTop: "1px solid #2a2a28",
-                  }}
-                >
-                  <span style={{ fontSize: "18px", fontWeight: "bold", color: "#d4a857" }}>TOTAL</span>
-                  <span style={{ fontSize: "18px", fontWeight: "bold", color: "#d4a857" }}>
+                <div className="flex justify-between pt-2 border-t border-border mt-2">
+                  <span className="text-lg font-bold text-primary">TOTAL</span>
+                  <span className="text-lg font-bold text-primary">
                     {formatter.format(grandTotal)}
                   </span>
               </div>
@@ -246,21 +199,14 @@ const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(
         </div>
 
         {/* Footer */}
-        <div
-          style={{
-            marginTop: "24px",
-            paddingTop: "16px",
-            borderTop: "1px dashed #3a3a38",
-            textAlign: "center",
-          }}
-        >
-          <p style={{ fontSize: "14px", color: "#cccccc", margin: "0" }}>
+        <div className="mt-6 pt-4 border-t border-dashed border-muted-foreground/30 text-center">
+          <p className="text-sm text-muted-foreground m-0">
             Terima kasih telah berbelanja di
           </p>
-          <p style={{ fontSize: "18px", fontWeight: "bold", color: "#d4a857", margin: "4px 0" }}>
+          <p className="text-lg font-bold text-primary my-1">
             Kopi Ceban
           </p>
-          <p style={{ fontSize: "12px", color: "#666666", marginTop: "8px" }}>
+          <p className="text-xs text-muted-foreground mt-2">
             Follow us @kopiceban_
           </p>
         </div>

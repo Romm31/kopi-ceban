@@ -148,11 +148,11 @@ export function OrdersTable({ data }: OrdersTableProps) {
         if (order.orderType === "DINE_IN") {
             return (
                 <div className="flex items-center gap-1.5">
-                    <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded bg-green-700/30 text-green-300 border border-green-500/30">
+                    <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded bg-green-100 text-green-800 border border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-500/30">
                         Dine In
                     </span>
                     {order.tableNumber && (
-                        <span className="px-1.5 py-0.5 text-xs font-bold rounded bg-green-900/50 text-green-200 border border-green-600/30">
+                        <span className="px-1.5 py-0.5 text-xs font-bold rounded bg-green-200 text-green-900 border border-green-300 dark:bg-green-900/50 dark:text-green-200 dark:border-green-600/30">
                             Meja {order.tableNumber}
                         </span>
                     )}
@@ -160,7 +160,7 @@ export function OrdersTable({ data }: OrdersTableProps) {
             );
         }
         return (
-            <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded bg-blue-700/30 text-blue-300 border border-blue-500/30">
+            <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-500/30">
                 Take Away
             </span>
         );
@@ -170,14 +170,14 @@ export function OrdersTable({ data }: OrdersTableProps) {
     const PaymentMethodBadge = ({ order }: { order: OrderWithLogs }) => {
         if (order.paymentMethod === "CASH") {
             return (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded bg-green-700/30 text-green-300 border border-green-500/30">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded bg-green-100 text-green-800 border border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-500/30">
                     <Banknote className="w-3 h-3" />
                     Cash
                 </span>
             );
         }
         return (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded bg-purple-700/30 text-purple-300 border border-purple-500/30">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded bg-purple-100 text-purple-800 border border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-500/30">
                 <CreditCard className="w-3 h-3" />
                 Transfer
             </span>
@@ -287,24 +287,24 @@ export function OrdersTable({ data }: OrdersTableProps) {
         <div className="space-y-4">
             {/* Reject Confirmation Modal */}
             <Dialog open={rejectModalOpen} onOpenChange={setRejectModalOpen}>
-                <DialogContent className="sm:max-w-md bg-[#1a1816] border border-red-500/30">
+                <DialogContent className="sm:max-w-md bg-card border border-destructive/30">
                     <DialogHeader>
                         <div className="flex flex-col items-center text-center space-y-4">
-                            <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center">
-                                <AlertTriangle className="w-8 h-8 text-red-500" />
+                            <div className="w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center">
+                                <AlertTriangle className="w-8 h-8 text-destructive" />
                             </div>
-                            <DialogTitle className="text-xl text-white">Tolak Pesanan?</DialogTitle>
-                            <DialogDescription className="text-neutral-400">
-                                Pesanan ini akan ditandai sebagai <span className="text-red-400 font-semibold">DITOLAK</span> dan tidak dapat dibatalkan.
+                            <DialogTitle className="text-xl text-foreground">Tolak Pesanan?</DialogTitle>
+                            <DialogDescription className="text-muted-foreground">
+                                Pesanan ini akan ditandai sebagai <span className="text-destructive font-semibold">DITOLAK</span> dan tidak dapat dibatalkan.
                             </DialogDescription>
                         </div>
                     </DialogHeader>
                     
                     {orderToReject && (
-                        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 my-4">
+                        <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-4 my-4">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm text-neutral-400">Order Code</span>
-                                <span className="font-mono font-bold text-white">{orderToReject}</span>
+                                <span className="text-sm text-muted-foreground">Order Code</span>
+                                <span className="font-mono font-bold text-foreground">{orderToReject}</span>
                             </div>
                         </div>
                     )}
@@ -313,7 +313,7 @@ export function OrdersTable({ data }: OrdersTableProps) {
                         <Button
                             variant="outline"
                             onClick={() => setRejectModalOpen(false)}
-                            className="flex-1 h-11 border-white/20 text-white hover:bg-white/5"
+                            className="flex-1 h-11 border-input text-foreground hover:bg-accent"
                         >
                             Batal
                         </Button>

@@ -119,7 +119,7 @@ function ThankYouContent() {
     try {
       const canvas = await html2canvas(receiptRef.current, {
         scale: 2,
-        backgroundColor: null, // Transparent/Use CSS
+        backgroundColor: "#ffffff",
       });
       
       // Convert to PNG and download

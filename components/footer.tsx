@@ -13,7 +13,7 @@ export function Footer() {
   ];
 
   return (
-    <footer className="w-full bg-[#0f0e0c] border-t border-[#2a2826] py-10 px-6">
+    <footer className="w-full bg-background border-t border-border py-10 px-6">
       <div className="max-w-7xl mx-auto">
         {/* Footer Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
@@ -35,20 +35,20 @@ export function Footer() {
                 <span className="text-[10px] text-primary/80 tracking-widest uppercase mt-0.5 font-medium">Since 2024</span>
               </div>
             </Link>
-            <p className="text-neutral-300 text-sm leading-relaxed max-w-xs">
+            <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
               Nikmati cita rasa kopi terbaik dengan harga bersahabat. Racikan premium dari biji pilihan.
             </p>
           </div>
 
           {/* Column 2: Navigation */}
           <div className="space-y-4">
-            <h3 className="text-white font-bold text-lg font-serif">Navigasi</h3>
+            <h3 className="text-foreground font-bold text-lg font-serif">Navigasi</h3>
             <nav className="flex flex-col space-y-2">
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className="text-neutral-300 hover:text-primary transition-colors duration-300 text-sm w-fit group relative"
+                  className="text-muted-foreground hover:text-primary transition-colors duration-300 text-sm w-fit group relative"
                 >
                   <span className="relative">
                     {link.name}
@@ -61,19 +61,19 @@ export function Footer() {
 
           {/* Column 3: Contact & Social */}
           <div className="space-y-4">
-            <h3 className="text-white font-bold text-lg font-serif">Hubungi Kami</h3>
+            <h3 className="text-foreground font-bold text-lg font-serif">Hubungi Kami</h3>
             <div className="space-y-3 text-sm">
-              <p className="text-neutral-300">
-                <span className="font-semibold text-white block mb-1">Alamat:</span>
+              <p className="text-muted-foreground">
+                <span className="font-semibold text-foreground block mb-1">Alamat:</span>
                 Panglima Polim, Bandar Lampung
               </p>
               <div>
-                <span className="font-semibold text-white block mb-2">Social Media:</span>
+                <span className="font-semibold text-foreground block mb-2">Social Media:</span>
                 <a
                   href="https://instagram.com/kopiceban_"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-neutral-300 hover:text-primary transition-all duration-300 group"
+                  className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-all duration-300 group"
                 >
                   <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 group-hover:shadow-lg group-hover:shadow-primary/30 transition-all">
                     <Instagram className="w-5 h-5" />
@@ -86,8 +86,8 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-10 pt-6 border-t border-[#2a2826] text-center">
-          <p className="text-neutral-400 text-sm">
+        <div className="mt-10 pt-6 border-t border-border text-center">
+          <p className="text-muted-foreground text-sm">
             © 2025 Kopi Ceban. All rights reserved.
           </p>
         </div>

@@ -140,16 +140,16 @@ export default function Home() {
             <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-full mb-2">
               <MapPin className="w-6 h-6 text-primary" />
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-white">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-foreground">
               Lokasi <span className="text-primary">Kopi Ceban</span>
             </h2>
-            <p className="text-neutral-300 max-w-2xl mx-auto text-base sm:text-lg">
+            <p className="text-muted-foreground max-w-2xl mx-auto text-base sm:text-lg">
               Temukan kami di sini dan rasakan kopi terbaik dengan harga bersahabat.
             </p>
           </div>
 
           {/* Maps Embed */}
-          <div className="relative w-full rounded-2xl overflow-hidden border-2 border-[#2a2826] shadow-2xl shadow-black/40 hover:scale-[1.01] transition-all duration-300 group">
+          <div className="relative w-full rounded-2xl overflow-hidden border-2 border-primary/20 shadow-2xl shadow-primary/5 hover:scale-[1.01] transition-all duration-300 group">
             <div className="w-full h-[350px] sm:h-[450px] md:h-[550px] lg:h-[600px]">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15428.715329917913!2d105.2465243!3d-5.3819523!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e40db004e2f49db%3A0xda9692f932d6a00d!2sKopi%20Ceban%20panglima%20polim!5e0!3m2!1sen!2sid!4v1234567890123!5m2!1sen!2sid"
@@ -168,8 +168,8 @@ export default function Home() {
 
           {/* Address Info */}
           <div className="text-center bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6">
-            <p className="text-neutral-300 text-sm sm:text-base">
-              <span className="font-bold text-white">Alamat: </span>
+            <p className="text-muted-foreground text-sm sm:text-base">
+              <span className="font-bold text-foreground">Alamat: </span>
               Panglima Polim, Bandar Lampung
             </p>
           </div>

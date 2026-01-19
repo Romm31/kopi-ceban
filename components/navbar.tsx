@@ -7,10 +7,11 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { ModeToggle } from "@/components/ui/mode-toggle";
 
 // --- Custom Icon System ---
 const getIcon = (name: string, isActive: boolean) => {
-  const colorClass = isActive ? "text-[#d4a857]" : "text-neutral-200 group-hover:text-[#d4a857]";
+  const colorClass = isActive ? "text-primary" : "text-muted-foreground group-hover:text-primary";
   
   switch (name) {
     case "Home":
@@ -126,7 +127,7 @@ export function Navbar() {
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out border-b",
           isScrolled
-            ? "bg-[#0f0e0c]/95 backdrop-blur-xl py-3 border-[#2a2826] shadow-xl shadow-black/40"
+            ? "bg-background/95 backdrop-blur-xl py-3 border-border shadow-xl shadow-black/10 dark:shadow-black/40"
             : "bg-transparent py-5 border-transparent"
         )}
       >
@@ -134,7 +135,7 @@ export function Navbar() {
           <div className="flex items-center justify-between">
             {/* --- Logo Section --- */}
             <Link href="/" className="flex items-center gap-3 group relative z-50">
-              <div className="relative h-10 w-10 sm:h-12 sm:w-12 rounded-full overflow-hidden shadow-lg shadow-[#d4a857]/10 group-hover:shadow-[#d4a857]/30 transition-all duration-500 border border-[#d4a857]/20 group-hover:scale-105">
+              <div className="relative h-10 w-10 sm:h-12 sm:w-12 rounded-full overflow-hidden shadow-lg shadow-primary/10 group-hover:shadow-primary/30 transition-all duration-500 border border-primary/20 group-hover:scale-105">
                 <Image
                   src="/logo/logo.jpg"
                   alt="Kopi Ceban"
@@ -142,8 +143,8 @@ export function Navbar() {
                   className="object-cover"
                 />
               </div>
-              <span className="text-xl sm:text-2xl font-serif font-bold text-[#fefefe] tracking-wide">
-                Kopi <span className="text-[#d4a857]">Ceban</span>
+              <span className="text-xl sm:text-2xl font-serif font-bold text-foreground tracking-wide">
+                Kopi <span className="text-primary">Ceban</span>
               </span>
             </Link>
 
@@ -155,13 +156,13 @@ export function Navbar() {
                   <Link
                     key={link.name}
                     href={link.href}
-                    className="group flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-300 hover:bg-[#d4a857]/5"
+                    className="group flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-300 hover:bg-primary/5"
                   >
                     {getIcon(link.name, isActive)}
                     <span
                       className={cn(
                         "text-sm font-medium tracking-wide transition-colors duration-300",
-                        isActive ? "text-[#d4a857]" : "text-neutral-300 group-hover:text-[#d4a857]"
+                        isActive ? "text-primary" : "text-muted-foreground group-hover:text-primary"
                       )}
                     >
                       {link.name}
@@ -169,15 +170,17 @@ export function Navbar() {
                   </Link>
                 );
               })}
+              <ModeToggle />
             </div>
 
             {/* --- Mobile Hamburger --- */}
-            <div className="md:hidden relative z-50">
+            <div className="md:hidden relative z-50 flex items-center gap-4">
+               <ModeToggle />
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="text-neutral-200 hover:text-[#d4a857] hover:bg-transparent transition-transform active:scale-95"
+                className="text-foreground hover:text-primary hover:bg-transparent transition-transform active:scale-95"
               >
                  {/* Custom Hamburger Icon */}
                 <div className="flex flex-col gap-1.5 w-6">
@@ -220,7 +223,7 @@ export function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed inset-y-0 right-0 z-50 w-[80%] max-w-sm bg-[#0f0e0c]/95 border-l border-[#2a2826] shadow-2xl md:hidden flex flex-col pt-28 px-6"
+              className="fixed inset-y-0 right-0 z-50 w-[80%] max-w-sm bg-background/95 border-l border-border shadow-2xl md:hidden flex flex-col pt-28 px-6"
             >
               {/* Drawer Links */}
               <div className="flex flex-col space-y-4">
@@ -239,14 +242,14 @@ export function Navbar() {
                             className={cn(
                                 "group flex items-center gap-4 p-4 rounded-xl border border-transparent transition-all duration-300",
                                 isActive 
-                                    ? "bg-[#d4a857]/10 border-[#d4a857]/20" 
-                                    : "hover:bg-[#2a2826]"
+                                    ? "bg-primary/10 border-primary/20" 
+                                    : "hover:bg-muted"
                             )}
                         >
                             {getIcon(link.name, isActive)}
                             <span className={cn(
                                 "text-lg font-bold tracking-wide",
-                                isActive ? "text-[#d4a857]" : "text-neutral-200 group-hover:text-[#d4a857]"
+                                isActive ? "text-primary" : "text-foreground group-hover:text-primary"
                             )}>
                                 {link.name}
                             </span>
@@ -258,8 +261,8 @@ export function Navbar() {
 
               {/* Bottom Decoration */}
               <div className="mt-auto mb-10 text-center">
-                  <p className="text-neutral-500 text-xs tracking-widest uppercase mb-2">Kopi Ceban App</p>
-                  <div className="h-1 w-12 bg-[#d4a857]/30 mx-auto rounded-full" />
+                  <p className="text-muted-foreground text-xs tracking-widest uppercase mb-2">Kopi Ceban App</p>
+                  <div className="h-1 w-12 bg-primary/30 mx-auto rounded-full" />
               </div>
             </motion.div>
           </>

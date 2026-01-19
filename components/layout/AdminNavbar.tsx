@@ -8,6 +8,7 @@ import { signOut, useSession } from "next-auth/react"
 import { motion } from "framer-motion"
 
 import { MobileSidebar } from "@/components/layout/mobile-sidebar"
+import { ModeToggle } from "@/components/ui/mode-toggle"
 
 export default function AdminNavbar() {
   const { data: session } = useSession()
@@ -26,6 +27,7 @@ export default function AdminNavbar() {
             <span>Kopi Ceban</span>
         </div>
       <div className="ml-auto flex items-center space-x-4">
+        <ModeToggle />
         <span className="text-sm font-medium text-foreground hidden md:block">
           Welcome, {session?.user?.name || "Barista"}
         </span>

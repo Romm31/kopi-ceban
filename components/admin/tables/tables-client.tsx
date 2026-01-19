@@ -226,36 +226,36 @@ export function TablesClient() {
     <div className="space-y-6">
       {/* Summary Cards */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-white/5 border-white/10">
+        <Card className="bg-card border-border shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-muted-foreground">Total Meja</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-coffee-cream">{tables.length}</div>
+            <div className="text-3xl font-bold text-foreground">{tables.length}</div>
           </CardContent>
         </Card>
         <Card className="bg-green-500/10 border-green-500/20">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-green-400">Tersedia</CardTitle>
+            <CardTitle className="text-sm text-green-600 dark:text-green-400">Tersedia</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-400">{availableCount}</div>
+            <div className="text-3xl font-bold text-green-600 dark:text-green-400">{availableCount}</div>
           </CardContent>
         </Card>
         <Card className="bg-red-500/10 border-red-500/20">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-red-400">Terisi</CardTitle>
+            <CardTitle className="text-sm text-red-600 dark:text-red-400">Terisi</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-red-400">{occupiedCount}</div>
+            <div className="text-3xl font-bold text-red-600 dark:text-red-400">{occupiedCount}</div>
           </CardContent>
         </Card>
         <Card className="bg-yellow-500/10 border-yellow-500/20">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-yellow-400">Direservasi</CardTitle>
+            <CardTitle className="text-sm text-yellow-600 dark:text-yellow-400">Direservasi</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-yellow-400">{reservedCount}</div>
+            <div className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">{reservedCount}</div>
           </CardContent>
         </Card>
       </div>
@@ -268,7 +268,7 @@ export function TablesClient() {
             size="sm"
             onClick={fetchTables}
             disabled={loading}
-            className="gap-2"
+            className="gap-2 border-border hover:bg-accent hover:text-accent-foreground"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             Refresh
@@ -276,32 +276,32 @@ export function TablesClient() {
         </div>
         <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="gap-2 bg-primary hover:bg-primary/90">
+            <Button className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
               <Plus className="w-4 h-4" />
               Tambah Meja
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-card border-border">
+          <DialogContent className="bg-card border-border sm:max-w-md">
             <DialogHeader>
-              <DialogTitle className="text-coffee-cream">Tambah Meja Baru</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="text-foreground">Tambah Meja Baru</DialogTitle>
+              <DialogDescription className="text-muted-foreground">
                 Masukkan nama meja yang akan ditambahkan.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="tableName">Nama Meja</Label>
+                <Label htmlFor="tableName" className="text-foreground">Nama Meja</Label>
                 <Input
                   id="tableName"
                   placeholder="Contoh: Meja 1, VIP Room, dll"
                   value={newTableName}
                   onChange={(e) => setNewTableName(e.target.value)}
-                  className="bg-input border-border"
+                  className="bg-background border-border text-foreground placeholder:text-muted-foreground"
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setCreateDialogOpen(false)} className="border-border text-foreground hover:bg-accent">
                 Batal
               </Button>
               <Button onClick={handleCreateTable} disabled={submitting}>
@@ -317,25 +317,25 @@ export function TablesClient() {
       <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
         <div className="flex items-start gap-3">
           <div className="p-2 bg-blue-500/20 rounded-lg">
-            <AlertTriangle className="w-4 h-4 text-blue-400" />
+            <AlertTriangle className="w-4 h-4 text-blue-600 dark:text-blue-400" />
           </div>
           <div className="text-sm">
-            <p className="text-blue-300 font-medium">Status Meja Otomatis</p>
+            <p className="text-blue-700 dark:text-blue-300 font-medium">Status Meja Otomatis</p>
             <p className="text-muted-foreground mt-1">
               Status meja akan berubah otomatis berdasarkan pesanan: <br />
-              • <span className="text-yellow-400">Reserved</span> → Saat customer checkout (menunggu bayar) <br />
-              • <span className="text-red-400">Occupied</span> → Saat pembayaran berhasil <br />
-              • <span className="text-green-400">Available</span> → Saat pembayaran gagal/expired/admin release
+              • <span className="text-yellow-600 dark:text-yellow-400">Reserved</span> → Saat customer checkout (menunggu bayar) <br />
+              • <span className="text-red-600 dark:text-red-400">Occupied</span> → Saat pembayaran berhasil <br />
+              • <span className="text-green-600 dark:text-green-400">Available</span> → Saat pembayaran gagal/expired/admin release
             </p>
           </div>
         </div>
       </div>
 
       {/* Tables List */}
-      <Card className="bg-white/5 border-white/10">
+      <Card className="bg-card border-border shadow-sm">
         <CardHeader>
-          <CardTitle className="text-coffee-cream flex items-center gap-2">
-            <UtensilsCrossed className="w-5 h-5" />
+          <CardTitle className="text-foreground flex items-center gap-2">
+            <UtensilsCrossed className="w-5 h-5 text-primary" />
             Daftar Meja
           </CardTitle>
         </CardHeader>
@@ -353,21 +353,21 @@ export function TablesClient() {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-border/50">
-                    <TableHead className="text-coffee-cream">ID</TableHead>
-                    <TableHead className="text-coffee-cream">Nama</TableHead>
-                    <TableHead className="text-coffee-cream">Status</TableHead>
-                    <TableHead className="text-coffee-cream">Order Aktif</TableHead>
-                    <TableHead className="text-coffee-cream text-right">Aksi</TableHead>
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableHead className="text-muted-foreground font-semibold">ID</TableHead>
+                    <TableHead className="text-muted-foreground font-semibold">Nama</TableHead>
+                    <TableHead className="text-muted-foreground font-semibold">Status</TableHead>
+                    <TableHead className="text-muted-foreground font-semibold">Order Aktif</TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-right">Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {tables.map((table) => (
-                    <TableRow key={table.id} className="border-border/30">
-                      <TableCell className="font-medium text-coffee-cream">
+                    <TableRow key={table.id} className="border-border hover:bg-muted/50 transition-colors">
+                      <TableCell className="font-medium text-foreground">
                         #{table.id}
                       </TableCell>
-                      <TableCell className="text-coffee-cream font-semibold">
+                      <TableCell className="text-foreground font-semibold">
                         {table.name}
                       </TableCell>
                       <TableCell>
@@ -395,7 +395,7 @@ export function TablesClient() {
                               size="sm"
                               onClick={() => handleReleaseTable(table.id)}
                               title="Release Meja"
-                              className="text-green-400 hover:text-green-300 hover:bg-green-500/10"
+                              className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:bg-green-500/10"
                             >
                               <CheckCircle className="w-4 h-4 mr-1" />
                               Release
@@ -406,6 +406,7 @@ export function TablesClient() {
                             size="icon"
                             onClick={() => generateQR(table)}
                             title="Generate QR Code"
+                            className="text-muted-foreground hover:text-foreground hover:bg-accent"
                           >
                             <QrCode className="w-4 h-4" />
                           </Button>
@@ -433,10 +434,10 @@ export function TablesClient() {
       <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
         <DialogContent className="bg-card border-border max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-coffee-cream text-center">
+            <DialogTitle className="text-foreground text-center">
               QR Code - {selectedTable?.name}
             </DialogTitle>
-            <DialogDescription className="text-center">
+            <DialogDescription className="text-center text-muted-foreground">
               Scan untuk langsung memesan di meja ini
             </DialogDescription>
           </DialogHeader>
@@ -463,7 +464,7 @@ export function TablesClient() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-coffee-cream flex items-center gap-2">
+            <AlertDialogTitle className="text-foreground flex items-center gap-2">
               <Trash2 className="w-5 h-5 text-destructive" />
               Hapus Meja
             </AlertDialogTitle>
@@ -480,7 +481,7 @@ export function TablesClient() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-muted hover:bg-muted/80">Batal</AlertDialogCancel>
+            <AlertDialogCancel className="bg-muted hover:bg-muted/80 text-foreground">Batal</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteTable}
               disabled={deleting || !!tableToDelete?.activeOrder}

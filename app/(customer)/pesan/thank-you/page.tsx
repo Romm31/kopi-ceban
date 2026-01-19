@@ -171,16 +171,16 @@ function ThankYouContent() {
     minimumFractionDigits: 0,
   });
 
-  if (!orderCode) {
+    if (!orderCode) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#13110f] text-white">
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
         <p>Order ID tidak ditemukan.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 py-12 bg-[#13110f] relative overflow-hidden">
+    <div className="min-h-screen w-full flex items-center justify-center p-4 py-12 bg-background relative overflow-hidden">
       <PaymentConfirmationModal
         isOpen={showConfirmModal}
         onClose={() => setShowConfirmModal(false)}
@@ -189,28 +189,28 @@ function ThankYouContent() {
 
       {/* Cancel Order Confirmation Modal */}
       <Dialog open={cancelModalOpen} onOpenChange={setCancelModalOpen}>
-        <DialogContent className="sm:max-w-md bg-[#1a1816] border border-red-500/30">
+        <DialogContent className="sm:max-w-md bg-card border border-destructive/30">
           <DialogHeader>
             <div className="flex flex-col items-center text-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center animate-pulse">
-                <AlertTriangle className="w-8 h-8 text-red-500" />
+              <div className="w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center animate-pulse">
+                <AlertTriangle className="w-8 h-8 text-destructive" />
               </div>
-              <DialogTitle className="text-xl text-white">Batalkan Pesanan?</DialogTitle>
-              <DialogDescription className="text-neutral-400">
+              <DialogTitle className="text-xl text-foreground">Batalkan Pesanan?</DialogTitle>
+              <DialogDescription className="text-muted-foreground">
                 Pesanan Anda akan dibatalkan dan tidak dapat dikembalikan.
               </DialogDescription>
             </div>
           </DialogHeader>
           
           {orderCode && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 my-4">
+            <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-4 my-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-neutral-400">Order</span>
-                <span className="font-mono font-bold text-white text-sm">{orderCode}</span>
+                <span className="text-sm text-muted-foreground">Order</span>
+                <span className="font-mono font-bold text-foreground text-sm">{orderCode}</span>
               </div>
               <div className="flex items-center justify-between mt-2">
-                <span className="text-sm text-neutral-400">Total</span>
-                <span className="font-bold text-[#d4a857]">{order ? formatter.format(order.totalPrice) : '-'}</span>
+                <span className="text-sm text-muted-foreground">Total</span>
+                <span className="font-bold text-primary">{order ? formatter.format(order.totalPrice) : '-'}</span>
               </div>
             </div>
           )}
@@ -219,7 +219,7 @@ function ThankYouContent() {
             <Button
               variant="outline"
               onClick={() => setCancelModalOpen(false)}
-              className="flex-1 h-11 border-white/20 text-white hover:bg-white/5"
+              className="flex-1 h-11 border-input text-foreground hover:bg-accent"
             >
               Kembali
             </Button>
@@ -227,7 +227,7 @@ function ThankYouContent() {
               variant="destructive"
               onClick={confirmCancelOrder}
               disabled={cancelling}
-              className="flex-1 h-11 bg-red-600 hover:bg-red-700 text-white"
+              className="flex-1 h-11"
             >
               {cancelling ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -241,20 +241,20 @@ function ThankYouContent() {
       </Dialog>
 
       {/* Decorative Background */}
-      <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-[#d4a857]/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="max-w-lg w-full relative z-10">
         {loading ? (
-          <div className="flex flex-col items-center py-10 bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
-            <Loader2 className="w-12 h-12 text-[#d4a857] animate-spin mb-4" />
-            <p className="text-neutral-400 animate-pulse">Memuat status pesanan...</p>
+          <div className="flex flex-col items-center py-10 bg-card/80 backdrop-blur-xl border border-border rounded-3xl p-8">
+            <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
+            <p className="text-muted-foreground animate-pulse">Memuat status pesanan...</p>
           </div>
         ) : !order ? (
-          <div className="flex flex-col items-center py-10 bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
-            <XCircle className="w-16 h-16 text-red-500 mb-4" />
-            <h2 className="text-2xl font-serif font-bold text-white mb-2">Pesanan Tidak Ditemukan</h2>
-            <p className="text-neutral-400 text-sm mb-4">Kode: {orderCode}</p>
+          <div className="flex flex-col items-center py-10 bg-card/80 backdrop-blur-xl border border-border rounded-3xl p-8">
+            <XCircle className="w-16 h-16 text-destructive mb-4" />
+            <h2 className="text-2xl font-serif font-bold text-foreground mb-2">Pesanan Tidak Ditemukan</h2>
+            <p className="text-muted-foreground text-sm mb-4">Kode: {orderCode}</p>
             <Button onClick={() => router.push("/")} variant="outline" className="mt-4">
               Kembali ke Home
             </Button>
@@ -267,8 +267,8 @@ function ThankYouContent() {
               <div className="w-20 h-20 mx-auto bg-green-500/10 rounded-full flex items-center justify-center ring-4 ring-green-500/20 mb-4">
                 <CheckCircle2 className="w-10 h-10 text-green-500" />
               </div>
-              <h1 className="text-3xl font-serif font-bold text-[#d4a857]">Pembayaran Berhasil!</h1>
-              <p className="text-neutral-400 mt-2">Terima kasih, pesanan Anda akan segera diproses.</p>
+              <h1 className="text-3xl font-serif font-bold text-primary">Pembayaran Berhasil!</h1>
+              <p className="text-muted-foreground mt-2">Terima kasih, pesanan Anda akan segera diproses.</p>
             </div>
 
             {/* Receipt */}
@@ -281,7 +281,7 @@ function ThankYouContent() {
               <Button
                 onClick={handleDownloadImage}
                 disabled={downloading}
-                className="h-12 bg-[#d4a857] text-[#13110f] hover:bg-[#c2964b] font-bold"
+                className="h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-bold"
               >
                 {downloading ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -293,7 +293,7 @@ function ThankYouContent() {
               <Button
                 variant="outline"
                 onClick={() => router.push("/")}
-                className="h-12 border-white/10 text-white hover:bg-white/5"
+                className="h-12 border-input text-foreground hover:bg-accent"
               >
                 <Home className="w-4 h-4 mr-2" />
                 Home
@@ -301,7 +301,7 @@ function ThankYouContent() {
               <Button
                 onClick={() => router.push("/menu")}
                 variant="outline"
-                className="h-12 border-[#d4a857]/30 text-[#d4a857] hover:bg-[#d4a857]/10"
+                className="h-12 border-primary/30 text-primary hover:bg-primary/10"
               >
                 <UtensilsCrossed className="w-4 h-4 mr-2" />
                 Pesan Lagi
@@ -310,7 +310,7 @@ function ThankYouContent() {
           </div>
         ) : (
           // PENDING / FAILED / EXPIRED
-          <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-10 text-center shadow-2xl">
+          <div className="bg-card/80 backdrop-blur-xl border border-border rounded-3xl p-6 sm:p-10 text-center shadow-2xl">
             <div className="flex flex-col items-center space-y-6">
               {/* Status Icon */}
               <div className="mb-2">
@@ -320,20 +320,20 @@ function ThankYouContent() {
                   </div>
                 )}
                 {(order.status === "EXPIRED" || order.status === "FAILED") && (
-                  <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center ring-4 ring-red-500/20">
-                    <XCircle className="w-12 h-12 text-red-500" />
+                  <div className="w-24 h-24 bg-destructive/10 rounded-full flex items-center justify-center ring-4 ring-destructive/20">
+                    <XCircle className="w-12 h-12 text-destructive" />
                   </div>
                 )}
               </div>
 
               {/* Title */}
               <div className="space-y-2">
-                <h1 className="text-3xl font-serif font-bold text-[#d4a857]">
+                <h1 className="text-3xl font-serif font-bold text-primary">
                   {order.status === "PENDING"
                     ? (order.paymentMethod === "CASH" ? "Silakan Bayar di Kasir" : "Menunggu Pembayaran")
                     : "Pesanan Dibatalkan"}
                 </h1>
-                <p className="text-neutral-300">
+                <p className="text-muted-foreground">
                   {order.status === "PENDING"
                     ? (order.paymentMethod === "CASH" 
                         ? "Tunjukkan kode pesanan ini kepada kasir untuk menyelesaikan pembayaran."
@@ -343,18 +343,18 @@ function ThankYouContent() {
               </div>
 
               {/* Order Info */}
-              <div className="w-full bg-white/5 rounded-2xl p-4 border border-white/5 space-y-3">
+              <div className="w-full bg-secondary/50 rounded-2xl p-4 border border-border space-y-3">
                 <div className="flex justify-between items-center text-sm border-b border-white/5 pb-2">
-                  <span className="text-neutral-400">Order Code</span>
-                  <span className="font-mono text-white text-xs sm:text-sm">{order.orderCode}</span>
+                  <span className="text-muted-foreground">Order Code</span>
+                  <span className="font-mono text-foreground text-xs sm:text-sm">{order.orderCode}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-neutral-400">Nama Pemesan</span>
-                  <span className="font-medium text-white">{order.customerName}</span>
+                  <span className="text-muted-foreground">Nama Pemesan</span>
+                  <span className="font-medium text-foreground">{order.customerName}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm pt-2">
-                  <span className="text-neutral-400">Total Tagihan</span>
-                  <span className="font-bold text-[#d4a857] text-lg">
+                  <span className="text-muted-foreground">Total Tagihan</span>
+                  <span className="font-bold text-primary text-lg">
                     {formatter.format(order.totalPrice)}
                   </span>
                 </div>
@@ -367,7 +367,7 @@ function ThankYouContent() {
                     /* Cash Payment Info with Premium Timer UI */
                     <div className="space-y-4">
                       {/* Circular Timer Section */}
-                      <div className="bg-gradient-to-br from-[#1a1816] to-[#0f0e0c] p-6 rounded-2xl border border-[#d4a857]/20 shadow-xl shadow-[#d4a857]/5">
+                      <div className="bg-gradient-to-br from-card to-background p-6 rounded-2xl border border-primary/20 shadow-xl shadow-primary/5">
                         <div className="flex flex-col sm:flex-row items-center gap-6">
                           {/* Circular Timer */}
                           <div className="relative">
@@ -380,7 +380,7 @@ function ThankYouContent() {
                                 stroke="currentColor"
                                 strokeWidth="6"
                                 fill="none"
-                                className="text-white/10"
+                                className="text-muted/20"
                               />
                               {/* Progress Circle */}
                               <circle
@@ -396,7 +396,7 @@ function ThankYouContent() {
                                     ? 'text-red-500'
                                     : timeRemaining !== null && timeRemaining < 180
                                       ? 'text-amber-500'
-                                      : 'text-[#d4a857]'
+                                      : 'text-primary'
                                 }`}
                                 strokeDasharray={`${2 * Math.PI * 45}`}
                                 strokeDashoffset={`${2 * Math.PI * 45 * (1 - (timeRemaining || 0) / (15 * 60))}`}
@@ -409,11 +409,11 @@ function ThankYouContent() {
                                   ? 'text-red-400'
                                   : timeRemaining !== null && timeRemaining < 180
                                     ? 'text-amber-400'
-                                    : 'text-[#d4a857]'
+                                    : 'text-primary'
                               }`}>
                                 {timeRemaining !== null ? formatTimeRemaining(timeRemaining) : '--:--'}
                               </span>
-                              <span className="text-[10px] text-neutral-500 uppercase tracking-wider mt-1">Menit</span>
+                              <span className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Menit</span>
                             </div>
                           </div>
                           
@@ -423,10 +423,10 @@ function ThankYouContent() {
                               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                               <span className="text-sm font-medium text-green-400">Menunggu Konfirmasi</span>
                             </div>
-                            <p className="text-white/90 font-medium">
+                            <p className="text-foreground/90 font-medium">
                               Tunjukkan kode pesanan kepada kasir
                             </p>
-                            <p className="text-xs text-neutral-500">
+                            <p className="text-xs text-muted-foreground">
                               Pesanan otomatis dibatalkan jika tidak dikonfirmasi dalam 15 menit
                             </p>
                           </div>
@@ -438,7 +438,7 @@ function ThankYouContent() {
                         variant="outline"
                         onClick={() => setCancelModalOpen(true)}
                         disabled={cancelling}
-                        className="w-full h-11 border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300 hover:border-red-500/50 transition-all"
+                        className="w-full h-11 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50 transition-all"
                       >
                         {cancelling ? (
                           <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -454,25 +454,25 @@ function ThankYouContent() {
                       <div className="flex gap-3 items-start bg-amber-500/10 p-3 rounded-xl border border-amber-500/20 text-left">
                         <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                         <div className="flex-1">
-                          <p className="text-xs text-amber-200/80 leading-relaxed">
+                          <p className="text-xs text-amber-500/80 leading-relaxed">
                             Status akan update otomatis setiap 5 detik.
                           </p>
                           <div className="flex items-center gap-2 mt-2">
                             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                            <span className="text-xs text-green-400">Auto-refresh aktif</span>
+                            <span className="text-xs text-green-500">Auto-refresh aktif</span>
                           </div>
                         </div>
                       </div>
 
                       {/* Sandbox Warning */}
-                      <div className="bg-red-500/10 p-4 rounded-xl border border-red-500/30 text-left space-y-2">
-                        <span className="text-red-400 font-bold text-xs uppercase tracking-wider">
+                      <div className="bg-destructive/10 p-4 rounded-xl border border-destructive/30 text-left space-y-2">
+                        <span className="text-destructive font-bold text-xs uppercase tracking-wider">
                           ⚠️ Mode Sandbox
                         </span>
-                        <p className="text-xs text-red-200/90 leading-relaxed">
+                        <p className="text-xs text-destructive/90 leading-relaxed">
                           <strong>QRIS Sandbox TIDAK BISA dibayar</strong> menggunakan aplikasi e-wallet asli.
                         </p>
-                        <p className="text-xs text-neutral-400 leading-relaxed">
+                        <p className="text-xs text-muted-foreground leading-relaxed">
                           Untuk testing, gunakan{" "}
                           <strong>Midtrans Dashboard → Transactions → Simulate Payment</strong>.
                         </p>
@@ -480,7 +480,7 @@ function ThankYouContent() {
                           href="https://dashboard.sandbox.midtrans.com/transactions"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-block mt-2 text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg transition-colors"
+                          className="inline-block mt-2 text-xs bg-muted hover:bg-muted/80 text-foreground px-3 py-1.5 rounded-lg transition-colors"
                         >
                           Buka Midtrans Dashboard →
                         </a>
@@ -495,14 +495,14 @@ function ThankYouContent() {
                 <Button
                   variant="outline"
                   onClick={() => handleNavigation("/")}
-                  className="w-full h-12 border-white/10 text-white hover:bg-white/5"
+                  className="w-full h-12 border-input text-foreground hover:bg-accent"
                 >
                   <Home className="w-4 h-4 mr-2" />
                   Home
                 </Button>
                 <Button
                   onClick={() => handleNavigation("/menu")}
-                  className="w-full h-12 bg-[#d4a857] text-[#13110f] hover:bg-[#c2964b] font-bold"
+                  className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-bold"
                 >
                   <UtensilsCrossed className="w-4 h-4 mr-2" />
                   Menu

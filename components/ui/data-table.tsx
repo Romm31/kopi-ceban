@@ -85,17 +85,17 @@ export function DataTable<TData, TValue>({
               onChange={(event) =>
                   table.getColumn(searchKey)?.setFilterValue(event.target.value)
               }
-              className="max-w-sm bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground focus-visible:ring-coffee-gold"
+              className="max-w-sm bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
               />
           )}
           {showColumnsToggle && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="ml-auto bg-white/5 border-white/10 hover:bg-white/10 hover:text-coffee-gold">
+                <Button variant="outline" className="ml-auto bg-background border-border hover:bg-accent hover:text-accent-foreground">
                   Columns <ChevronDown className="ml-2 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-coffee-black border-white/10">
+              <DropdownMenuContent align="end" className="bg-popover border-border">
                 {table
                   .getAllColumns()
                   .filter((column) => column.getCanHide())
@@ -103,7 +103,7 @@ export function DataTable<TData, TValue>({
                     return (
                       <DropdownMenuCheckboxItem
                         key={column.id}
-                        className="capitalize text-foreground focus:bg-white/10 focus:text-coffee-gold"
+                        className="capitalize text-popover-foreground focus:bg-accent focus:text-accent-foreground"
                         checked={column.getIsVisible()}
                         onCheckedChange={(value) =>
                           column.toggleVisibility(!!value)
@@ -118,15 +118,15 @@ export function DataTable<TData, TValue>({
           )}
         </div>
       )}
-      <div className="rounded-md border border-white/10 overflow-hidden bg-coffee-black/20">
+      <div className="rounded-md border border-border overflow-hidden bg-card/40">
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="bg-white/5">
+            <TableHeader className="bg-muted/50">
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className="border-b border-white/10 hover:bg-transparent">
+                <TableRow key={headerGroup.id} className="border-b border-border hover:bg-transparent">
                   {headerGroup.headers.map((header) => {
                     return (
-                      <TableHead key={header.id} className="text-coffee-gold font-bold">
+                      <TableHead key={header.id} className="text-muted-foreground font-bold">
                         {header.isPlaceholder
                           ? null
                           : flexRender(
@@ -145,10 +145,10 @@ export function DataTable<TData, TValue>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
-                    className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                    className="border-b border-border hover:bg-muted/50 transition-colors"
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="text-neutral-200">
+                      <TableCell key={cell.id} className="text-foreground">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
@@ -172,7 +172,7 @@ export function DataTable<TData, TValue>({
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="bg-white/5 border-white/10 hover:bg-white/10 hover:text-coffee-gold disabled:opacity-50"
+            className="bg-background border-border hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
           >
             Previous
           </Button>
@@ -181,7 +181,7 @@ export function DataTable<TData, TValue>({
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-             className="bg-white/5 border-white/10 hover:bg-white/10 hover:text-coffee-gold disabled:opacity-50"
+             className="bg-background border-border hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
           >
             Next
           </Button>

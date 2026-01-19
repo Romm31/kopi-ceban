@@ -143,55 +143,55 @@ export default async function HistoryPage(props: {
 
       {/* Analytics Cards */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-gradient-to-br from-coffee-black to-coffee-brown/40 border-white/10 overflow-hidden relative group">
+        <Card className="bg-card border-border overflow-hidden relative group shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Monthly Revenue</CardTitle>
                 <DollarSign className="h-4 w-4 text-green-500" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold text-coffee-cream">{formatIDR(totalRevenue._sum.totalPrice || 0)}</div>
+                <div className="text-2xl font-bold text-foreground">{formatIDR(totalRevenue._sum.totalPrice || 0)}</div>
                 <p className="text-xs text-muted-foreground">This month</p>
                 {/* Optional Mini Bar Chart visual could go here */}
-                <div className="mt-4 h-1 w-full bg-white/10 rounded-full overflow-hidden">
+                <div className="mt-4 h-1 w-full bg-muted rounded-full overflow-hidden">
                     <div className="h-full bg-green-500/50 w-[70%]"></div>
                 </div>
             </CardContent>
         </Card>
-        <Card className="bg-white/5 border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors">
+        <Card className="bg-card border-border shadow-sm hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Orders Completed</CardTitle>
-                <ShoppingBag className="h-4 w-4 text-coffee-gold" />
+                <ShoppingBag className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold text-coffee-cream">{totalOrders}</div>
+                <div className="text-2xl font-bold text-foreground">{totalOrders}</div>
                 <p className="text-xs text-muted-foreground">This month</p>
-                 <div className="mt-4 h-1 w-full bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-coffee-gold/50 w-[85%]"></div>
+                 <div className="mt-4 h-1 w-full bg-muted rounded-full overflow-hidden">
+                    <div className="h-full bg-primary/50 w-[85%]"></div>
                 </div>
             </CardContent>
         </Card>
-        <Card className="bg-white/5 border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors">
+        <Card className="bg-card border-border shadow-sm hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Canceled</CardTitle>
                 <XCircle className="h-4 w-4 text-red-500" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold text-coffee-cream">{canceledOrders}</div>
+                <div className="text-2xl font-bold text-foreground">{canceledOrders}</div>
                 <p className="text-xs text-muted-foreground">This month</p>
-                 <div className="mt-4 h-1 w-full bg-white/10 rounded-full overflow-hidden">
+                 <div className="mt-4 h-1 w-full bg-muted rounded-full overflow-hidden">
                     <div className="h-full bg-red-500/50 w-[10%]"></div>
                 </div>
             </CardContent>
         </Card>
-        <Card className="bg-white/5 border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors">
+        <Card className="bg-card border-border shadow-sm hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Best Seller</CardTitle>
                 <TrendingUp className="h-4 w-4 text-blue-500" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold text-coffee-cream truncate" title={bestSellingMenuName}>{bestSellingMenuName}</div>
+                <div className="text-2xl font-bold text-foreground truncate" title={bestSellingMenuName}>{bestSellingMenuName}</div>
                 <p className="text-xs text-muted-foreground">{bestSellingMenuQty} sold this month</p>
-                 <div className="mt-4 h-1 w-full bg-white/10 rounded-full overflow-hidden">
+                 <div className="mt-4 h-1 w-full bg-muted rounded-full overflow-hidden">
                     <div className="h-full bg-blue-500/50 w-[60%]"></div>
                 </div>
             </CardContent>
@@ -202,9 +202,9 @@ export default async function HistoryPage(props: {
       <PdfDownload />
 
       <div className="space-y-4">
-          <Card className="bg-white/5 border-white/10">
+          <Card className="bg-card border-border shadow-sm">
               <CardHeader>
-                  <CardTitle className="text-coffee-cream">Transaction History</CardTitle>
+                  <CardTitle className="text-foreground">Transaction History</CardTitle>
               </CardHeader>
               <CardContent>
                   <Suspense fallback={<HistoryLoader />}>

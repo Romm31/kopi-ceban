@@ -103,22 +103,22 @@ export function MenuClientWrapper({ data, editMenu }: MenuClientWrapperProps) {
                         <Input
                             type="search"
                             placeholder="Search menu..."
-                            className="bg-white/5 border-white/10 pl-9 w-full focus-visible:ring-coffee-gold"
+                            className="bg-background border-border pl-9 w-full focus-visible:ring-primary text-foreground placeholder:text-muted-foreground"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <div className="flex items-center space-x-2 bg-white/5 border border-white/10 rounded-md px-3 py-2 h-10">
+                    <div className="flex items-center space-x-2 bg-muted/40 border border-border rounded-md px-3 py-2 h-10">
                          <Switch 
                             id="available-mode" 
                             checked={availableOnly}
                             onCheckedChange={setAvailableOnly}
-                            className="data-[state=checked]:bg-coffee-gold"
+                            className="data-[state=checked]:bg-primary"
                          />
-                         <Label htmlFor="available-mode" className="text-sm text-muted-foreground cursor-pointer">Available</Label>
+                         <Label htmlFor="available-mode" className="text-sm text-foreground cursor-pointer">Available</Label>
                     </div>
                     {hasFilters && (
-                        <Button variant="ghost" onClick={clearFilters} className="h-10 px-2 lg:px-3 text-muted-foreground hover:text-white">
+                        <Button variant="ghost" onClick={clearFilters} className="h-10 px-2 lg:px-3 text-muted-foreground hover:text-foreground">
                             Reset
                             <X className="ml-2 h-4 w-4" />
                         </Button>
@@ -127,13 +127,13 @@ export function MenuClientWrapper({ data, editMenu }: MenuClientWrapperProps) {
 
                  <Button 
                     onClick={() => setOpen(true)} 
-                    className="bg-coffee-gold text-coffee-black hover:bg-coffee-gold/90 font-bold shadow-[0_0_15px_rgba(201,161,109,0.3)] transition-all hover:shadow-[0_0_20px_rgba(201,161,109,0.5)]"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-md transition-all hover:shadow-lg"
                 >
                     <Plus className="mr-2 h-4 w-4" /> Add Menu
                 </Button>
             </div>
 
-            <div className="rounded-xl border border-white/10 shadow-sm bg-coffee-black/40 backdrop-blur-sm overflow-hidden">
+            <div className="rounded-xl border border-border shadow-sm bg-card/60 backdrop-blur-sm overflow-hidden">
                 {data.length > 0 ? (
                     <DataTable columns={columns} data={data} searchKey="name" showSearch={false} showColumnsToggle={false} />
                 ) : (
@@ -143,7 +143,7 @@ export function MenuClientWrapper({ data, editMenu }: MenuClientWrapperProps) {
                         description={hasFilters ? "Try adjusting your filters to find what you're looking for." : "Get started by creating a new menu item."}
                         action={
                             !hasFilters && (
-                                <Button onClick={() => setOpen(true)} variant="outline" className="border-coffee-gold text-coffee-gold hover:bg-coffee-gold hover:text-coffee-black">
+                                <Button onClick={() => setOpen(true)} variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
                                     Create Menu Item
                                 </Button>
                             )
@@ -153,10 +153,10 @@ export function MenuClientWrapper({ data, editMenu }: MenuClientWrapperProps) {
             </div>
 
             <Dialog open={open} onOpenChange={handleOpenChange}>
-                <DialogContent className="sm:max-w-[600px] bg-coffee-black border-white/10 text-foreground">
+                <DialogContent className="sm:max-w-[600px] bg-card border-border text-foreground">
                     <DialogHeader>
-                        <DialogTitle className="text-coffee-cream">{editMenu ? "Edit Menu" : "Add New Menu"}</DialogTitle>
-                        <DialogDescription>
+                        <DialogTitle className="text-foreground">{editMenu ? "Edit Menu" : "Add New Menu"}</DialogTitle>
+                        <DialogDescription className="text-muted-foreground">
                             {editMenu ? "Update the menu details below." : "Fill in the details to create a new menu item."}
                         </DialogDescription>
                     </DialogHeader>

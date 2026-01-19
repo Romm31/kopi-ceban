@@ -44,7 +44,7 @@ export default async function MenuPage(props: {
        />
 
        {/* Pass data to Client Component */}
-       <div className="flex-1 rounded-xl border border-border bg-card/40 backdrop-blur-sm p-4 overflow-hidden flex flex-col w-full">
+       <div className="flex-1 rounded-xl border border-border bg-card/60 backdrop-blur-sm p-4 overflow-hidden flex flex-col w-full">
             <MenuClientWrapper data={menus} editMenu={editMenu} />
        </div>
     </div>

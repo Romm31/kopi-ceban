@@ -48,17 +48,17 @@ export default async function ProfilePage() {
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         {/* Profile Card */}
         <div className="md:col-span-1 space-y-6">
-             <Card className="bg-gradient-to-br from-coffee-black to-coffee-brown/20 border-white/10 overflow-hidden relative group">
+             <Card className="bg-card border-border overflow-hidden relative group shadow-sm">
                 {/* Decorative background glow */}
-                <div className="absolute top-0 right-0 -mt-10 -mr-10 h-32 w-32 bg-coffee-gold/10 rounded-full blur-3xl group-hover:bg-coffee-gold/20 transition-all duration-500"></div>
+                <div className="absolute top-0 right-0 -mt-10 -mr-10 h-32 w-32 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-500"></div>
 
                 <CardHeader className="text-center pb-2">
-                    <div className="w-24 h-24 mx-auto mb-4 rounded-full border-4 border-white/10 bg-coffee-secondary flex items-center justify-center shadow-xl group-hover:border-coffee-gold/30 transition-colors duration-300">
-                        <span className="text-3xl font-bold text-coffee-gold">{initials}</span>
+                    <div className="w-24 h-24 mx-auto mb-4 rounded-full border-4 border-muted bg-secondary flex items-center justify-center shadow-xl group-hover:border-primary/30 transition-colors duration-300">
+                        <span className="text-3xl font-bold text-primary">{initials}</span>
                     </div>
-                    <CardTitle className="text-2xl font-bold text-coffee-cream">{admin.username}</CardTitle>
+                    <CardTitle className="text-2xl font-bold text-foreground">{admin.username}</CardTitle>
                     <div className="pt-2">
-                         <Badge variant="outline" className="border-coffee-gold/30 text-coffee-gold bg-coffee-gold/5 px-3 py-1">
+                         <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5 px-3 py-1">
                             <ShieldAlert className="w-3 h-3 mr-1" />
                             Administrator
                          </Badge>
@@ -74,10 +74,10 @@ export default async function ProfilePage() {
 
         {/* Change Password */}
         <div className="md:col-span-1 lg:col-span-2">
-          <Card className="bg-white/5 border-white/10 h-full">
+          <Card className="bg-card border-border h-full shadow-sm">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-coffee-cream">
-                  <User className="h-5 w-5 text-coffee-gold" />
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                  <User className="h-5 w-5 text-primary" />
                   Security Settings
               </CardTitle>
               <CardDescription>
@@ -97,7 +97,7 @@ export default async function ProfilePage() {
 function LogoutButton() {
     return (
         <form action="/api/auth/signout" method="POST">
-             <Button variant="destructive" className="bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/30">
+             <Button variant="destructive" className="bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive/20 hover:border-destructive/30">
                 <LogOut className="mr-2 h-4 w-4" />
                 Log out
             </Button>

@@ -49,18 +49,13 @@ export default function LoginForm() {
       })
 
       if (result?.error) {
-        toast.error("Invalid credentials", {
-             style: { background: '#2A1A12', color: '#E6D5C3', border: '1px solid #CBA35C' }
-        })
+        toast.error("Invalid credentials")
         setErrorShake(true)
         setTimeout(() => setErrorShake(false), 500)
         return
       }
 
-      toast.success("Welcome back, Barista!", {
-        icon: <Coffee className="h-4 w-4 text-[#CBA35C]" />,
-        style: { background: '#2A1A12', color: '#E6D5C3', border: '1px solid #CBA35C' }
-      })
+      toast.success("Welcome back, Barista!")
       router.push("/admin/dashboard")
       router.refresh()
     } catch (error) {
@@ -82,18 +77,18 @@ export default function LoginForm() {
             name="username"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-coffee-cream">Username</FormLabel>
+                <FormLabel className="text-foreground">Username</FormLabel>
                 <FormControl>
                   <div className="relative group">
-                    <User className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground group-focus-within:text-coffee-gold transition-colors" />
+                    <User className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                     <Input 
                         placeholder="Enter your username" 
-                        className="pl-10 bg-white/5 border-white/10 text-coffee-cream placeholder:text-white/20 focus:border-coffee-gold/50 focus:ring-coffee-gold/20 hover:bg-white/10 transition-all duration-300"
+                        className="pl-10 bg-background border-input text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-primary/50 transition-all duration-300"
                         {...field} 
                     />
                   </div>
                 </FormControl>
-                <FormMessage className="text-red-400" />
+                <FormMessage className="text-destructive" />
               </FormItem>
             )}
           />
@@ -102,26 +97,26 @@ export default function LoginForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-coffee-cream">Password</FormLabel>
+                <FormLabel className="text-foreground">Password</FormLabel>
                 <FormControl>
                   <div className="relative group">
-                    <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground group-focus-within:text-coffee-gold transition-colors" />
+                    <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                     <Input 
                         type="password" 
                         placeholder="••••••••" 
-                        className="pl-10 bg-white/5 border-white/10 text-coffee-cream placeholder:text-white/20 focus:border-coffee-gold/50 focus:ring-coffee-gold/20 hover:bg-white/10 transition-all duration-300"
+                        className="pl-10 bg-background border-input text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-primary/50 transition-all duration-300"
                         {...field} 
                     />
                   </div>
                 </FormControl>
-                <FormMessage className="text-red-400" />
+                <FormMessage className="text-destructive" />
               </FormItem>
             )}
           />
           
           <Button 
             type="submit" 
-            className="w-full bg-gradient-to-r from-coffee-gold to-[#B8860B] hover:from-[#B8860B] hover:to-coffee-gold text-coffee-black font-semibold h-11 tracking-wide shadow-lg shadow-coffee-gold/20 hover:shadow-coffee-gold/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300" 
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold h-11 tracking-wide shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300" 
             disabled={loading}
           >
             {loading ? (

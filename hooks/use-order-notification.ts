@@ -39,22 +39,30 @@ export function useOrderNotification(options: UseOrderNotificationOptions = {}) 
 
   // Load preferences from localStorage
   useEffect(() => {
-    const storedEnabled = localStorage.getItem(STORAGE_KEY);
-    if (storedEnabled !== null) {
-      setIsEnabled(storedEnabled === "true");
-    }
-    
-    // Load last known order ID
-    const storedOrderId = localStorage.getItem(LAST_ORDER_KEY);
-    if (storedOrderId) {
-      lastOrderIdRef.current = storedOrderId;
+    try {
+      const storedEnabled = localStorage.getItem(STORAGE_KEY);
+      if (storedEnabled !== null) {
+        setIsEnabled(storedEnabled === "true");
+      }
+      
+      // Load last known order ID
+      const storedOrderId = localStorage.getItem(LAST_ORDER_KEY);
+      if (storedOrderId) {
+        lastOrderIdRef.current = storedOrderId;
+      }
+    } catch (e) {
+      console.warn("localStorage is not available:", e);
     }
   }, []);
 
   // Save preference to localStorage
   const toggleNotification = useCallback((value: boolean) => {
     setIsEnabled(value);
-    localStorage.setItem(STORAGE_KEY, String(value));
+    try {
+      localStorage.setItem(STORAGE_KEY, String(value));
+    } catch (e) {
+      console.warn("Failed to save notification preference:", e);
+    }
     
     // If turning on, play test sound to enable audio
     if (value && audioRef.current) {
@@ -160,7 +168,11 @@ export function useOrderNotification(options: UseOrderNotificationOptions = {}) 
         
         // Always update the last known order
         lastOrderIdRef.current = latestOrder.id;
-        localStorage.setItem(LAST_ORDER_KEY, latestOrder.id);
+        try {
+          localStorage.setItem(LAST_ORDER_KEY, latestOrder.id);
+        } catch (e) {
+          // Ignore localStorage errors
+        }
         
       } catch (error) {
         // Silently fail

@@ -88,7 +88,7 @@ export function HistoryClientWrapper({ data }: HistoryClientWrapperProps) {
                     id="date"
                     variant={"outline"}
                     className={cn(
-                    "w-[300px] justify-start text-left font-normal bg-white/5 border-white/10 hover:bg-white/10",
+                    "w-[300px] justify-start text-left font-normal bg-muted/50 border-border hover:bg-muted",
                     !date && "text-muted-foreground"
                     )}
                 >
@@ -107,7 +107,7 @@ export function HistoryClientWrapper({ data }: HistoryClientWrapperProps) {
                     )}
                 </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-coffee-black border-white/10" align="start">
+                <PopoverContent className="w-auto p-0 bg-popover border-border" align="start">
                 <Calendar
                     initialFocus
                     mode="range"
@@ -121,10 +121,10 @@ export function HistoryClientWrapper({ data }: HistoryClientWrapperProps) {
             </Popover>
 
             <Select value={status || "ALL"} onValueChange={handleStatusChange}>
-                <SelectTrigger className="w-[180px] bg-white/5 border-white/10">
+                <SelectTrigger className="w-[180px] bg-muted/50 border-border">
                     <SelectValue placeholder="All Status" />
                 </SelectTrigger>
-                <SelectContent className="bg-coffee-black border-white/10 text-foreground">
+                <SelectContent className="bg-popover border-border text-foreground">
                     <SelectItem value="ALL">All Status</SelectItem>
                     <SelectItem value="SUCCESS">Success</SelectItem>
                     <SelectItem value="FAILED">Failed</SelectItem>
@@ -132,14 +132,14 @@ export function HistoryClientWrapper({ data }: HistoryClientWrapperProps) {
             </Select>
 
             {hasFilters && (
-                 <Button variant="ghost" onClick={clearFilters} className="text-muted-foreground hover:text-white">
+                 <Button variant="ghost" onClick={clearFilters} className="text-muted-foreground hover:text-foreground">
                     Reset
                     <X className="ml-2 h-4 w-4" />
                 </Button>
             )}
         </div>
 
-        <div className="rounded-xl border border-white/10 shadow-sm bg-coffee-black/40 backdrop-blur-sm overflow-hidden">
+        <div className="rounded-xl border border-border shadow-sm bg-card/60 backdrop-blur-sm overflow-hidden">
              {data.length > 0 ? (
                  <DataTable columns={columns} data={data} searchKey="customerName" />
              ) : (

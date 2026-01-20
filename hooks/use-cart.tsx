@@ -28,20 +28,29 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Load from local storage on mount
   useEffect(() => {
     setIsClient(true);
-    const savedCart = localStorage.getItem("kopi-ceban-cart");
-    if (savedCart) {
-      try {
-        setItems(JSON.parse(savedCart));
-      } catch (error) {
-        console.error("Failed to parse cart from local storage", error);
+    try {
+      const savedCart = localStorage.getItem("kopi-ceban-cart");
+      if (savedCart) {
+        try {
+          setItems(JSON.parse(savedCart));
+        } catch (error) {
+          console.error("Failed to parse cart from local storage", error);
+        }
       }
+    } catch (e) {
+      // localStorage may be unavailable (e.g., cookies blocked, sandboxed iframe)
+      console.warn("localStorage is not available:", e);
     }
   }, []);
 
   // Save to local storage on change
   useEffect(() => {
     if (isClient) {
-      localStorage.setItem("kopi-ceban-cart", JSON.stringify(items));
+      try {
+        localStorage.setItem("kopi-ceban-cart", JSON.stringify(items));
+      } catch (e) {
+        console.warn("Failed to save cart to localStorage:", e);
+      }
     }
   }, [items, isClient]);
 

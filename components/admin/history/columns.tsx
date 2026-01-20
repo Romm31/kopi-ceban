@@ -44,7 +44,7 @@ export const columns: ColumnDef<HistoryOrder>[] = [
           </Button>
         )
     },
-    cell: ({ row }) => <span className="font-bold text-coffee-cream">{row.getValue("customerName")}</span>
+    cell: ({ row }) => <span className="font-bold text-foreground">{row.getValue("customerName")}</span>
   },
   {
     accessorKey: "totalPrice",
@@ -68,7 +68,7 @@ export const columns: ColumnDef<HistoryOrder>[] = [
         minimumFractionDigits: 0
       }).format(amount)
 
-      return <div className="font-medium text-coffee-gold">{formatted}</div>
+      return <div className="font-medium text-primary">{formatted}</div>
     },
   },
   {
@@ -109,10 +109,10 @@ export const columns: ColumnDef<HistoryOrder>[] = [
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-coffee-black border-white/10">
-              <DropdownMenuLabel className="text-coffee-cream">Actions</DropdownMenuLabel>
+            <DropdownMenuContent align="end" className="bg-popover border-border">
+              <DropdownMenuLabel className="text-foreground">Actions</DropdownMenuLabel>
               <DropdownMenuItem asChild>
-                  <Link href={`/admin/orders/${order.id}`} className="cursor-pointer focus:bg-white/10 focus:text-coffee-gold w-full flex items-center">
+                  <Link href={`/admin/orders/${order.id}`} className="cursor-pointer focus:bg-muted focus:text-primary w-full flex items-center">
                       <Eye className="mr-2 h-4 w-4" /> View Details
                   </Link>
               </DropdownMenuItem>
@@ -121,7 +121,7 @@ export const columns: ColumnDef<HistoryOrder>[] = [
                     navigator.clipboard.writeText(order.id.toString())
                     toast.success("Order ID copied")
                 }}
-                className="cursor-pointer focus:bg-white/10 focus:text-coffee-gold"
+                className="cursor-pointer focus:bg-muted focus:text-primary"
               >
                 Copy Order ID
               </DropdownMenuItem>

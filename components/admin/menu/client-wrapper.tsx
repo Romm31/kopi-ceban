@@ -46,6 +46,9 @@ export function MenuClientWrapper({ data, editMenu }: MenuClientWrapperProps) {
     useEffect(() => {
          const current = new URLSearchParams(Array.from(searchParams.entries()));
          
+         // Remove edit param as it's handled separately
+         current.delete("edit");
+         
          if (debouncedSearch) {
              current.set("q", debouncedSearch);
          } else {
@@ -58,10 +61,20 @@ export function MenuClientWrapper({ data, editMenu }: MenuClientWrapperProps) {
              current.delete("available");
          }
 
-         const search = current.toString();
-         const query = search ? `?${search}` : "";
+         const newSearch = current.toString();
+         const newQuery = newSearch ? `?${newSearch}` : "";
+         const newPath = `/admin/menu${newQuery}`;
 
-         router.push(`/admin/menu${query}`);
+         // Only push if the path actually changed to prevent infinite loop
+         const currentPath = window.location.pathname + window.location.search;
+         // Normalize by removing edit param from current path for comparison
+         const currentUrl = new URL(window.location.href);
+         currentUrl.searchParams.delete("edit");
+         const currentNormalized = currentUrl.pathname + (currentUrl.searchParams.toString() ? `?${currentUrl.searchParams.toString()}` : "");
+
+         if (newPath !== currentNormalized) {
+             router.push(newPath);
+         }
     }, [debouncedSearch, availableOnly, router, searchParams]);
 
 

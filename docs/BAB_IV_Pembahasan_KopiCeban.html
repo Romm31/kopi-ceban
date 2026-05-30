@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BAB IV Pembahasan - Kopi Ceban</title>
+  <style>
+    @page { size: A4; margin: 2.5cm 2.5cm 2.5cm 3cm; }
+    body {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 12pt;
+      line-height: 1.6;
+      color: #111;
+      text-align: justify;
+    }
+    h1, h2, h3, h4 { margin: 0; font-weight: 700; }
+    h1 {
+      text-align: center;
+      margin: 0 0 24px;
+      font-size: 16pt;
+      letter-spacing: 0.2px;
+      page-break-after: avoid;
+    }
+    h2 {
+      font-size: 12pt;
+      margin-top: 16px;
+      margin-bottom: 8px;
+      page-break-after: avoid;
+    }
+    h3 {
+      font-size: 12pt;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      page-break-after: avoid;
+    }
+    p {
+      margin: 0 0 8px;
+      text-indent: 1.27cm;
+      orphans: 3;
+      widows: 3;
+    }
+    .no-indent { text-indent: 0; }
+    .figure {
+      text-align: center;
+      margin: 8px 0 12px;
+      text-indent: 0;
+      font-style: italic;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 8px 0 12px;
+      font-size: 11pt;
+      text-indent: 0;
+    }
+    th, td {
+      border: 1px solid #333;
+      padding: 6px 8px;
+      vertical-align: top;
+    }
+    th {
+      text-align: center;
+      font-weight: 700;
+    }
+    .caption {
+      text-align: center;
+      font-style: italic;
+      margin-top: -2px;
+      margin-bottom: 8px;
+      text-indent: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>BAB IV: PEMBAHASAN</h1>
+
+  <h2>4.1 Hasil Implementasi Sistem</h2>
+  <p>Pada tahap ini dilakukan pembahasan hasil implementasi aplikasi web pemesanan kopi <i>Its By Me Coffee</i> (repo <i>kopi-ceban</i>) yang dibangun menggunakan Next.js, React, TypeScript, Prisma, dan PostgreSQL. Implementasi mencakup dua sisi utama, yaitu sisi pelanggan (<i>customer</i>) untuk proses pemesanan, dan sisi pengelola (<i>admin</i>) untuk operasional bisnis. Selain itu, sistem juga terintegrasi dengan Midtrans untuk pembayaran non-tunai, serta mendukung pembayaran tunai dengan mekanisme validasi waktu.</p>
+  <p>Secara umum, hasil implementasi telah memenuhi kebutuhan proses bisnis kedai kopi modern, mulai dari publikasi menu, transaksi pesanan, pemilihan metode pembayaran, monitoring status pesanan, hingga analitik transaksi dan pengelolaan meja pada area dine-in.</p>
+
+  <h2>4.2 Implementasi Antarmuka Sisi Pelanggan</h2>
+
+  <h3>4.2.1 Halaman Beranda</h3>
+  <p>Halaman beranda menjadi titik masuk utama pengguna sebelum melakukan pemesanan. Pada halaman ini ditampilkan identitas brand, nilai jual utama, ringkasan statistik layanan, tombol ajakan pemesanan, serta peta lokasi kedai berbasis Google Maps. Navigasi diarahkan ke halaman menu dan halaman pemesanan sehingga alur pengguna tetap sederhana dan terarah.</p>
+  <p class="figure">Gambar 4.1 Tampilan Halaman Beranda dan Navigasi Utama</p>
+
+  <h3>4.2.2 Halaman Menu Publik</h3>
+  <p>Halaman menu menampilkan seluruh daftar produk kopi dari basis data secara dinamis, lengkap dengan foto, harga, deskripsi singkat, dan status ketersediaan stok. Item yang tidak tersedia ditandai secara visual sebagai habis, sehingga pengguna mendapat informasi stok sebelum menuju proses checkout. Pendekatan ini menurunkan potensi pesanan gagal akibat ketidaksesuaian stok.</p>
+  <p class="figure">Gambar 4.2 Tampilan Katalog Menu dan Status Ketersediaan</p>
+
+  <h3>4.2.3 Halaman Pemesanan, Pencarian, dan Filter</h3>
+  <p>Pada halaman pemesanan, pengguna dapat melakukan pencarian menu, memfilter berdasarkan kategori/harga/ketersediaan, serta melihat rekomendasi menu. Interaksi keranjang didukung <i>drawer</i> yang responsif, sehingga pengguna desktop maupun mobile tetap memperoleh pengalaman transaksi yang konsisten. Sistem juga mendukung alur pemindaian QR meja dengan parameter <i>table</i> agar nomor meja dapat terisi otomatis untuk skenario dine-in.</p>
+  <p class="figure">Gambar 4.3 Tampilan Halaman Pesan, Filter, dan Keranjang</p>
+
+  <h3>4.2.4 Proses Checkout dan Metode Pembayaran</h3>
+  <p>Form checkout mengumpulkan data nama pemesan, catatan pesanan, tipe order (dine-in/take-away), pemilihan meja, serta metode pembayaran (cash/transfer). Pada pembayaran transfer, sistem membuat transaksi Midtrans Snap dan menampilkan popup pembayaran. Pada pembayaran cash, sistem langsung membuat order berstatus <i>PENDING</i> dengan instruksi pembayaran di kasir. Proses ini memisahkan alur transaksi non-tunai dan tunai secara jelas tanpa mengganggu pengalaman pengguna.</p>
+  <p class="figure">Gambar 4.4 Form Checkout dan Pilihan Metode Pembayaran</p>
+
+  <h3>4.2.5 Halaman Status Pesanan dan Kuitansi</h3>
+  <p>Setelah checkout, pengguna diarahkan ke halaman status/ucapan terima kasih. Status order dipantau berkala melalui API agar perubahan pembayaran dapat diketahui real-time. Jika pembayaran berhasil, pengguna dapat melihat kuitansi dan mengunduh bukti transaksi (PDF/PNG) serta mencetaknya. Untuk pesanan cash, sistem menampilkan hitung mundur 15 menit; jika waktu habis dan belum dikonfirmasi, order berubah menjadi <i>EXPIRED</i>.</p>
+  <p class="figure">Gambar 4.5 Halaman Status Pembayaran dan Unduh Kuitansi</p>
+
+  <h2>4.3 Implementasi Antarmuka Sisi Admin</h2>
+
+  <h3>4.3.1 Login dan Otorisasi Admin</h3>
+  <p>Panel admin diakses melalui autentikasi berbasis NextAuth <i>credentials provider</i>. Kredensial diverifikasi terhadap data admin pada basis data dengan hash bcrypt. Middleware membatasi akses seluruh rute /admin agar hanya sesi terautentikasi yang dapat masuk. Dengan mekanisme ini, data transaksi dan fitur operasional terlindungi dari akses publik.</p>
+  <p class="figure">Gambar 4.6 Halaman Login dan Proteksi Dashboard Admin</p>
+
+  <h3>4.3.2 Dashboard Analitik</h3>
+  <p>Dashboard menampilkan metrik penting secara dinamis, yaitu pendapatan hari ini, jumlah order hari ini, jumlah order pending, serta jumlah menu aktif. Selain itu disediakan grafik pendapatan 7 hari terakhir, daftar order terbaru, dan ringkasan menu terlaris. Fitur ini membantu admin mengambil keputusan operasional harian dengan lebih cepat.</p>
+  <p class="figure">Gambar 4.7 Dashboard Statistik, Grafik, dan Order Terkini</p>
+
+  <h3>4.3.3 Manajemen Menu</h3>
+  <p>Modul manajemen menu mendukung operasi CRUD (tambah, ubah, hapus) dengan validasi data dan pengaturan ketersediaan produk. Admin dapat melakukan pencarian menu, filter ketersediaan, serta memperbarui data harga/deskripsi secara langsung. Upload gambar produk didukung melalui endpoint tersendiri yang menyimpan file ke direktori publik aplikasi.</p>
+  <p class="figure">Gambar 4.8 Modul Manajemen Menu</p>
+
+  <h3>4.3.4 Manajemen Pesanan</h3>
+  <p>Halaman pesanan menampilkan seluruh order dengan filter status (pending, success, expired, failed, refunded) dan pencarian nama pelanggan. Admin dapat memonitor progres transaksi, melakukan sinkronisasi status, serta melakukan konfirmasi atau penolakan pembayaran pada skenario cash. Pengelolaan ini memastikan setiap order memiliki alur penyelesaian yang terdokumentasi.</p>
+  <p class="figure">Gambar 4.9 Modul Manajemen Pesanan</p>
+
+  <h3>4.3.5 Manajemen Meja</h3>
+  <p>Modul meja menyediakan pengelolaan status meja dine-in: available, reserved, occupied, dan cleaning. Status meja berubah otomatis saat order dibuat, pembayaran berhasil, atau order gagal/kedaluwarsa. Integrasi ini mencegah pemilihan meja ganda dan membantu kontrol kapasitas area kedai secara real-time.</p>
+  <p class="figure">Gambar 4.10 Modul Manajemen Meja Dine-in</p>
+
+  <h3>4.3.6 Riwayat Transaksi dan Laporan</h3>
+  <p>Halaman riwayat menyediakan filter rentang tanggal dan status transaksi (success/failed), disertai ringkasan metrik bulanan seperti revenue, jumlah order selesai, jumlah order batal, dan menu terlaris. Data juga dapat diekspor ke format CSV untuk kebutuhan dokumentasi. Selain itu tersedia endpoint laporan bulanan untuk menghasilkan ringkasan periodik beserta daftar transaksi.</p>
+  <p class="figure">Gambar 4.11 Modul Riwayat, Analitik, dan Ekspor Data</p>
+
+  <h3>4.3.7 Profil dan Keamanan</h3>
+  <p>Admin dapat mengelola profil akun dan mengganti kata sandi melalui validasi kata sandi lama serta konfirmasi kata sandi baru. Penyimpanan password menggunakan hash bcrypt sehingga keamanan kredensial tetap terjaga. Fitur ini penting sebagai kontrol keamanan operasional jangka panjang.</p>
+  <p class="figure">Gambar 4.12 Modul Profil dan Pengaturan Keamanan</p>
+
+  <h2>4.4 Implementasi Backend dan Integrasi Pembayaran</h2>
+
+  <h3>4.4.1 Struktur Data</h3>
+  <p>Basis data menggunakan PostgreSQL dengan ORM Prisma. Entitas utama terdiri dari <i>Admin</i>, <i>Menu</i>, <i>Order</i>, <i>PaymentLog</i>, dan <i>Table</i>. Status order dikelola dengan enum (PENDING, SUCCESS, EXPIRED, FAILED, REFUNDED), sedangkan status meja menggunakan enum (AVAILABLE, RESERVED, OCCUPIED, CLEANING). Desain ini mempermudah validasi proses bisnis dan konsistensi data.</p>
+
+  <h3>4.4.2 Alur API Pembuatan Order</h3>
+  <p>Pada endpoint pembuatan order, sistem melakukan validasi input, validasi status meja, dan perhitungan ulang harga di sisi server agar total transaksi tidak bisa dimanipulasi dari sisi klien. Sistem menambahkan PPN 11% sebelum menyimpan data order. Untuk transfer, endpoint akan menghasilkan token Midtrans Snap; untuk cash, sistem langsung mengembalikan kode order untuk proses pembayaran di kasir.</p>
+
+  <h3>4.4.3 Notifikasi Midtrans dan Sinkronisasi Status</h3>
+  <p>Endpoint notifikasi Midtrans menerima callback perubahan status pembayaran, memvalidasi signature, mencatat jejak audit ke tabel payment log, lalu memperbarui status order. Ketika pembayaran sukses pada order dine-in, status meja berubah menjadi occupied; saat order gagal atau kedaluwarsa, meja dikembalikan ke available. Mekanisme ini membuat sinkronisasi pembayaran dan operasional meja tetap konsisten.</p>
+
+  <h3>4.4.4 Mekanisme Auto-Expire untuk Cash</h3>
+  <p>Sistem menyediakan endpoint khusus untuk menandai order cash sebagai expired jika melewati batas 15 menit dalam status pending. Fitur ini dapat dipanggil secara berkala (misalnya cron) dan juga didukung pengecekan langsung dari halaman pelanggan. Dengan demikian, antrian order tidak menumpuk oleh transaksi tunai yang tidak dilanjutkan.</p>
+
+  <h3>4.4.5 Ekspor Data dan Upload Berkas</h3>
+  <p>Untuk kebutuhan administrasi, data riwayat transaksi dapat diekspor dalam format CSV berdasarkan filter tertentu. Sistem juga memiliki endpoint upload gambar untuk kebutuhan manajemen menu, dengan keluaran URL relatif yang langsung bisa digunakan pada antarmuka.</p>
+
+  <h2>4.5 Hasil Pengujian Fungsional</h2>
+  <p>Pengujian fungsional dilakukan dengan pendekatan skenario black-box terhadap fitur inti customer dan admin. Hasil pengujian menunjukkan fungsi utama berjalan sesuai rancangan.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Skenario Uji</th>
+        <th>Hasil yang Diharapkan</th>
+        <th>Hasil Aktual</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Customer mencari dan memfilter menu</td>
+        <td>Menu tampil sesuai kata kunci/filter</td>
+        <td>Menu berubah dinamis sesuai input</td>
+        <td>Lulus</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Checkout transfer via Midtrans</td>
+        <td>Token Snap dibuat dan pembayaran dapat diproses</td>
+        <td>Popup Snap muncul dan status order ter-update</td>
+        <td>Lulus</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Checkout cash tanpa konfirmasi >15 menit</td>
+        <td>Order berubah menjadi EXPIRED</td>
+        <td>Order otomatis expired dan meja dilepas</td>
+        <td>Lulus</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Admin konfirmasi pembayaran cash</td>
+        <td>Status order menjadi SUCCESS</td>
+        <td>Status sukses dan settlement time tercatat</td>
+        <td>Lulus</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Admin mengubah status meja</td>
+        <td>Status meja berubah sesuai aksi admin</td>
+        <td>Status meja berubah dan sinkron dengan order aktif</td>
+        <td>Lulus</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Ekspor riwayat transaksi</td>
+        <td>File CSV terunduh sesuai filter</td>
+        <td>File CSV berhasil dihasilkan</td>
+        <td>Lulus</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="caption">Tabel 4.1 Hasil Pengujian Fungsional Sistem</p>
+
+  <h2>4.6 Kesimpulan Bab</h2>
+  <p>Hasil implementasi menunjukkan bahwa aplikasi web pemesanan kopi pada repo <i>kopi-ceban</i> telah berjalan secara end-to-end, baik dari sisi pelanggan maupun admin. Integrasi proses menu, pemesanan, pembayaran, manajemen meja, serta pelaporan transaksi telah saling terhubung dengan baik. Dengan demikian, sistem telah memenuhi kebutuhan operasional dasar kedai kopi digital dan siap dikembangkan lebih lanjut pada aspek otomatisasi laporan, penguatan keamanan, serta perluasan fitur loyalitas pelanggan.</p>
+</body>
+</html>

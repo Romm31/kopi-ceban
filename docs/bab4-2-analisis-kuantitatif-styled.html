@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BAB 4.6 Analisis Kuantitatif</title>
+  <style>
+    @page { size: A4; margin: 2.7cm 2.5cm 2.7cm 3cm; }
+    :root {
+      --text: #1f2937;
+      --muted: #4b5563;
+      --line: #d1d5db;
+      --head: #0f172a;
+      --accent: #14532d;
+      --soft: #f8fafc;
+    }
+    body {
+      font-family: "Times New Roman", Georgia, serif;
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 12pt;
+      margin: 0;
+      padding: 0;
+      text-align: justify;
+    }
+    .title {
+      text-align: center;
+      margin: 0 0 18pt 0;
+      page-break-after: avoid;
+    }
+    .title h1 {
+      font-size: 16pt;
+      margin: 0;
+      letter-spacing: 0.2px;
+      color: var(--head);
+    }
+    .title p {
+      margin: 4pt 0 0;
+      color: var(--muted);
+      font-size: 11pt;
+    }
+    h2 {
+      font-size: 13pt;
+      margin: 16pt 0 7pt;
+      color: var(--head);
+      page-break-after: avoid;
+    }
+    h3 {
+      font-size: 12pt;
+      margin: 12pt 0 6pt;
+      color: var(--head);
+      page-break-after: avoid;
+    }
+    p { margin: 0 0 8pt; }
+    ul, ol { margin: 0 0 8pt 20pt; }
+    li { margin: 0 0 3pt; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8pt 0 12pt;
+      font-size: 10.8pt;
+      page-break-inside: avoid;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 6px 7px;
+      vertical-align: top;
+    }
+    th {
+      background: #eef2f7;
+      font-weight: bold;
+      text-align: center;
+    }
+    tr:nth-child(even) td { background: #fcfdff; }
+    .center { text-align: center; }
+    .right { text-align: right; }
+    .formula {
+      border-left: 3px solid var(--accent);
+      background: var(--soft);
+      padding: 8px 10px;
+      margin: 8pt 0 10pt;
+      font-family: "Courier New", monospace;
+      font-size: 10.5pt;
+      white-space: pre-wrap;
+    }
+    .note {
+      font-size: 10.5pt;
+      color: var(--muted);
+      margin-top: -4pt;
+    }
+    .summary {
+      border: 1px solid #86efac;
+      background: #f0fdf4;
+      padding: 8px 10px;
+      margin: 8pt 0 10pt;
+      page-break-inside: avoid;
+    }
+    .summary strong { color: #14532d; }
+    .small { font-size: 10.5pt; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="title">
+    <h1>4.6 Deskripsi Data dan Hasil Analisis Kuantitatif</h1>
+    <p>Aplikasi Web Pemesanan Kopi "Its By Me Coffee"</p>
+  </div>
+
+  <h2>4.6.1 Deskripsi Instrumen dan Skala</h2>
+  <p>Kuesioner menggunakan skala Likert 1-5.</p>
+
+  <table>
+    <thead>
+      <tr><th style="width: 18%">Skor</th><th>Keterangan</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="center">1</td><td>Tidak setuju</td></tr>
+      <tr><td class="center">2</td><td>Kurang setuju</td></tr>
+      <tr><td class="center">3</td><td>Cukup setuju</td></tr>
+      <tr><td class="center">4</td><td>Setuju</td></tr>
+      <tr><td class="center">5</td><td>Sangat setuju</td></tr>
+    </tbody>
+  </table>
+
+  <p>Butir pertanyaan:</p>
+  <ul>
+    <li>Q1: Apakah bermanfaat</li>
+    <li>Q2: Apakah bagus (user friendly)</li>
+    <li>Q3: Apakah ada kekurangan</li>
+    <li>Q4: Apakah bisa digunakan banyak orang</li>
+    <li>Q5: Apakah bisa digunakan dalam waktu yang lama</li>
+  </ul>
+  <p class="note">Catatan: Q3 merupakan item negatif, sehingga pada analisis konsistensi digunakan pembalikan skor: <strong>Q3R = 6 - Q3</strong>.</p>
+
+  <h2>4.6.2 Data Responden</h2>
+  <p>Jumlah responden sebanyak 17 orang. Data mentah tersimpan pada file <span class="small">docs/data-kuesioner-17responden.csv</span>.</p>
+
+  <h2>4.6.3 Statistik Deskriptif</h2>
+  <h3>A. Statistik Per Butir</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Butir</th><th>Mean</th><th>SD</th><th>Frek 1</th><th>Frek 2</th><th>Frek 3</th><th>Frek 4</th><th>Frek 5</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="center">Q1</td><td class="right">3.2353</td><td class="right">0.9034</td><td class="center">1</td><td class="center">1</td><td class="center">9</td><td class="center">5</td><td class="center">1</td></tr>
+      <tr><td class="center">Q2</td><td class="right">3.3529</td><td class="right">0.9315</td><td class="center">0</td><td class="center">3</td><td class="center">7</td><td class="center">5</td><td class="center">2</td></tr>
+      <tr><td class="center">Q3</td><td class="right">3.1176</td><td class="right">0.9926</td><td class="center">1</td><td class="center">4</td><td class="center">4</td><td class="center">8</td><td class="center">0</td></tr>
+      <tr><td class="center">Q4</td><td class="right">3.5294</td><td class="right">0.9432</td><td class="center">0</td><td class="center">3</td><td class="center">4</td><td class="center">8</td><td class="center">2</td></tr>
+      <tr><td class="center">Q5</td><td class="right">4.0588</td><td class="right">0.6587</td><td class="center">0</td><td class="center">0</td><td class="center">3</td><td class="center">10</td><td class="center">4</td></tr>
+    </tbody>
+  </table>
+  <p>Rata-rata keseluruhan item sebesar <strong>3.4588</strong> (kategori cenderung setuju), dengan sebaran nilai tetap beragam pada rentang 1-5.</p>
+
+  <h3>B. Interpretasi Deskriptif</h3>
+  <ul>
+    <li>Q1, Q2, dan Q4 menunjukkan penilaian positif pada aspek manfaat, kemudahan, dan potensi penggunaan luas.</li>
+    <li>Q3 menunjukkan responden masih menemukan kekurangan tertentu yang perlu ditingkatkan.</li>
+    <li>Q5 memiliki mean tertinggi, menandakan persepsi penggunaan jangka panjang sudah baik.</li>
+  </ul>
+
+  <h2>4.6.4 Hasil Uji Instrumen</h2>
+  <h3>A. Uji Validitas (Pearson Item-Total)</h3>
+  <div class="formula">r = [n*Sigma(XY) - (Sigma X)(Sigma Y)] / sqrt([n*Sigma(X^2) - (Sigma X)^2][n*Sigma(Y^2) - (Sigma Y)^2])</div>
+  <p>Kriteria: <strong>n = 17</strong>, <strong>df = 15</strong>, <strong>alpha = 0.05</strong> (dua sisi), <strong>r_tabel = 0.48215</strong>. Item valid jika <strong>r_hitung &gt; r_tabel</strong>.</p>
+
+  <table>
+    <thead>
+      <tr><th>Butir</th><th>r hitung</th><th>p-value</th><th>Keputusan</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="center">Q1</td><td class="right">0.6469</td><td class="right">0.0050</td><td class="center">Valid</td></tr>
+      <tr><td class="center">Q2</td><td class="right">0.5772</td><td class="right">0.0153</td><td class="center">Valid</td></tr>
+      <tr><td class="center">Q3R</td><td class="right">0.7470</td><td class="right">0.0006</td><td class="center">Valid</td></tr>
+      <tr><td class="center">Q4</td><td class="right">0.8076</td><td class="right">0.0001</td><td class="center">Valid</td></tr>
+      <tr><td class="center">Q5</td><td class="right">0.7341</td><td class="right">0.0008</td><td class="center">Valid</td></tr>
+    </tbody>
+  </table>
+
+  <h3>B. Uji Reliabilitas (Cronbach's Alpha)</h3>
+  <div class="formula">alpha = (k/(k-1)) * (1 - (Sigma Var(item) / Var(total)))
+
+alpha = (5/4) * (1 - 3.9926/13.0588) = 0.8678</div>
+  <p>Nilai <strong>alpha = 0.8678 &gt; 0.70</strong>, sehingga instrumen dinyatakan reliabel.</p>
+
+  <h2>4.6.5 Uji Asumsi Klasik</h2>
+  <p>Model regresi menggunakan variabel bebas <strong>X = rata-rata(Q1, Q2, Q3R, Q4)</strong> dan variabel terikat <strong>Y = Q5</strong>.</p>
+  <ul>
+    <li>Uji normalitas residual (Shapiro-Wilk): <strong>W = 0.9856</strong>, <strong>p = 0.9913</strong> (normal).</li>
+    <li>Uji linieritas (deviasi dari linearitas): <strong>F_dev = 0.0000398</strong>, <strong>p = 0.9951</strong> (linear).</li>
+  </ul>
+
+  <h2>4.6.6 Hasil Regresi dan Uji Hipotesis</h2>
+  <h3>A. Persamaan Regresi</h3>
+  <p>Diperoleh koefisien <strong>b0 = 2.0328</strong> dan <strong>b1 = 0.6234</strong>, sehingga:</p>
+  <div class="formula">Y = 2.0328 + 0.6234X</div>
+  <p>Interpretasi: setiap kenaikan 1 poin persepsi kualitas aplikasi meningkatkan skor keberlanjutan penggunaan sebesar 0.6234 poin.</p>
+
+  <h3>B. Koefisien Korelasi dan Determinasi</h3>
+  <ul>
+    <li><strong>r = 0.7341</strong> (hubungan positif kuat)</li>
+    <li><strong>R² = 0.5389</strong> (53.89% variasi Y dijelaskan oleh X)</li>
+  </ul>
+
+  <h3>C. Uji t dan Uji F</h3>
+  <table>
+    <thead>
+      <tr><th>Jenis Uji</th><th>Statistik Hitung</th><th>Nilai Kritis</th><th>p-value</th><th>Keputusan</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Uji t (koefisien b1)</td><td class="right">t = 4.1866</td><td class="right">t_tabel = 2.1314</td><td class="right">0.0008</td><td>Signifikan (H0 ditolak)</td></tr>
+      <tr><td>Uji F (kelayakan model)</td><td class="right">F = 17.5274</td><td class="right">F_tabel = 4.5431</td><td class="right">0.0008</td><td>Model signifikan</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4.6.7 Kesimpulan Analisis Kuantitatif</h2>
+  <div class="summary">
+    <p><strong>Kesimpulan utama:</strong></p>
+    <ol>
+      <li>Data 17 responden menunjukkan kecenderungan penilaian positif terhadap aplikasi.</li>
+      <li>Instrumen valid dan reliabel (<strong>alpha = 0.8678</strong>).</li>
+      <li>Asumsi regresi terpenuhi (residual normal dan hubungan linear).</li>
+      <li>Uji t dan uji F menunjukkan pengaruh signifikan variabel kualitas persepsi aplikasi terhadap keberlanjutan penggunaan.</li>
+      <li>Model akhir: <strong>Y = 2.0328 + 0.6234X</strong> dengan <strong>R² = 0.5389</strong>.</li>
+    </ol>
+  </div>
+
+  <h2>4.6.8 Saran Penyajian Visual</h2>
+  <ul>
+    <li>Grafik batang frekuensi jawaban tiap butir (Q1-Q5).</li>
+    <li>Scatter plot hubungan X dan Y berikut garis regresi.</li>
+    <li>Diagram ringkas status pengujian: validitas, reliabilitas, asumsi, dan hipotesis.</li>
+  </ul>
+</body>
+</html>
